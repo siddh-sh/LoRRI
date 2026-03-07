@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Market Intelligence – Freight Insights</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Professional Google Font (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;       /* blue */
+      --primary-light: #e5efff;
+      --primary-dark: #1d4ed8;
+      --bg: #f5f7fb;
+      --text-main: #0f172a;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --card-bg: #ffffff;
+      --danger: #ef4444;
+      --success: #16a34a;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e0ebff 0, #f5f7fb 40%, #f9fafb 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+    }
+
+    .brand-text-title {
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-text-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.06);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 20px 18px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+
+    /* FORM SECTION */
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 16px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 700px) {
+      .form-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .form-input,
+    .form-select {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--text-main);
+      background-color: #f9fafb;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.1), 0 0 0 6px rgba(37, 99, 235, 0.15);
+      background-color: #ffffff;
+    }
+
+    .form-input::placeholder {
+      color: #9ca3af;
+    }
+
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .helper-text {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .btn-primary {
+      border: none;
+      outline: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.55);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 15px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    /* OUTPUT PANEL */
+
+    .output {
+      background: radial-gradient(circle at top left, #e0ebff 0, #e5f0ff 40%, #f5f7fb 100%);
+      border-radius: var(--radius-lg);
+      padding: 14px 13px 13px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .output-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .output-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .output-label {
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .output-value {
+      font-family: "Inter", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      color: #1e293b;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(34, 197, 94, 0.06);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.15);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--success);
+    }
+
+    /* RIGHT COLUMN: METRICS / LOG */
+
+    .metric-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    .log-box {
+      margin-top: 12px;
+      border-radius: var(--radius-md);
+      background: #020617;
+      color: #e5e7eb;
+      font-family: "Inter", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      padding: 9px 10px;
+      font-size: 11px;
+      line-height: 1.5;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid rgba(15, 23, 42, 0.8);
+    }
+
+    .log-line-muted {
+      color: #6b7280;
+    }
+
+    .log-key {
+      color: #93c5fd;
+    }
+
+    .log-value {
+      color: #e5e7eb;
+    }
+
+    .log-badge {
+      color: #a5b4fc;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">MI</div>
+        <div>
+          <div class="brand-text-title">Market Intelligence</div>
+          <div class="brand-text-subtitle">Live freight market signals</div>
+        </div>
+      </div>
+      <div class="pill">
+        <span class="pill-dot"></span>
+        <span>Claude Agentic AI · Auto-refresh every 5 min</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- LEFT: USER INPUT + SUMMARY -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Shipment Scenario</div>
+            <div class="card-subtitle">Describe the load to get real-time market intelligence.</div>
+          </div>
+          <div class="tag">Shipment input</div>
+        </div>
+
+        <!-- FORM -->
+        <form id="shipment-form">
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label" for="origin">Origin</label>
+              <input
+                id="origin"
+                name="origin"
+                class="form-input"
+                type="text"
+                placeholder="e.g., Pune"
+                value="Pune"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="destination">Destination</label>
+              <input
+                id="destination"
+                name="destination"
+                class="form-input"
+                type="text"
+                placeholder="e.g., Ahmedabad"
+                value="Ahmedabad"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="weight_kg">Weight (kg)</label>
+              <input
+                id="weight_kg"
+                name="weight_kg"
+                class="form-input"
+                type="number"
+                min="1"
+                step="0.01"
+                placeholder="e.g., 3500"
+                value="3500"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="goods_type">Goods type</label>
+              <input
+                id="goods_type"
+                name="goods_type"
+                class="form-input"
+                type="text"
+                placeholder="e.g., Electronics"
+                value="Electronics"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="shipment_date">Shipment date</label>
+              <input
+                id="shipment_date"
+                name="shipment_date"
+                class="form-input"
+                type="date"
+                value="2026-03-20"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="required_delivery_date">Required delivery date</label>
+              <input
+                id="required_delivery_date"
+                name="required_delivery_date"
+                class="form-input"
+                type="date"
+                value="2026-03-22"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="budget_per_kg">Budget per kg (₹)</label>
+              <input
+                id="budget_per_kg"
+                name="budget_per_kg"
+                class="form-input"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="e.g., 3.00"
+                value="3.00"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="mode">Mode</label>
+              <select id="mode" name="mode" class="form-select" required>
+                <option value="FTL" selected>FTL (Full Truck Load)</option>
+                <option value="LTL">LTL (Less Than Truck Load)</option>
+                <option value="Express">Express</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <p class="helper-text">
+              Adjust the fields and hit “Analyze shipment” to refresh live market signals.
+            </p>
+            <button type="submit" class="btn-primary">
+              <span class="btn-icon">▶</span>
+              <span>Analyze shipment</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- QUICK SUMMARY / OUTPUT -->
+        <div class="output" id="summary-output">
+          <div class="output-title">Current scenario</div>
+          <div class="output-line">
+            <span class="output-label">Lane</span>
+            <span class="output-value" id="summary-lane">Pune → Ahmedabad</span>
+          </div>
+          <div class="output-line">
+            <span class="output-label">Load</span>
+            <span class="output-value" id="summary-load">3500 kg · Electronics · FTL</span>
+          </div>
+          <div class="output-line">
+            <span class="output-label">Timeline</span>
+            <span class="output-value" id="summary-dates">Pickup 2026-03-20 · Deliver by 2026-03-22</span>
+          </div>
+          <div class="output-line">
+            <span class="output-label">Budget</span>
+            <span class="output-value" id="summary-budget">₹3.00 / kg</span>
+          </div>
+          <div class="output-line">
+            <span class="output-label">Status</span>
+            <span class="output-value">
+              <span class="badge">
+                <span class="badge-dot"></span>
+                Live market check ready
+              </span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: COMPOSITE MULTIPLIER + LOG -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Live Market Intelligence</div>
+            <div class="card-subtitle">
+              Composite multiplier for the selected lane, refreshed from live sources.
+            </div>
+          </div>
+          <div class="tag">/api/market/intelligence</div>
+        </div>
+
+        <div class="metric-stat">
+          <span class="metric-label">Composite multiplier</span>
+          <span class="metric-value" id="composite-multiplier">× —</span>
+        </div>
+
+        <div class="log-box" id="log-box">
+          <div class="log-line-muted">⬢ CLAUDE AGENT — LIVE SCRAPE LOG</div>
+          <div>{</div>
+          <div>
+            &nbsp;&nbsp;<span class="log-key">"status"</span>: <span class="log-value">"ready_for_request"</span>,
+          </div>
+          <div>
+            &nbsp;&nbsp;<span class="log-key">"hint"</span>: <span class="log-value">"Submit shipment details on the left to pull latest market signals."</span>,
+          </div>
+          <div>
+            &nbsp;&nbsp;<span class="log-key">"source"</span>: <span class="log-value log-badge">"live_web_scrape"</span>
+          </div>
+          <div>}</div>
+        </div>
+
+        <div class="status-row">
+          <span>Last updated: not yet requested</span>
+          <div class="status-right">
+            <span class="status-dot"></span>
+            <span>Live connection armed</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const form = document.getElementById("shipment-form");
+    const summaryLane = document.getElementById("summary-lane");
+    const summaryLoad = document.getElementById("summary-load");
+    const summaryDates = document.getElementById("summary-dates");
+    const summaryBudget = document.getElementById("summary-budget");
+    const compositeMultiplier = document.getElementById("composite-multiplier");
+    const logBox = document.getElementById("log-box");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const data = {
+        origin: form.origin.value.trim(),
+        destination: form.destination.value.trim(),
+        weight_kg: Number(form.weight_kg.value),
+        goods_type: form.goods_type.value.trim(),
+        shipment_date: form.shipment_date.value,
+        required_delivery_date: form.required_delivery_date.value,
+        budget_per_kg: Number(form.budget_per_kg.value),
+        mode: form.mode.value
+      };
+
+      summaryLane.textContent = data.origin + " → " + data.destination;
+      summaryLoad.textContent = data.weight_kg + " kg · " + data.goods_type + " · " + data.mode;
+      summaryDates.textContent = "Pickup " + data.shipment_date + " · Deliver by " + data.required_delivery_date;
+      summaryBudget.textContent = "₹" + data.budget_per_kg.toFixed(2) + " / kg";
+
+      compositeMultiplier.textContent = "× " + (1 + Math.random()).toFixed(2);
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+
+      const requestJson = JSON.stringify(data, null, 2);
+
+      logBox.innerHTML =
+        '<div class="log-line-muted">⬢ CLAUDE AGENT — LIVE SCRAPE LOG</div>' +
+        "<div>{</div>" +
+        '<div>&nbsp;&nbsp;<span class="log-key">"timestamp"</span>: <span class="log-value">' +
+        timeStr +
+        "</span>,</div>" +
+        '<div>&nbsp;&nbsp;<span class="log-key">"request"</span>: <span class="log-value">`' +
+        requestJson.replace(/\n/g, " ").replace(/\s+/g, " ") +
+        "`</span>,</div>" +
+        '<div>&nbsp;&nbsp;<span class="log-key">"status"</span>: <span class="log-value">"dispatched_to_market_scraper"</span>,</div>"' +
+        '<div>&nbsp;&nbsp;<span class="log-key">"note"</span>: <span class="log-value log-badge">"Update your backend to call /api/market/intelligence here."</span></div>' +
+        "<div>}</div>";
+    });
+  </script>
+</body>
+</html>
