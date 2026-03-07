@@ -17,7 +17,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "true"
+DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "false"
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL", "300"))
 MODEL = "gemini-2.0-flash"
 
