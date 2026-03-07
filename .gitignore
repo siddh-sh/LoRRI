@@ -16,10 +16,6 @@ env/
 # ML Models (auto-generated)
 backend/models/*.pkl
 
-# Data (large files)
-backend/data/shipment_history.csv
-backend/data/shipment_history_new.csv
-
 # IDE
 .vscode/
 .idea/
@@ -34,6 +30,3 @@ instance/
 
 # Node (just in case)
 node_modules/
-
-# PDFs (large files)
-docs/*.pdf
