@@ -1,0 +1,59 @@
+carrier_id,carrier_name,lane_id,origin,destination,distance_km,mode,base_rate_inr_kg,fuel_surcharge_pct,eff_rate_inr_kg,transit_days,capacity_kg_mo,detention_inr_day,min_commit_kg
+C001,BlueDart Logistics Pvt Ltd,L001,Mumbai,Delhi,1415,FTL,4.1,5.5,4.325,2,30000,2000,15000
+C001,BlueDart Logistics Pvt Ltd,L003,Mumbai,Bangalore,984,FTL,3.75,5.5,3.956,2,22000,2000,15000
+C001,BlueDart Logistics Pvt Ltd,L005,Chennai,Hyderabad,627,LTL,2.85,6.0,3.021,1,18000,2000,15000
+C001,BlueDart Logistics Pvt Ltd,L006,Pune,Ahmedabad,475,LTL,2.45,6.0,2.597,1,15000,2000,15000
+C001,BlueDart Logistics Pvt Ltd,L009,Mumbai,Hyderabad,711,FTL,3.05,5.5,3.218,2,20000,2000,15000
+C002,GATI Express Pvt Ltd,L001,Mumbai,Delhi,1415,FTL,3.9,6.0,4.134,2,28000,1800,12000
+C002,GATI Express Pvt Ltd,L003,Mumbai,Bangalore,984,FTL,3.55,6.0,3.763,2,20000,1800,12000
+C002,GATI Express Pvt Ltd,L005,Chennai,Hyderabad,627,LTL,2.7,6.5,2.876,1,16000,1800,12000
+C002,GATI Express Pvt Ltd,L006,Pune,Ahmedabad,475,LTL,2.3,6.5,2.45,1,14000,1800,12000
+C002,GATI Express Pvt Ltd,L009,Mumbai,Hyderabad,711,FTL,2.9,6.0,3.074,2,18000,1800,12000
+C002,GATI Express Pvt Ltd,L012,Hyderabad,Kolkata,1400,FTL,4.1,6.0,4.346,3,15000,1800,12000
+C002,GATI Express Pvt Ltd,L015,Delhi,Lucknow,510,LTL,2.2,6.0,2.332,1,12000,1800,12000
+C003,Delhivery Ltd,L001,Mumbai,Delhi,1415,FTL,3.8,5.0,3.99,2,40000,2500,20000
+C003,Delhivery Ltd,L003,Mumbai,Bangalore,984,FTL,3.5,5.0,3.675,2,30000,2500,20000
+C003,Delhivery Ltd,L005,Chennai,Hyderabad,627,LTL,2.6,5.5,2.743,1,22000,2500,20000
+C003,Delhivery Ltd,L006,Pune,Ahmedabad,475,LTL,2.25,5.5,2.374,1,18000,2500,20000
+C003,Delhivery Ltd,L009,Mumbai,Hyderabad,711,FTL,2.8,5.0,2.94,2,25000,2500,20000
+C003,Delhivery Ltd,L010,Delhi,Kolkata,1450,FTL,4.2,5.0,4.41,3,20000,2500,20000
+C003,Delhivery Ltd,L018,Bangalore,Chennai,346,LTL,2.1,5.5,2.216,1,16000,2500,20000
+C003,Delhivery Ltd,L022,Delhi,Jaipur,270,LTL,1.95,5.5,2.057,1,14000,2500,20000
+C004,VRL Logistics Ltd,L001,Mumbai,Delhi,1415,FTL,4.2,5.0,4.41,2,35000,2200,15000
+C004,VRL Logistics Ltd,L003,Mumbai,Bangalore,984,FTL,3.6,5.0,3.78,2,28000,2200,15000
+C004,VRL Logistics Ltd,L005,Chennai,Hyderabad,627,LTL,2.75,5.5,2.901,1,20000,2200,15000
+C004,VRL Logistics Ltd,L006,Pune,Ahmedabad,475,LTL,2.4,5.5,2.532,1,16000,2200,15000
+C004,VRL Logistics Ltd,L009,Mumbai,Hyderabad,711,FTL,3.1,5.0,3.255,2,22000,2200,15000
+C004,VRL Logistics Ltd,L011,Bangalore,Hyderabad,570,LTL,2.5,5.5,2.638,1,18000,2200,15000
+C004,VRL Logistics Ltd,L016,Chennai,Bangalore,346,LTL,2.0,5.5,2.11,1,15000,2200,15000
+C004,VRL Logistics Ltd,L020,Mumbai,Pune,150,LTL,1.8,5.5,1.899,1,25000,2200,15000
+C005,TCI Freight Ltd,L001,Mumbai,Delhi,1415,FTL,4.0,5.0,4.2,2,45000,2000,18000
+C005,TCI Freight Ltd,L003,Mumbai,Bangalore,984,FTL,3.65,5.0,3.833,2,32000,2000,18000
+C005,TCI Freight Ltd,L005,Chennai,Hyderabad,627,LTL,2.65,5.5,2.796,1,24000,2000,18000
+C005,TCI Freight Ltd,L006,Pune,Ahmedabad,475,LTL,2.35,5.5,2.479,1,20000,2000,18000
+C005,TCI Freight Ltd,L009,Mumbai,Hyderabad,711,FTL,2.95,5.0,3.098,2,28000,2000,18000
+C005,TCI Freight Ltd,L013,Delhi,Amritsar,450,LTL,2.15,5.5,2.268,1,15000,2000,18000
+C005,TCI Freight Ltd,L017,Kolkata,Patna,580,LTL,2.4,5.5,2.532,1,12000,2000,18000
+C005,TCI Freight Ltd,L021,Mumbai,Nagpur,830,FTL,3.2,5.0,3.36,2,20000,2000,18000
+C006,Safexpress Pvt Ltd,L001,Mumbai,Delhi,1415,FTL,4.05,5.5,4.273,2,25000,1900,10000
+C006,Safexpress Pvt Ltd,L003,Mumbai,Bangalore,984,FTL,3.7,5.5,3.904,2,18000,1900,10000
+C006,Safexpress Pvt Ltd,L005,Chennai,Hyderabad,627,LTL,2.8,6.0,2.968,1,15000,1900,10000
+C006,Safexpress Pvt Ltd,L006,Pune,Ahmedabad,475,LTL,2.45,6.0,2.597,1,12000,1900,10000
+C006,Safexpress Pvt Ltd,L009,Mumbai,Hyderabad,711,FTL,3.0,5.5,3.165,2,16000,1900,10000
+C006,Safexpress Pvt Ltd,L014,Delhi,Chandigarh,250,LTL,1.85,6.0,1.961,1,10000,1900,10000
+C007,Ekart Logistics Pvt Ltd,L001,Mumbai,Delhi,1415,FTL,3.7,5.0,3.885,2,50000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L003,Mumbai,Bangalore,984,FTL,3.4,5.0,3.57,2,40000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L005,Chennai,Hyderabad,627,LTL,2.55,5.0,2.678,1,30000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L006,Pune,Ahmedabad,475,LTL,2.2,5.0,2.31,1,25000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L009,Mumbai,Hyderabad,711,FTL,2.75,5.0,2.888,2,35000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L010,Delhi,Kolkata,1450,FTL,4.0,5.0,4.2,3,28000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L023,Bangalore,Kochi,560,LTL,2.45,5.0,2.573,1,20000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L024,Chennai,Madurai,460,LTL,2.1,5.0,2.205,1,18000,3000,25000
+C007,Ekart Logistics Pvt Ltd,L025,Kolkata,Guwahati,990,FTL,3.5,5.0,3.675,2,12000,3000,25000
+C008,XpressBees Logistics Pvt Ltd,L001,Mumbai,Delhi,1415,FTL,3.85,5.5,4.062,2,22000,1700,10000
+C008,XpressBees Logistics Pvt Ltd,L003,Mumbai,Bangalore,984,FTL,3.45,5.5,3.64,2,18000,1700,10000
+C008,XpressBees Logistics Pvt Ltd,L005,Chennai,Hyderabad,627,LTL,2.6,6.0,2.756,1,14000,1700,10000
+C008,XpressBees Logistics Pvt Ltd,L006,Pune,Ahmedabad,475,LTL,2.3,6.0,2.438,1,12000,1700,10000
+C008,XpressBees Logistics Pvt Ltd,L009,Mumbai,Hyderabad,711,FTL,2.85,5.5,3.008,2,16000,1700,10000
+C008,XpressBees Logistics Pvt Ltd,L026,Pune,Nagpur,830,FTL,3.15,5.5,3.323,2,10000,1700,10000
+C008,XpressBees Logistics Pvt Ltd,L027,Mumbai,Surat,280,LTL,1.9,5.5,2.005,1,15000,1700,10000

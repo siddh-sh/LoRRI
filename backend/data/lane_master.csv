@@ -1,0 +1,24 @@
+lane_id,origin,destination,distance_km,mode,avg_monthly_vol_kg,std_transit_days,benchmark_rate_inr_kg,priority,origin_state,destination_state
+L001,Mumbai,Delhi,1415,FTL,85000,2,4.2,HIGH,Maharashtra,Delhi
+L003,Mumbai,Bangalore,984,FTL,62000,2,3.8,HIGH,Maharashtra,Karnataka
+L005,Chennai,Hyderabad,627,LTL,47000,1,2.9,MEDIUM,Tamil Nadu,Telangana
+L006,Pune,Ahmedabad,475,LTL,39000,1,2.5,MEDIUM,Maharashtra,Gujarat
+L009,Mumbai,Hyderabad,711,FTL,44000,2,3.1,HIGH,Maharashtra,Telangana
+L010,Delhi,Kolkata,1450,FTL,38000,3,4.3,MEDIUM,Delhi,West Bengal
+L011,Bangalore,Hyderabad,570,LTL,32000,1,2.6,MEDIUM,Karnataka,Telangana
+L012,Hyderabad,Kolkata,1400,FTL,28000,3,4.1,LOW,Telangana,West Bengal
+L013,Delhi,Amritsar,450,LTL,22000,1,2.2,LOW,Delhi,Punjab
+L014,Delhi,Chandigarh,250,LTL,18000,1,1.9,LOW,Delhi,Chandigarh
+L015,Delhi,Lucknow,510,LTL,25000,1,2.3,MEDIUM,Delhi,Uttar Pradesh
+L016,Chennai,Bangalore,346,LTL,35000,1,2.1,MEDIUM,Tamil Nadu,Karnataka
+L017,Kolkata,Patna,580,LTL,20000,1,2.4,LOW,West Bengal,Bihar
+L018,Bangalore,Chennai,346,LTL,30000,1,2.1,MEDIUM,Karnataka,Tamil Nadu
+L019,Delhi,Lucknow,510,LTL,22000,1,2.3,LOW,Delhi,Uttar Pradesh
+L020,Mumbai,Pune,150,LTL,55000,1,1.8,HIGH,Maharashtra,Maharashtra
+L021,Mumbai,Nagpur,830,FTL,28000,2,3.2,MEDIUM,Maharashtra,Maharashtra
+L022,Delhi,Jaipur,270,LTL,32000,1,2.0,MEDIUM,Delhi,Rajasthan
+L023,Bangalore,Kochi,560,LTL,24000,1,2.5,LOW,Karnataka,Kerala
+L024,Chennai,Madurai,460,LTL,18000,1,2.1,LOW,Tamil Nadu,Tamil Nadu
+L025,Kolkata,Guwahati,990,FTL,15000,2,3.5,LOW,West Bengal,Assam
+L026,Pune,Nagpur,830,FTL,20000,2,3.2,LOW,Maharashtra,Maharashtra
+L027,Mumbai,Surat,280,LTL,42000,1,1.9,MEDIUM,Maharashtra,Gujarat
