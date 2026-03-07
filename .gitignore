@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment Variables
+.env
+
+# ML Models (auto-generated)
+backend/models/*.pkl
+
+# Data (large files)
+backend/data/shipment_history.csv
+backend/data/shipment_history_new.csv
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+*.log
+
+# Node (just in case)
+node_modules/
+
+# PDFs (large files)
+docs/*.pdf
