@@ -1,16 +1,14 @@
-import os
 import json
-import time
 import logging
+import os
+import time
 from datetime import datetime
 from functools import wraps
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from flask import jsonify, request
 from google import genai
 from google.genai import types
 
-# ── Setup ──────────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -18,39 +16,35 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-app = Flask(__name__)
-# Enable CORS for frontend integration
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "true"
+CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL", "300"))
+MODEL = "gemini-2.0-flash"
 
-# ── Config ─────────────────────────────────────────────────────────────────────
-GEMINI_API_KEY     = os.getenv("GEMINI_API_KEY", "AIzaSyCZAVJCE4_QZ1SnqntQ-t8Zl46KGGcTsJg")
-DEMO_MODE          = os.getenv("DEMO_MODE", "true").lower() == "false"
-CACHE_TTL_SECONDS  = int(os.getenv("CACHE_TTL", "300"))   # 5-min cache
-MODEL              = "gemini-2.0-flash"
-
-client = genai.Client(api_key=GEMINI_API_KEY)
-
-# ── Simple in-memory cache ─────────────────────────────────────────────────────
+client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 _cache: dict = {}
+
 
 def cache_get(key: str):
     entry = _cache.get(key)
     if entry and (time.time() - entry["ts"] < CACHE_TTL_SECONDS):
-        log.info(f"Cache HIT: {key}")
-        return entry["data"]
+        cached = dict(entry["data"])
+        cached["from_cache"] = True
+        return cached
     return None
+
 
 def cache_set(key: str, data: dict):
     _cache[key] = {"ts": time.time(), "data": data}
-    log.info(f"Cache SET: {key}")
+
 
 def cache_bust(key: str):
     _cache.pop(key, None)
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+
 def ist_now() -> str:
-    """Return human-readable timestamp."""
     return datetime.now().strftime("%B %d, %Y · %I:%M %p IST")
+
 
 def require_api_key(f):
     @wraps(f)
@@ -62,89 +56,194 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated
 
-# ── Gemini Agentic Scraper Logic ───────────────────────────────────────────────
+
+def safe_float(value, default=1.0):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def fmt_multiplier(value: float) -> str:
+    return f"×{value:.3f}"
+
+
+def fmt_above_base(composite: float) -> str:
+    pct = (composite - 1.0) * 100.0
+    sign = "+" if pct >= 0 else ""
+    return f"{sign}{pct:.1f}%"
+
+
+def sanitize_factor(factor: dict) -> dict:
+    return {
+        "key": str(factor.get("key", "")),
+        "icon": str(factor.get("icon", "•")),
+        "label": str(factor.get("label", "Unnamed Factor")),
+        "sub": str(factor.get("sub", "")),
+        "multiplier_value": safe_float(factor.get("multiplier_value"), 1.0),
+        "multiplier": str(factor.get("multiplier", "×1.000")),
+        "detail": str(factor.get("detail", "")),
+        "direction": str(factor.get("direction", "STABLE")).upper(),
+        "confidence": str(factor.get("confidence", "MEDIUM")).upper(),
+        "style": str(factor.get("style", "yellow")),
+        "source_url": str(factor.get("source_url", "")),
+    }
+
+
+def recompute_composite(data: dict) -> dict:
+    product = 1.0
+    factors = [sanitize_factor(f) for f in data.get("factors", [])]
+    for factor in factors:
+        mv = safe_float(factor.get("multiplier_value"), 1.0)
+        factor["multiplier_value"] = mv
+        factor["multiplier"] = fmt_multiplier(mv)
+        product *= mv
+
+    product = round(product, 3)
+    data["factors"] = factors
+    data["composite_multiplier"] = product
+    data["above_base_pct"] = fmt_above_base(product)
+    data["cache_ttl_seconds"] = CACHE_TTL_SECONDS
+    return data
+
+
 INTELLIGENCE_PROMPT = """You are a live freight market intelligence AI for India.
 Today's date is {date}.
 
-Your task: Use Google Search to find REAL, CURRENT data for:
-1. Current petrol & diesel retail prices (IOCL, BPCL, HPCL).
-2. Latest NHAI toll rate revisions or WPI-linked notifications.
-3. Upcoming Indian festivals/holidays in the next 30 days affecting logistics.
-4. Weather disruptions on major corridors (NH-44, NH-48, NH-8).
-5. Financial health news for carriers (BlueDart, Delhivery, TCI, GATI, VRL).
+Use Google Search to find REAL and CURRENT data for:
+1. Current petrol and diesel retail prices in India.
+2. Latest NHAI toll revision information.
+3. Upcoming Indian festivals and holidays in the next 30 days affecting freight demand.
+4. Weather disruptions on major logistics corridors in India.
+5. Financial or operational health signals for major carriers such as Blue Dart, Delhivery, TCI, GATI, VRL.
 
-Return ONLY a valid JSON object. Compute 'composite_multiplier' as the product of all 'multiplier_value' fields.
-JSON Schema:
+Return ONLY a valid JSON object, with this exact schema:
 {{
   "date": "{date}",
   "scraped_at": "{date}",
-  "composite_multiplier": float,
-  "above_base_pct": "string (e.g. +7.4%)",
   "factors": [
     {{
       "key": "fuel",
       "icon": "⛽",
       "label": "Fuel Price Index",
       "sub": "string",
-      "multiplier": "string (e.g. ×1.035)",
-      "multiplier_value": float,
+      "multiplier_value": 1.035,
       "detail": "string",
-      "direction": "UP/STABLE/DOWN",
+      "direction": "UP",
       "confidence": "HIGH",
       "style": "yellow",
-      "source_url": "url"
+      "source_url": "https://example.com"
     }},
-    ... (toll, festival, weather, carrier)
+    {{
+      "key": "toll",
+      "icon": "🛣️",
+      "label": "NHAI Toll Rates",
+      "sub": "string",
+      "multiplier_value": 1.022,
+      "detail": "string",
+      "direction": "UP",
+      "confidence": "HIGH",
+      "style": "yellow",
+      "source_url": "https://example.com"
+    }},
+    {{
+      "key": "festival",
+      "icon": "🎉",
+      "label": "Festival Demand Surge",
+      "sub": "string",
+      "multiplier_value": 1.045,
+      "detail": "string",
+      "direction": "UP",
+      "confidence": "HIGH",
+      "style": "pink",
+      "source_url": "https://example.com"
+    }},
+    {{
+      "key": "weather",
+      "icon": "🌦️",
+      "label": "Weather & Route Risk",
+      "sub": "string",
+      "multiplier_value": 1.005,
+      "detail": "string",
+      "direction": "STABLE",
+      "confidence": "HIGH",
+      "style": "teal",
+      "source_url": "https://example.com"
+    }},
+    {{
+      "key": "carrier",
+      "icon": "🏦",
+      "label": "Carrier Financial Health",
+      "sub": "string",
+      "multiplier_value": 1.008,
+      "detail": "string",
+      "direction": "STABLE",
+      "confidence": "HIGH",
+      "style": "teal",
+      "source_url": "https://example.com"
+    }}
   ]
 }}
+
+Important:
+- Do not include markdown.
+- Do not include commentary outside JSON.
+- Keep values realistic and current.
+- source_url should be a real source.
 """
+
 
 def _call_gemini_agent(bust_cache: bool = False) -> dict:
     cache_key = "market_intelligence"
+
     if not bust_cache:
         cached = cache_get(cache_key)
-        if cached: return cached
+        if cached:
+            return cached
 
-    log.info("Calling Gemini agent with Google Search grounding...")
+    if not client:
+        raise RuntimeError("GEMINI_API_KEY not set and DEMO_MODE is false")
+
     date_str = ist_now()
     prompt = INTELLIGENCE_PROMPT.format(date=date_str)
-
     response = client.models.generate_content(
         model=MODEL,
         contents=prompt,
         config=types.GenerateContentConfig(
             tools=[types.Tool(google_search=types.GoogleSearch())],
-            response_mime_type="application/json"
-        )
+            response_mime_type="application/json",
+        ),
     )
 
-    data = json.loads(response.text)
-    data["from_cache"] = False
-    data["model_used"] = MODEL
-    
+    raw = json.loads(response.text)
+    data = {
+        "date": str(raw.get("date", date_str)),
+        "scraped_at": str(raw.get("scraped_at", date_str)),
+        "factors": raw.get("factors", []),
+        "from_cache": False,
+        "demo_mode": False,
+        "model_used": MODEL,
+    }
+    data = recompute_composite(data)
     cache_set(cache_key, data)
     return data
 
+
 def _demo_data() -> dict:
-    """Realistic demo data for testing."""
-    return {
+    data = {
         "date": ist_now(),
         "scraped_at": ist_now(),
-        "composite_multiplier": 1.074,
-        "above_base_pct": "+7.4%",
         "from_cache": False,
         "demo_mode": True,
         "model_used": MODEL,
-        "cache_ttl_seconds": CACHE_TTL_SECONDS,
         "factors": [
             {
                 "key": "fuel",
                 "icon": "⛽",
                 "label": "Fuel Price Index",
                 "sub": "₹87.62–92.39/L",
-                "multiplier": "×1.035",
                 "multiplier_value": 1.035,
-                "detail": "Israel-Iran geopolitical tension; PPAC data shows ₹4–5/L hike imminent across major cities.",
+                "detail": "Fuel prices remain elevated with geopolitical pressure and refining cost concerns.",
                 "direction": "UP",
                 "confidence": "HIGH",
                 "style": "yellow",
@@ -154,10 +253,9 @@ def _demo_data() -> dict:
                 "key": "toll",
                 "icon": "🛣️",
                 "label": "NHAI Toll Rates",
-                "sub": "4–5% hike Apr 2025",
-                "multiplier": "×1.022",
+                "sub": "4–5% annual revision",
                 "multiplier_value": 1.022,
-                "detail": "855 plazas affected by WPI-linked annual revision effective April 1, 2025.",
+                "detail": "WPI-linked annual toll adjustments continue to increase route cost on national corridors.",
                 "direction": "UP",
                 "confidence": "HIGH",
                 "style": "yellow",
@@ -167,10 +265,9 @@ def _demo_data() -> dict:
                 "key": "festival",
                 "icon": "🎉",
                 "label": "Festival Demand Surge",
-                "sub": "4 events next 20d",
-                "multiplier": "×1.045",
+                "sub": "Multiple events in next 20 days",
                 "multiplier_value": 1.045,
-                "detail": "Eid-ul-Fitr Mar 31, Navratri Mar 30 – Apr 7, Ram Navami Apr 6, Baisakhi Apr 13.",
+                "detail": "Festival-linked freight demand is driving short-term capacity tightening across key lanes.",
                 "direction": "UP",
                 "confidence": "HIGH",
                 "style": "pink",
@@ -180,10 +277,9 @@ def _demo_data() -> dict:
                 "key": "weather",
                 "icon": "🌦️",
                 "label": "Weather & Route Risk",
-                "sub": "Low — dry season",
-                "multiplier": "×1.005",
+                "sub": "Low disruption risk",
                 "multiplier_value": 1.005,
-                "detail": "March pre-monsoon; all major corridors (NH-44, NH-48, NH-8) are clear. IMD: no disruptions.",
+                "detail": "No major weather-driven corridor disruption currently indicated on major routes.",
                 "direction": "STABLE",
                 "confidence": "HIGH",
                 "style": "teal",
@@ -193,10 +289,9 @@ def _demo_data() -> dict:
                 "key": "carrier",
                 "icon": "🏦",
                 "label": "Carrier Financial Health",
-                "sub": "0 carriers flagged",
-                "multiplier": "×1.008",
+                "sub": "No major distress flagged",
                 "multiplier_value": 1.008,
-                "detail": "GATI-KWE under monitoring post-merger; BlueDart, TCI, Delhivery all financially stable.",
+                "detail": "Major listed carriers appear broadly stable, with no acute short-term risk materially affecting pricing.",
                 "direction": "STABLE",
                 "confidence": "HIGH",
                 "style": "teal",
@@ -204,56 +299,10 @@ def _demo_data() -> dict:
             },
         ],
     }
+    return recompute_composite(data)
 
-# ── API Routes ─────────────────────────────────────────────────────────────────
 
-@app.get("/api/health")
-def health():
-    return jsonify({
-        "status": "ok",
-        "demo_mode": DEMO_MODE,
-        "model": MODEL,
-        "timestamp": ist_now(),
-    })
-
-@app.get("/api/market/intelligence")
-def get_market_intelligence():
-    bust = request.args.get("bust", "0") == "1"
-    try:
-        if DEMO_MODE:
-            log.info("DEMO_MODE=true — returning demo data")
-            data = _demo_data()
-        else:
-            if not GEMINI_API_KEY or "YOUR_GEMINI" in GEMINI_API_KEY:
-                return jsonify({"error": "GEMINI_API_KEY not set"}), 500
-            data = _call_gemini_agent(bust_cache=bust)
-
-        return jsonify({"success": True, "data": data})
-
-    except Exception as e:
-        log.exception("Unexpected error in /api/market/intelligence")
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.post("/api/market/intelligence/refresh")
-@require_api_key
-def force_refresh():
-    cache_bust("market_intelligence")
-    return jsonify({"success": True, "message": "Cache cleared."})
-
-@app.get("/api/market/intelligence/cache-status")
-def cache_status():
-    entry = _cache.get("market_intelligence")
-    if entry:
-        age = int(time.time() - entry["ts"])
-        return jsonify({
-            "cached": True,
-            "age_seconds": age,
-            "expires_in_seconds": max(0, CACHE_TTL_SECONDS - age)
-        })
-    return jsonify({"cached": False})
-
-# ── Dev Entrypoint ─────────────────────────────────────────────────────────────
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
-    log.info(f"Starting FreightIQ backend on port {port} | DEMO_MODE={DEMO_MODE}")
-    app.run(host="0.0.0.0", port=port, debug=True)
+def get_market_intelligence_snapshot(bust_cache: bool = False) -> dict:
+    if DEMO_MODE:
+        return _demo_data()
+    return _call_gemini_agent(bust_cache=bust_cache)

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FreightIQ - Intelligent Carrier Selection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #d9e2ef;
+      --card: #ffffff;
+      --bg: #f5f7fb;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: radial-gradient(circle at top left, #e0ebff 0, #f5f7fb 40%, #f9fafb 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+    .page { max-width: 1320px; margin: 0 auto; padding: 28px 16px 40px; }
+    .header { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+    .title { font-size: 28px; font-weight: 800; }
+    .sub { color: var(--text-muted); margin-top: 6px; }
+    .badge {
+      background: #e8f0ff; color: #1d4ed8; padding: 8px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 700;
+    }
+    .layout {
+      display:grid; grid-template-columns: 430px minmax(0,1fr); gap:20px;
+    }
+    @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
+      border: 1px solid rgba(148,163,184,0.18); padding: 20px;
+    }
+    .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .card p.head { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.45; }
+    .lane-chip-wrap { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+    .lane-chip {
+      border:1px solid #d1d5db; background:#f8fafc; color:#334155; border-radius:12px; padding:12px 16px;
+      font-size:14px; font-weight:700; cursor:pointer; transition:.18s ease;
+    }
+    .lane-chip:hover { background:#eef2ff; border-color:#93c5fd; }
+    .lane-chip.active {
+      background:linear-gradient(135deg, #2563eb, #1d4ed8); color:white; border-color:transparent;
+      box-shadow:0 10px 20px rgba(37,99,235,.25);
+    }
+    .form-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    .input, .select {
+      border:1px solid var(--border); border-radius:12px; padding:11px 12px; background:#f8fafc;
+      font-size:14px; color:var(--text-main);
+    }
+    .input:focus, .select:focus { outline:none; border-color:var(--primary); box-shadow: 0 0 0 5px rgba(37,99,235,.12); background:#fff; }
+    .row-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:18px; }
+    .btn {
+      border:none; border-radius:999px; padding:12px 18px; font-weight:800; cursor:pointer;
+      background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff;
+      box-shadow:0 10px 24px rgba(37,99,235,.35);
+    }
+    .mutedbox {
+      background: radial-gradient(circle at top left, #e0ebff 0, #edf4ff 50%, #f6f9ff 100%);
+      border: 1px dashed #bfd3ff; border-radius: 16px; padding: 14px; margin-top: 18px;
+    }
+    .mutedbox .line { display:flex; justify-content:space-between; gap:16px; margin-bottom:8px; font-size:13px; }
+    .mutedbox .label { font-weight:700; }
+    .hero {
+      background: linear-gradient(135deg, #18253d, #1d2e4d); color:#fff; border-radius:18px; padding:22px;
+      display:flex; justify-content:space-between; gap:18px; align-items:flex-start; margin-bottom:18px;
+    }
+    .hero .eyebrow { color:#cbd5e1; font-size:13px; font-weight:800; letter-spacing:.04em; margin-bottom:8px; }
+    .hero .source { color:#e5e7eb; line-height:1.45; max-width:680px; }
+    .hero .metric { text-align:right; min-width:180px; }
+    .hero .metric .label { color:#cbd5e1; margin-bottom:8px; font-size:14px; }
+    .hero .metric .value { color:#fbbf24; font-size:56px; font-weight:800; line-height:1; }
+    .hero .metric .sub { color:#cbd5e1; font-size:18px; margin-top:6px; }
+    .result-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px; }
+    @media (max-width: 860px) { .result-grid { grid-template-columns: 1fr; } .hero{flex-direction:column;} .hero .metric{text-align:left;} }
+    .mini-card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; padding:16px; box-shadow: var(--shadow); }
+    .mini-card h3 { font-size:16px; font-weight:800; margin-bottom:8px; }
+    .kv { display:grid; gap:8px; }
+    .kv .item { display:flex; justify-content:space-between; gap:12px; font-size:14px; }
+    .kv .item .k { color:var(--text-muted); font-weight:600; }
+    .factor-list, .carrier-list { display:flex; flex-direction:column; gap:12px; }
+    .factor {
+      border-radius:16px; padding:16px; border:2px solid transparent; display:flex; justify-content:space-between; gap:16px;
+    }
+    .yellow { background:#f4efdf; border-color:#e6c254; }
+    .pink { background:#f4e4ea; border-color:#e7a6bb; }
+    .teal { background:#e6f4f1; border-color:#87cbbf; }
+    .factor .left { flex:1; }
+    .factor .title { font-size:16px; font-weight:800; margin-bottom:4px; }
+    .factor .subt { color:var(--text-muted); font-size:13px; }
+    .factor .detail { font-size:14px; color:#475569; margin-top:10px; line-height:1.45; }
+    .factor .mult { font-size:22px; font-weight:800; color:#b45309; min-width:100px; text-align:right; }
+    .pillrow { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .pill { border-radius:999px; padding:6px 11px; font-size:12px; font-weight:800; }
+    .up { background:#f9e8ad; color:#a16207; }
+    .stable { background:#d9f3ef; color:#0f766e; }
+    .conf { background:#eceff3; color:#475569; }
+    .carrier {
+      border:1px solid #e5e7eb; border-radius:16px; padding:14px; background:#fff;
+    }
+    .carrier-top { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
+    .carrier-name { font-size:17px; font-weight:800; }
+    .recommend { color:#166534; font-weight:800; font-size:12px; margin-top:4px; }
+    .why { margin-top:10px; padding-left:18px; color:#475569; line-height:1.45; }
+    .log {
+      margin-top:18px; border-radius:14px; background:#020617; color:#e5e7eb; font-family: ui-monospace, monospace;
+      padding:10px; font-size:11px; line-height:1.5; max-height:180px; overflow:auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div>
+        <div class="title">FreightIQ</div>
+        <div class="sub">Origin-destination lane selection, market intelligence, ML carrier scoring, and least-cost optimization in one flow.</div>
+      </div>
+      <div class="badge">End-to-end shipment analysis</div>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <h2>Shipment Scenario</h2>
+        <p class="head">Pick a lane, fill shipment details, then calculate cost and recommendation. Destination options are filtered by origin.</p>
+
+        <div class="lane-chip-wrap" id="laneChips"></div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="origin">Origin</label>
+            <select id="origin" class="select"></select>
+          </div>
+          <div class="field">
+            <label for="destination">Destination</label>
+            <select id="destination" class="select"></select>
+          </div>
+
+          <div class="field">
+            <label for="freight_type">Freight Type</label>
+            <select id="freight_type" class="select">
+              <option>Pharma</option>
+              <option>Electronics</option>
+              <option>Auto Parts</option>
+              <option>FMCG</option>
+              <option>Textiles</option>
+              <option selected>General Cargo</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="mode">Mode</label>
+            <select id="mode" class="select">
+              <option selected>FTL</option>
+              <option>LTL</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="priority_profile">Priority Profile</label>
+            <select id="priority_profile" class="select">
+              <option selected value="balanced">Balanced</option>
+              <option value="cost">Cost First</option>
+              <option value="reliability">Reliability First</option>
+              <option value="risk">Risk Averse</option>
+              <option value="sales">Sales Impact</option>
+              <option value="pharma">Pharma / High Value</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="weight_kg">Weight (kg)</label>
+            <input id="weight_kg" class="input" type="number" min="1" value="5000" />
+          </div>
+
+          <div class="field">
+            <label for="shipment_value_inr">Shipment Value (₹)</label>
+            <input id="shipment_value_inr" class="input" type="number" min="0" value="500000" />
+          </div>
+          <div class="field">
+            <label for="min_reliability">Min Reliability Constraint</label>
+            <input id="min_reliability" class="input" type="number" step="0.01" min="0" max="1" value="0.90" />
+          </div>
+
+          <div class="field">
+            <label for="distance_km">Distance (km)</label>
+            <input id="distance_km" class="input" readonly />
+          </div>
+          <div class="field">
+            <label for="transit_days">Transit Days</label>
+            <input id="transit_days" class="input" readonly />
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <button class="btn" id="calculateBtn" type="button">Calculate Cost</button>
+        </div>
+
+        <div class="mutedbox">
+          <div class="line"><span class="label">Lane</span><span id="sumLane">--</span></div>
+          <div class="line"><span class="label">Load</span><span id="sumLoad">--</span></div>
+          <div class="line"><span class="label">Priority</span><span id="sumPriority">--</span></div>
+          <div class="line"><span class="label">Status</span><span id="sumStatus">Ready</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="hero">
+          <div>
+            <div class="eyebrow">LIVE MARKET INTELLIGENCE</div>
+            <div class="source" id="heroSource">Waiting for backend response...</div>
+          </div>
+          <div class="metric">
+            <div class="label">Composite Multiplier</div>
+            <div class="value" id="compositeMultiplier">× —</div>
+            <div class="sub" id="aboveBase">--</div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="mini-card">
+            <h3>Best Recommendation</h3>
+            <div class="kv" id="bestCard"></div>
+          </div>
+          <div class="mini-card">
+            <h3>Optimization Summary</h3>
+            <div class="kv" id="optimizationCard"></div>
+          </div>
+        </div>
+
+        <div class="mini-card" style="margin-top:16px;">
+          <h3>Market Factors</h3>
+          <div class="factor-list" id="factorList"></div>
+        </div>
+
+        <div class="mini-card" style="margin-top:16px;">
+          <h3>Top Carriers</h3>
+          <div class="carrier-list" id="carrierList"></div>
+        </div>
+
+        <div class="log" id="logBox">{ "status": "idle" }</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:5000";
+    let lanes = [];
+    let laneMap = {};
+
+    const originEl = document.getElementById("origin");
+    const destinationEl = document.getElementById("destination");
+    const distanceEl = document.getElementById("distance_km");
+    const transitEl = document.getElementById("transit_days");
+    const chipsEl = document.getElementById("laneChips");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function buildLaneMap(items) {
+      const map = {};
+      items.forEach(l => {
+        if (!map[l.origin]) map[l.origin] = {};
+        map[l.origin][l.destination] = l;
+      });
+      return map;
+    }
+
+    function populateOrigins() {
+      originEl.innerHTML = Object.keys(laneMap).map(o => `<option value="${o}">${o}</option>`).join("");
+    }
+
+    function populateDestinations() {
+      const origin = originEl.value;
+      const dests = Object.keys(laneMap[origin] || {});
+      destinationEl.innerHTML = dests.map(d => `<option value="${d}">${origin} → ${d}</option>`).join("");
+      updateLaneDetails();
+    }
+
+    function updateLaneDetails() {
+      const origin = originEl.value;
+      const destination = destinationEl.value;
+      const lane = laneMap[origin]?.[destination];
+      if (!lane) return;
+      distanceEl.value = lane.distance_km;
+      transitEl.value = lane.std_transit_days;
+      document.getElementById("sumLane").textContent = `${origin} → ${destination}`;
+      document.getElementById("sumLoad").textContent = `${document.getElementById("weight_kg").value} kg · ${document.getElementById("freight_type").value} · ${document.getElementById("mode").value}`;
+      document.getElementById("sumPriority").textContent = document.getElementById("priority_profile").selectedOptions[0].text;
+    }
+
+    function renderChips() {
+      chipsEl.innerHTML = lanes.map((l, i) => `
+        <button type="button" class="lane-chip ${i === 0 ? 'active' : ''}" data-origin="${escapeHtml(l.origin)}" data-destination="${escapeHtml(l.destination)}">
+          ${escapeHtml(l.origin)} → ${escapeHtml(l.destination)}
+        </button>
+      `).join("");
+
+      document.querySelectorAll(".lane-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          document.querySelectorAll(".lane-chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          originEl.value = chip.dataset.origin;
+          populateDestinations();
+          destinationEl.value = chip.dataset.destination;
+          updateLaneDetails();
+        });
+      });
+    }
+
+    async function loadLanes() {
+      const res = await fetch(`${API_BASE}/api/lanes`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Failed to load lanes");
+      lanes = data.lanes;
+      laneMap = buildLaneMap(lanes);
+      populateOrigins();
+      populateDestinations();
+      renderChips();
+      updateLaneDetails();
+    }
+
+    function currentPayload() {
+      const origin = originEl.value;
+      const destination = destinationEl.value;
+      const lane = laneMap[origin]?.[destination];
+      return {
+        lane_id: lane.lane_id,
+        origin,
+        destination,
+        distance_km: Number(lane.distance_km),
+        transit_days: Number(lane.std_transit_days),
+        goods_type: document.getElementById("freight_type").value,
+        mode: document.getElementById("mode").value,
+        priority_profile: document.getElementById("priority_profile").value,
+        weight_kg: Number(document.getElementById("weight_kg").value),
+        shipment_value_inr: Number(document.getElementById("shipment_value_inr").value),
+        min_reliability: Number(document.getElementById("min_reliability").value),
+      };
+    }
+
+    function renderMarketFactors(factors) {
+      document.getElementById("factorList").innerHTML = (factors || []).map(f => `
+        <div class="factor ${escapeHtml(f.style || 'yellow')}">
+          <div class="left">
+            <div class="title">${escapeHtml(f.icon || '•')} ${escapeHtml(f.label || 'Factor')}</div>
+            <div class="subt">${escapeHtml(f.sub || '')}</div>
+            <div class="detail">${escapeHtml(f.detail || '')}</div>
+            <div class="pillrow">
+              <span class="pill ${String(f.direction).toUpperCase() === 'UP' ? 'up' : 'stable'}">${escapeHtml(f.direction || 'STABLE')}</span>
+              <span class="pill conf">${escapeHtml((f.confidence || 'MEDIUM') + ' conf.')}</span>
+            </div>
+          </div>
+          <div class="mult">${escapeHtml(f.multiplier || '×1.000')}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderBest(best, shipment) {
+      if (!best) {
+        document.getElementById("bestCard").innerHTML = '<div class="item"><span class="k">Status</span><span>No recommendation</span></div>';
+        return;
+      }
+      document.getElementById("bestCard").innerHTML = `
+        <div class="item"><span class="k">Carrier</span><span>${escapeHtml(best.carrier_id)}</span></div>
+        <div class="item"><span class="k">Rank</span><span>#${escapeHtml(best.rank)}</span></div>
+        <div class="item"><span class="k">Composite Score</span><span>${escapeHtml(best.scores?.composite_score)}</span></div>
+        <div class="item"><span class="k">Adjusted Rate</span><span>₹${escapeHtml(best.cost?.adjusted_eff_rate_inr_kg)}/kg</span></div>
+        <div class="item"><span class="k">Estimated Total</span><span>₹${escapeHtml(best.cost?.estimated_total_cost_inr)}</span></div>
+        <div class="item"><span class="k">Lane</span><span>${escapeHtml(shipment.origin)} → ${escapeHtml(shipment.destination)}</span></div>
+      `;
+    }
+
+    function renderOptimization(opt) {
+      document.getElementById("optimizationCard").innerHTML = `
+        <div class="item"><span class="k">Status</span><span>${escapeHtml(opt.status)}</span></div>
+        <div class="item"><span class="k">Total Cost</span><span>₹${escapeHtml(opt.optimized_total_cost_inr)}</span></div>
+        <div class="item"><span class="k">Avg Reliability</span><span>${escapeHtml(opt.optimized_avg_reliability)}</span></div>
+        <div class="item"><span class="k">Constraint</span><span>${escapeHtml(opt.min_reliability_constraint)}</span></div>
+      `;
+    }
+
+    function renderCarriers(carriers) {
+      document.getElementById("carrierList").innerHTML = (carriers || []).slice(0, 3).map(c => `
+        <div class="carrier">
+          <div class="carrier-top">
+            <div>
+              <div class="carrier-name">${escapeHtml(c.carrier_id)}</div>
+              <div class="recommend">${escapeHtml(c.recommendation || '')}</div>
+            </div>
+            <div>
+              <div><strong>Score:</strong> ${escapeHtml(c.scores?.composite_score)}</div>
+              <div><strong>Rate:</strong> ₹${escapeHtml(c.cost?.adjusted_eff_rate_inr_kg)}/kg</div>
+            </div>
+          </div>
+          <ul class="why">
+            ${(c.why || []).slice(0, 3).map(w => `<li>${escapeHtml(w)}</li>`).join("")}
+          </ul>
+        </div>
+      `).join("");
+    }
+
+    function renderLog(data) {
+      document.getElementById("logBox").textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function calculate() {
+      const payload = currentPayload();
+      document.getElementById("sumStatus").textContent = "Calculating...";
+      const res = await fetch(`${API_BASE}/api/shipment/analyze`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Analysis failed");
+
+      document.getElementById("sumStatus").textContent = "Analysis complete";
+      document.getElementById("heroSource").textContent =
+        `Source: ${data.market_intelligence.scraped_at} — ${data.market_intelligence.from_cache ? "Cached response" : "Live backend response"} · API: POST /api/shipment/analyze`;
+      document.getElementById("compositeMultiplier").textContent =
+        `×${Number(data.market_intelligence.composite_multiplier).toFixed(3)}`;
+      document.getElementById("aboveBase").textContent =
+        `${data.market_intelligence.above_base_pct} above base`;
+
+      renderMarketFactors(data.market_intelligence.factors);
+      renderBest(data.best_recommendation, data.shipment);
+      renderOptimization(data.optimization);
+      renderCarriers(data.carrier_scoring.carriers);
+      renderLog(data);
+    }
+
+    originEl.addEventListener("change", populateDestinations);
+    destinationEl.addEventListener("change", updateLaneDetails);
+    ["freight_type","mode","priority_profile","weight_kg"].forEach(id => {
+      document.getElementById(id).addEventListener("change", updateLaneDetails);
+      document.getElementById(id).addEventListener("input", updateLaneDetails);
+    });
+    document.getElementById("calculateBtn").addEventListener("click", async () => {
+      try { await calculate(); } catch (e) {
+        document.getElementById("sumStatus").textContent = `Error: ${e.message}`;
+        renderLog({status: "error", message: e.message});
+      }
+    });
+
+    loadLanes().then(() => calculate()).catch(e => {
+      renderLog({status: "error", message: e.message});
+      document.getElementById("sumStatus").textContent = `Error: ${e.message}`;
+    });
+  </script>
+</body>
+</html>
