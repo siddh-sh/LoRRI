@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import pandas as pd
 
-from ml_engine import predict_all_carriers
+from backend.ml_engine import predict_all_carriers
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
