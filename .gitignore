@@ -13,8 +13,7 @@ env/
 # Environment Variables
 .env
 
-# ML Models (auto-generated)
-backend/models/*.pkl
+
 
 # IDE
 .vscode/
