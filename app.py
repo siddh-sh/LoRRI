@@ -35,8 +35,15 @@ from backend.optimize import optimize_allocation
 from backend.market_intel_agent import get_market_intelligence_snapshot
 
 # ── App setup ─────────────────────────────────────────────────────────────────
-app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+from flask import Flask, render_template
+
+app = Flask(__name__,
+            template_folder="frontend/templates",
+            static_folder="frontend/static")
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 # ── Train models on startup ────────────────────────────────────────────────────
 print("=" * 56)
@@ -221,7 +228,3 @@ if __name__ == "__main__":
     print(f"    GEMINI_KEY = {'set' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}\n")
     app.run(host="0.0.0.0", port=port, debug=debug)
     
-
-@app.route("/")
-def home():
-    return {"message": "FreightIQ API is running"}
