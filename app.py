@@ -30,7 +30,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from backend.scoring import get_lane_catalog, run_scoring
-from backend.ml_engine import predict_all_carriers  # trains 3-model ensemble on startup
+from backend.ml_engine import predict_all_carriers,train_model  # trains 3-model ensemble on startup
 from backend.optimize import optimize_allocation
 from backend.market_intel_agent import get_market_intelligence_snapshot
 
