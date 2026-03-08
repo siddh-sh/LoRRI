@@ -29,10 +29,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from scoring import get_lane_catalog, run_scoring
-from optimize import optimize_allocation
-from market_intel_agent import get_market_intelligence_snapshot
-from ml_engine import train_model   # trains 3-model ensemble on startup
+from backend.scoring import get_lane_catalog, run_scoring
+from backend.ml_engine import predict_all_carriers  # trains 3-model ensemble on startup
+from backend.optimize import optimize_allocation
+from backend.market_intel_agent import get_market_intelligence_snapshot
 
 # ── App setup ─────────────────────────────────────────────────────────────────
 app = Flask(__name__)
