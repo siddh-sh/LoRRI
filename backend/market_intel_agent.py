@@ -303,10 +303,6 @@ def _demo_data() -> dict:
 
 
 def get_market_intelligence_snapshot(bust_cache: bool = False) -> dict:
-    try:
-        if DEMO_MODE:
-            return _demo_data()
-        return _call_gemini_agent(bust_cache=bust_cache)
-    except Exception as e:
-        log.warning("Falling back to demo market intelligence: %s", e)
+    if DEMO_MODE:
         return _demo_data()
+    return _call_gemini_agent(bust_cache=bust_cache)
