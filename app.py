@@ -220,3 +220,8 @@ if __name__ == "__main__":
     print(f"    DEMO_MODE  = {os.getenv('DEMO_MODE','true')}")
     print(f"    GEMINI_KEY = {'set' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}\n")
     app.run(host="0.0.0.0", port=port, debug=debug)
+    
+
+@app.route("/")
+def home():
+    return {"message": "FreightIQ API is running"}
