@@ -2,7 +2,7 @@ const API = "https://lorri.onrender.com";
 
 async function analyzeShipment(data) {
 
-  const response = await fetch(`${API_BASE}/api/shipment/analyze`, {
+  const response = await fetch(`${API}/api/shipment/analyze`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
