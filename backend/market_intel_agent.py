@@ -17,7 +17,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "false"
+DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "true"
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL", "300"))
 MODEL = "gemini-2.0-flash"
 
@@ -303,6 +303,10 @@ def _demo_data() -> dict:
 
 
 def get_market_intelligence_snapshot(bust_cache: bool = False) -> dict:
-    if DEMO_MODE:
+    try:
+        if DEMO_MODE:
+            return _demo_data()
+        return _call_gemini_agent(bust_cache=bust_cache)
+    except Exception as e:
+        log.warning("Falling back to demo market intelligence: %s", e)
         return _demo_data()
-    return _call_gemini_agent(bust_cache=bust_cache)
