@@ -1,26 +1,15 @@
-const API_BASE = "https://lorri.onrender.com";
+const API = "https://lorri.onrender.com";
 
-async function analyzeShipment() {
+async function analyzeShipment(data) {
 
-  const laneId = "L001";      // example
-  const weight = 1000;        // example
+  const response = await fetch(`${API_BASE}/api/shipment/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
 
-  try {
-    const response = await fetch(`${API_BASE}/api/shipment/analyze`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        lane_id: laneId,
-        weight_kg: weight
-      })
-    });
-
-    const data = await response.json();
-    console.log(data);
-
-  } catch (error) {
-    console.error("Analysis failed", error);
-  }
+  const result = await response.json();
+  console.log(result);
 }
