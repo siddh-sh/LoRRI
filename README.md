@@ -1,5 +1,5 @@
 # LoRRI
-# FreightIQ – Advanced Procurement Optimization & Agentic Logistics
+# FreightIQ - Advanced Procurement Optimization & Agentic Logistics
 
 FreightIQ is an intelligent procurement assistant that optimizes freight carrier selection using predictive ML, linear programming, and an agentic AI layer for explainable, end‑to‑end decision support.
 
@@ -27,7 +27,7 @@ FreightIQ replaces manual spreadsheet‑based freight procurement with an orches
 The user interacts with FreightIQ via a browser‑based dashboard.
 
 ![End‑to‑End User Flow](docs/userflow.png)
-1. ** Dashboard**
+1. **Dashboard**
    - Open the procurement dashboard and select “New Shipment”.
 
 2. **Enter Shipment Details**
