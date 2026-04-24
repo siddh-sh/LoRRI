@@ -179,9 +179,9 @@ def train_model():
     ]:
         pickle.dump(obj, open(os.path.join(MODELS, f"{name}.pkl"), "wb"))
 
-    print(f"✅ XGBoost             : {results['xgb_accuracy']:.2%}  → delivery risk")
-    print(f"✅ Gradient Boosting   : {results['gb_accuracy']:.2%}  → on-time probability")
-    print(f"✅ Logistic Regression : {results['lr_accuracy']:.2%}  → delay probability")
+    print(f"[OK] XGBoost             : {results['xgb_accuracy']:.2%}  -> delivery risk")
+    print(f"[OK] Gradient Boosting   : {results['gb_accuracy']:.2%}  -> on-time probability")
+    print(f"[OK] Logistic Regression : {results['lr_accuracy']:.2%}  -> delay probability")
     return results
 
 
@@ -438,7 +438,7 @@ def predict_all_carriers(lane_id, distance_km, weight_kg,
     results.sort(key=lambda x: x["scores"]["composite_score"], reverse=True)
     for i, r in enumerate(results):
         r["rank"]           = i + 1
-        r["recommendation"] = "✅ RECOMMEND" if i == 0 else ("⚠️ ALTERNATE" if i == 1 else "")
+        r["recommendation"] = "RECOMMEND" if i == 0 else ("ALTERNATE" if i == 1 else "")
         # Clean up internal keys
         del r["_blended"], r["_revenue_at_risk"], r["_eff_rate"], r["_damage_multiplier"]
 
@@ -503,11 +503,52 @@ def get_festival_warning(carrier_id, lane_id):
             if not pd.isna(ft_normal) and not pd.isna(ft_festival):
                 freight_festival[ft] = round((ft_normal - ft_festival) * 100, 1)
 
-    upcoming_festivals = [
-        {"name": "Eid",        "date": "19-Mar-2026", "days_away": 12, "impact": "HIGH",   "region": "Pan India"},
-        {"name": "Ram Navami", "date": "06-Apr-2026", "days_away": 30, "impact": "MEDIUM", "region": "North India"},
-        {"name": "Baisakhi",   "date": "14-Apr-2026", "days_away": 38, "impact": "MEDIUM", "region": "North India"},
+    # Dynamic upcoming festivals based on today's date
+    import datetime as _dt
+    _today = _dt.date.today()
+
+    # Indian national & major holidays (month, day, name, impact, region)
+    _ALL_FESTIVALS = [
+        (1, 26, "Republic Day", "MEDIUM", "Pan India"),
+        (3, 14, "Holi", "HIGH", "North & Central India"),
+        (4, 14, "Ambedkar Jayanti", "MEDIUM", "Pan India"),
+        (4, 14, "Baisakhi", "MEDIUM", "North India"),
+        (5, 1, "May Day", "LOW", "Pan India"),
+        (5, 23, "Buddha Purnima", "LOW", "Pan India"),
+        (8, 15, "Independence Day", "HIGH", "Pan India"),
+        (8, 26, "Janmashtami", "HIGH", "Pan India"),
+        (9, 7, "Ganesh Chaturthi", "HIGH", "West & South India"),
+        (10, 2, "Gandhi Jayanti", "MEDIUM", "Pan India"),
+        (10, 12, "Dussehra", "HIGH", "Pan India"),
+        (10, 20, "Karwa Chauth", "MEDIUM", "North India"),
+        (11, 1, "Diwali", "HIGH", "Pan India"),
+        (11, 15, "Guru Nanak Jayanti", "MEDIUM", "Pan India"),
+        (12, 25, "Christmas", "MEDIUM", "Pan India"),
     ]
+
+    upcoming_festivals = []
+    for m, d, name, impact, region in _ALL_FESTIVALS:
+        try:
+            fdate = _dt.date(_today.year, m, d)
+            if fdate < _today:
+                fdate = _dt.date(_today.year + 1, m, d)
+            days_away = (fdate - _today).days
+            if 0 <= days_away <= 60:
+                upcoming_festivals.append({
+                    "name": name,
+                    "date": fdate.strftime("%d-%b-%Y"),
+                    "days_away": days_away,
+                    "impact": impact,
+                    "region": region,
+                })
+        except ValueError:
+            pass
+
+    upcoming_festivals.sort(key=lambda x: x["days_away"])
+    upcoming_festivals = upcoming_festivals[:5]  # top 5 nearest
+
+    nearest = upcoming_festivals[0]["name"] if upcoming_festivals else "upcoming holiday"
+    nearest_date = upcoming_festivals[0]["date"] if upcoming_festivals else "soon"
 
     return {
         "carrier_id":           carrier_id,
@@ -518,9 +559,9 @@ def get_festival_warning(carrier_id, lane_id):
         "freight_type_impact":  freight_festival,
         "alert":                drop_pct > 5,
         "alert_message": (
-            f"⚠️ {carrier_id} on-time drops {drop_pct}% during festivals. "
-            f"Book extra capacity before Eid (19-Mar)."
-        ) if drop_pct > 5 else "✅ Carrier performs consistently during festivals.",
+            f"[!] {carrier_id} on-time drops {drop_pct}% during festivals. "
+            f"Book extra capacity before {nearest} ({nearest_date})."
+        ) if drop_pct > 5 else "Carrier performs consistently during festivals.",
         "upcoming_festivals":   upcoming_festivals,
     }
 

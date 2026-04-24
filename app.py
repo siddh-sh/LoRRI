@@ -23,6 +23,12 @@ import os
 import sys
 import traceback
 import datetime
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env from project root
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -30,9 +36,11 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from backend.scoring import get_lane_catalog, run_scoring
-from backend.ml_engine import predict_all_carriers,train_model  # trains 3-model ensemble on startup
+from backend.ml_engine import predict_all_carriers, train_model  # trains 3-model ensemble on startup
 from backend.optimize import optimize_allocation
 from backend.market_intel_agent import get_market_intelligence_snapshot
+from backend.openai_analysis_agent import run_analysis as run_openai_analysis
+from backend.maps_service import get_directions, get_directions_latlng
 
 # ── App setup ─────────────────────────────────────────────────────────────────
 from flask import Flask, render_template
@@ -47,16 +55,16 @@ def home():
 
 # ── Train models on startup ────────────────────────────────────────────────────
 print("=" * 56)
-print("🚀  FreightIQ backend starting …")
+print(">>  FreightIQ backend starting ...")
 print("=" * 56)
 try:
     metrics = train_model()
-    print(f"   ✅  XGBoost            : {metrics['xgb_accuracy']:.2%}")
-    print(f"   ✅  Gradient Boosting  : {metrics['gb_accuracy']:.2%}")
-    print(f"   ✅  Logistic Regression: {metrics['lr_accuracy']:.2%}")
+    print(f"   [OK]  XGBoost            : {metrics['xgb_accuracy']:.2%}")
+    print(f"   [OK]  Gradient Boosting  : {metrics['gb_accuracy']:.2%}")
+    print(f"   [OK]  Logistic Regression: {metrics['lr_accuracy']:.2%}")
 except Exception as exc:
-    print(f"   ⚠   Model training failed: {exc}")
-    print("       Continuing — models will train on first request.")
+    print(f"   [!!]  Model training failed: {exc}")
+    print("         Continuing -- models will train on first request.")
 print("=" * 56)
 
 
@@ -91,6 +99,7 @@ def health():
         "status": "ok",
         "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "demo_mode": os.getenv("DEMO_MODE", "true").lower() == "true",
+        "google_maps_key": os.getenv("GOOGLE_MAPS_API_KEY", ""),
     })
 
 
@@ -105,12 +114,41 @@ def lanes():
         return failure(traceback.format_exc())
 
 
+# ── Google Maps Directions ─────────────────────────────────────────────────────
+@app.post("/api/maps/directions")
+def maps_directions():
+    """Get real driving distance and transit time between two points."""
+    try:
+        body = request.get_json(force=True) or {}
+        # Support both city names and exact lat/lng
+        if body.get("origin_lat") and body.get("dest_lat"):
+            result = get_directions_latlng(
+                origin_lat=float(body["origin_lat"]),
+                origin_lng=float(body["origin_lng"]),
+                dest_lat=float(body["dest_lat"]),
+                dest_lng=float(body["dest_lng"]),
+                origin_label=body.get("origin", ""),
+                dest_label=body.get("destination", ""),
+            )
+        else:
+            origin = body.get("origin", "").strip()
+            destination = body.get("destination", "").strip()
+            if not origin or not destination:
+                return failure("origin and destination are required", 422)
+            result = get_directions(origin, destination)
+        return jsonify({"success": True, "directions": result})
+    except Exception as exc:
+        return failure(str(exc))
+
+
 # ── Market intelligence only ───────────────────────────────────────────────────
 @app.get("/api/market/intelligence")
 def market_intelligence():
     try:
         bust = request.args.get("bust", "0") == "1"
-        data = get_market_intelligence_snapshot(bust_cache=bust)
+        origin = request.args.get("origin", "Delhi")
+        destination = request.args.get("destination", "Mumbai")
+        data = get_market_intelligence_snapshot(bust_cache=bust, origin=origin, destination=destination)
         return jsonify({"success": True, "data": data})
     except Exception as exc:
         return failure(str(exc))
@@ -152,8 +190,12 @@ def analyze():
         is_monsoon  = safe_int(body.get("is_monsoon"),  1 if month in (6,7,8,9) else 0)
         is_festival = safe_int(body.get("is_festival"), 0)
 
-        # 1. Market intelligence
-        market = get_market_intelligence_snapshot()
+        # Extract origin/destination for route-aware market intel
+        origin_city = str(body.get("origin", "Delhi"))
+        dest_city   = str(body.get("destination", "Mumbai"))
+
+        # 1. Market intelligence (route-aware: state-specific festivals & weather)
+        market = get_market_intelligence_snapshot(origin=origin_city, destination=dest_city)
 
         # 2. Carrier scoring
         scoring_result = run_scoring(
@@ -192,26 +234,40 @@ def analyze():
         carriers = scoring_result.get("carriers", [])
         best     = carriers[0] if carriers else None
 
+        # 4. OpenAI Analysis — summarise & recommend
+        shipment_info = {
+            "lane_id":            lane_id,
+            "origin":             scoring_result.get("origin"),
+            "destination":        scoring_result.get("destination"),
+            "distance_km":        scoring_result.get("distance_km"),
+            "transit_days":       scoring_result.get("transit_days"),
+            "goods_type":         goods_type,
+            "mode":               mode,
+            "priority_profile":   priority_profile,
+            "weight_kg":          weight_kg,
+            "shipment_value_inr": shipment_value_inr,
+            "is_monsoon":         is_monsoon,
+            "is_festival":        is_festival,
+        }
+        try:
+            ai_analysis = run_openai_analysis(
+                shipment=shipment_info,
+                market=market,
+                carriers=carriers,
+                best=best,
+                optimization=optimization,
+            )
+        except Exception as ai_exc:
+            ai_analysis = {"error": str(ai_exc), "agent": "error"}
+
         return jsonify({
             "success": True,
-            "shipment": {
-                "lane_id":            lane_id,
-                "origin":             scoring_result.get("origin"),
-                "destination":        scoring_result.get("destination"),
-                "distance_km":        scoring_result.get("distance_km"),
-                "transit_days":       scoring_result.get("transit_days"),
-                "goods_type":         goods_type,
-                "mode":               mode,
-                "priority_profile":   priority_profile,
-                "weight_kg":          weight_kg,
-                "shipment_value_inr": shipment_value_inr,
-                "is_monsoon":         is_monsoon,
-                "is_festival":        is_festival,
-            },
+            "shipment":             shipment_info,
             "market_intelligence":  market,
             "carrier_scoring":      scoring_result,
             "best_recommendation":  best,
             "optimization":         optimization,
+            "ai_analysis":          ai_analysis,
         })
 
     except ValueError as ve:
@@ -223,8 +279,9 @@ def analyze():
 if __name__ == "__main__":
     port  = int(os.getenv("PORT", 5000))
     debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
-    print(f"\n🌐  http://0.0.0.0:{port}")
-    print(f"    DEMO_MODE  = {os.getenv('DEMO_MODE','true')}")
-    print(f"    GEMINI_KEY = {'set' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}\n")
+    print(f"\n[*]  http://0.0.0.0:{port}")
+    print(f"     DEMO_MODE   = {os.getenv('DEMO_MODE','true')}")
+    print(f"     GEMINI_KEY  = {'set' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}")
+    print(f"     OPENAI_KEY  = {'set' if os.getenv('OPENAI_API_KEY') else 'NOT SET'}\n")
     app.run(host="0.0.0.0", port=port, debug=debug)
     
