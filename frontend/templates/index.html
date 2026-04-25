@@ -2,1199 +2,424 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FreightIQ — Carrier Selection</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreightIQ Multimodal</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-/* ─────────────────────────────────────────
-   TOKENS
-───────────────────────────────────────── */
-:root{
-  --navy:   #0d1f3c;
-  --navy2:  #112240;
-  --blue:   #1a56db;
-  --blue2:  #1e429f;
-  --blue-lt:#3b82f6;
-  --blue-bg:#eff6ff;
-  --blue-bd:#bfdbfe;
-  --white:  #ffffff;
-  --off:    #f8fafc;
-  --g50:    #f1f5f9;
-  --g100:   #e2e8f0;
-  --g200:   #cbd5e1;
-  --g400:   #94a3b8;
-  --g600:   #475569;
-  --g800:   #1e293b;
-  --green:  #065f46; --green-bg:#ecfdf5; --green-bd:#6ee7b7;
-  --amber:  #92400e; --amber-bg:#fffbeb; --amber-bd:#fcd34d;
-  --red:    #991b1b; --red-bg:#fef2f2;   --red-bd:#fca5a5;
-  --r:10px; --rl:16px; --rxl:20px;
-  --font:'Inter',system-ui,sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --shadow: 0 4px 20px rgba(13,31,60,.09), 0 1px 4px rgba(13,31,60,.06);
-  --shadow-lg: 0 12px 40px rgba(13,31,60,.14), 0 3px 10px rgba(13,31,60,.07);
+/* 
+For Railway: how to plug in real IRCTC/NTES API for live train schedules
+For Airways: how to use FlightAware or OAG API for real AWB tracking
+For Road: how to switch from Directions API to Route Optimization API (fleet)
+For ML: how to add weather features (IMD API), how to retrain monthly with new shipment data, how to add a feedback loop
+*/
+:root {
+  --blue: #1d4ed8; --blue-light: #eff6ff; --blue-border: #bfdbfe;
+  --navy: #060e1f; --white: #ffffff; --bg: #f3f4f6;
+  --slate-500: #64748b; --slate-800: #1e293b; --slate-200: #e2e8f0; --slate-100: #f1f5f9;
+  --purple: #7e22ce; --purple-light: #faf5ff; --purple-border: #e9d5ff;
+  --sky: #0ea5e9; --sky-light: #f0f9ff; --sky-border: #bae6fd;
+  --green: #22c55e; --red: #ef4444; --orange: #f97316;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--off);color:var(--g800);font-family:var(--font);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:var(--g200);border-radius:4px}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--slate-800); }
+.mono { font-family: 'Space Mono', monospace; }
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.au0{animation:fadeUp .35s ease both}
-.au1{animation:fadeUp .35s .07s ease both}
-.au2{animation:fadeUp .35s .14s ease both}
+header { background: var(--navy); color: var(--white); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+.logo-icon { background: var(--blue); color: var(--white); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.tagline { font-weight: 300; opacity: 0.8; font-size: 14px; margin-left: 8px; }
 
-/* ─── HEADER ─── */
-header{
-  position:sticky;top:0;z-index:200;
-  background:var(--navy);
-  height:58px;display:flex;align-items:center;
-  justify-content:space-between;padding:0 48px;
-  box-shadow:0 2px 12px rgba(0,0,0,.3);
-}
-.brand{display:flex;align-items:center;gap:11px}
-.b-icon{width:36px;height:36px;background:var(--blue);border-radius:9px;display:grid;place-items:center;font-size:18px;box-shadow:0 0 0 2px rgba(59,130,246,.3);flex-shrink:0}
-.b-name{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.3px}
-.b-tag{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.3px;margin-top:1px}
-.h-right{display:flex;align-items:center;gap:12px}
-.status-badge{display:flex;align-items:center;gap:6px;background:rgba(26,86,219,.2);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.5px;text-transform:uppercase}
-.s-dot{width:6px;height:6px;border-radius:50%;background:#34d399;flex-shrink:0;animation:blink 1.4s infinite}
-.h-date{font-size:11px;color:rgba(255,255,255,.35);font-family:var(--mono)}
+main { display: grid; grid-template-columns: 450px 1fr; gap: 24px; padding: 24px 32px; max-width: 1440px; margin: 0 auto; min-height: calc(100vh - 68px); }
 
-/* ─── TICKER ─── */
-.ticker{background:var(--navy2);border-bottom:1px solid rgba(59,130,246,.15);height:32px;overflow:hidden;display:flex;align-items:center}
-.t-track{display:inline-flex;white-space:nowrap;animation:marquee 28s linear infinite}
-.t-track:hover{animation-play-state:paused}
-.t-item{display:inline-flex;align-items:center;gap:5px;padding:0 28px;font-size:11.5px;color:rgba(255,255,255,.45);border-right:1px solid rgba(59,130,246,.12)}
-.t-item strong{color:rgba(255,255,255,.75);font-weight:600}
+/* Left Card */
+.form-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); position: sticky; top: 92px; height: fit-content; max-height: calc(100vh - 120px); overflow-y: auto; }
+.form-card::-webkit-scrollbar { width: 6px; }
+.form-card::-webkit-scrollbar-thumb { background: var(--slate-200); border-radius: 3px; }
 
-/* ─── SHELL ─── */
-.shell{max-width:1280px;margin:0 auto;padding:44px 48px 100px}
-@media(max-width:880px){.shell{padding:24px 16px 60px}}
+h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500); font-weight: 600; margin-bottom: 12px; margin-top: 24px; }
+h3:first-child { margin-top: 0; }
 
-.pg-head{margin-bottom:36px}
-.pg-head h1{font-size:34px;font-weight:800;line-height:1.12;letter-spacing:-.4px;color:var(--g800)}
-.pg-head h1 .accent{color:var(--blue)}
-.pg-head p{font-size:15px;color:var(--g400);margin-top:9px;max-width:480px;line-height:1.7}
+.pills-container { display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding-right: 8px; }
+.pills-container::-webkit-scrollbar { width: 4px; }
+.pills-container::-webkit-scrollbar-thumb { background: var(--slate-200); }
+.pill { padding: 6px 12px; border-radius: 20px; background: var(--slate-100); color: var(--slate-800); font-size: 13px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; user-select: none; }
+.pill:hover { background: var(--slate-200); }
+.pill.active { background: var(--blue); color: var(--white); box-shadow: 0 4px 6px -1px rgba(29,78,216,0.3); }
 
-/* ─── GRID ─── */
-.page-grid{display:grid;grid-template-columns:488px 1fr;gap:28px;align-items:start}
-@media(max-width:1080px){.page-grid{grid-template-columns:1fr}}
+/* Transport Modes */
+.modes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.mode-card { border: 1px solid var(--slate-200); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; border-bottom-width: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mode-card .icon { font-size: 28px; margin-bottom: 8px; }
+.mode-card .name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.mode-card .tag { font-size: 11px; color: var(--slate-500); }
+.mode-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
 
-/* ─────────────────────────────────────────
-   FORM CARD
-───────────────────────────────────────── */
-.form-card{background:var(--white);border:1px solid var(--g100);border-radius:var(--rxl);box-shadow:var(--shadow-lg);overflow:hidden;position:sticky;top:74px}
+.mode-roadways { border-bottom-color: var(--blue); }
+.mode-railways { border-bottom-color: var(--purple); }
+.mode-airways { border-bottom-color: var(--sky); }
 
-.fc-banner{background:linear-gradient(135deg,var(--navy) 0%,var(--blue2) 100%);padding:22px 26px 18px}
-.fc-banner h2{font-size:18px;font-weight:800;color:#fff;margin-bottom:3px}
-.fc-banner p{font-size:13px;color:rgba(255,255,255,.5);line-height:1.55}
+.mode-roadways.active { background: var(--blue-light); border-color: var(--blue); }
+.mode-railways.active { background: var(--purple-light); border-color: var(--purple); }
+.mode-airways.active { background: var(--sky-light); border-color: var(--sky); }
 
-.fc-body{padding:22px 26px}
+/* Input grids */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.info-box { background: var(--slate-100); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
+.info-box label { font-size: 11px; color: var(--slate-500); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+.info-box .val { font-size: 18px; font-weight: 700; color: var(--slate-800); }
 
-/* Section label */
-.s-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g400);margin-bottom:9px;margin-top:18px;display:flex;align-items:center;gap:8px}
-.s-lbl:first-of-type{margin-top:0}
-.lbl-badge{font-size:9px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);border-radius:4px;padding:1px 6px;font-weight:700;letter-spacing:.3px}
+.input-grp { display: flex; flex-direction: column; margin-bottom: 12px; }
+.input-grp label { font-size: 12px; font-weight: 600; color: var(--slate-500); margin-bottom: 6px; }
+.input-grp input, .input-grp select { padding: 10px 12px; border: 1px solid var(--slate-200); border-radius: 8px; font-family: 'Outfit'; font-size: 14px; outline: none; transition: border 0.2s; background: var(--white); }
+.input-grp input:focus, .input-grp select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-light); }
 
-/* ─── ROUTE DROPDOWNS ─── */
-.route-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:4px}
-.route-arrow{font-size:18px;color:var(--blue-lt);padding-bottom:10px;text-align:center;font-weight:700}
-.route-select{width:100%;height:44px;padding:0 12px;background:var(--off);border:1.5px solid var(--g100);border-radius:9px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--g800);transition:all .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
-.route-select:focus{outline:none;border-color:var(--blue-lt);background-color:#fff;box-shadow:0 0 0 3px var(--blue-bg)}
-.route-select:disabled{opacity:.45;cursor:not-allowed}
-.route-select option[value=""]{color:var(--g400)}
+.pri-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pri-card { border: 1px solid var(--slate-200); padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 500; }
+.pri-card.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
 
-/* ─── AUTO-FILL ─── */
-.auto-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
-.auto-box{background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:10px;padding:11px 13px}
-.auto-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--blue-lt);margin-bottom:3px}
-.auto-val{font-size:19px;font-weight:800;color:var(--navy2);font-family:var(--mono)}
-.auto-sub{font-size:9px;color:var(--blue-lt);margin-top:1px}
+.btn-primary { width: 100%; background: var(--blue); color: var(--white); border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 24px; display: flex; justify-content: center; align-items: center; gap: 8px; font-family: inherit; }
+.btn-primary:hover { background: #1e40af; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29,78,216,0.3); }
+.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
-/* ─── FORM FIELDS ─── */
-.f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.f-row.full{grid-template-columns:1fr}
-.field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--g400);margin-bottom:5px}
-.fi,.fs{width:100%;height:42px;padding:0 12px;background:var(--off);border:1.5px solid var(--g100);border-radius:9px;font-family:var(--font);font-size:14px;color:var(--g800);transition:all .15s;appearance:none}
-.fi:focus,.fs:focus{outline:none;border-color:var(--blue-lt);background:#fff;box-shadow:0 0 0 3px var(--blue-bg)}
-.fi::placeholder{color:var(--g200)}
+/* SVG Visualizer */
+.svg-container { width: 100%; margin: 16px 0; background: var(--slate-100); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; overflow: hidden; position: relative; min-height: 80px;}
 
-/* ─── MODE ─── */
-.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.m-btn{padding:10px 9px;text-align:center;cursor:pointer;background:var(--off);border:1.5px solid var(--g100);border-radius:9px;transition:all .13s}
-.m-btn:hover{border-color:var(--blue-lt)}
-.m-btn.active{background:var(--blue-bg);border-color:var(--blue)}
-.m-t{font-size:12px;font-weight:700;color:var(--g600)}
-.m-s{font-size:9px;color:var(--g400);margin-top:2px}
-.m-btn.active .m-t{color:var(--blue)}
+.svg-path { stroke: var(--blue); stroke-width: 3; fill: none; stroke-dasharray: 10; animation: dash 20s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -1000; } }
 
-/* ─── PRIORITY ─── */
-.pri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.p-card{padding:10px 7px;text-align:center;cursor:pointer;background:var(--off);border:1.5px solid var(--g100);border-radius:9px;transition:all .13s}
-.p-card:hover{border-color:var(--blue-lt);transform:translateY(-1px)}
-.p-card.active{background:var(--blue-bg);border-color:var(--blue)}
-.p-icon{font-size:18px;margin-bottom:3px}
-.p-name{font-size:10px;font-weight:700;color:var(--g600)}
-.p-w{font-size:9px;color:var(--g400);font-family:var(--mono);margin-top:2px}
-.p-card.active .p-name{color:var(--blue)}
+.node { width: 12px; height: 12px; border-radius: 50%; background: var(--white); border: 3px solid var(--blue); z-index: 2; position: relative;}
+.node-label { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: var(--slate-500); white-space: nowrap; }
 
-/* ─── SUMMARY ─── */
-.summary{margin-top:16px;padding:12px 15px;background:var(--navy);border-radius:10px;display:flex;flex-direction:column;gap:6px}
-.sum-row{display:flex;justify-content:space-between;font-size:12px}
-.sum-k{color:rgba(255,255,255,.3);font-weight:600}
-.sum-v{color:#fff;font-weight:600;text-align:right}
+/* Right Column */
+.results-col { display: flex; flex-direction: column; gap: 16px; }
 
-/* ─── BUTTON ─── */
-.btn-go{width:100%;margin-top:15px;padding:14px;background:var(--blue);border:none;border-radius:11px;font-family:var(--font);font-size:15px;font-weight:800;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 4px 18px rgba(26,86,219,.3);transition:all .18s;letter-spacing:.1px}
-.btn-go:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(26,86,219,.42)}
-.btn-go:active{transform:none}
-.btn-go:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.winner-banner { background: var(--navy); color: var(--white); border-radius: 16px; padding: 24px; position:relative; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(6,14,31,0.3);}
+.winner-banner::after { content: '🏆'; position: absolute; right: 20px; top: 20px; font-size: 100px; opacity: 0.05; transform: rotate(15deg) }
+.w-eyebrow { color: var(--blue-border); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 8px; }
+.w-name { font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.w-name span.w-badge { font-size: 12px; background: var(--green); padding: 4px 8px; border-radius: 4px; vertical-align: middle; font-weight: 600; text-transform: uppercase; }
+.w-desc { color: var(--slate-200); font-size: 15px; max-width: 80%; line-height: 1.5; margin-bottom: 20px; }
+.w-kpis { display: flex; gap: 32px; }
+.w-kpi-val { font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.w-kpi-lbl { font-size: 12px; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* ─────────────────────────────────────────
-   RESULTS
-───────────────────────────────────────── */
-.r-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:440px;text-align:center;gap:13px;background:var(--white);border:1.5px dashed var(--g100);border-radius:var(--rxl)}
-.r-ico{font-size:48px;opacity:.18}
-.r-t{font-size:19px;font-weight:700;color:var(--g200)}
-.r-s{font-size:13px;color:var(--g200);max-width:270px;line-height:1.7}
+.section-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.sec-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--slate-100); padding-bottom: 12px;}
 
-.spin-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;min-height:360px;justify-content:center}
-.sp{width:44px;height:44px;border:3px solid var(--g100);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
-.sp-t{font-size:16px;font-weight:700;color:var(--g600)}
-.sp-s{font-size:11px;color:var(--g400);font-family:var(--mono)}
+/* Factors */
+.factors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.factor { background: var(--slate-100); border-radius: 8px; padding: 12px; border-left: 4px solid var(--slate-200); }
+.factor.up { border-left-color: var(--red); }
+.factor.down { border-left-color: var(--green); }
+.factor-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.factor-nm { font-weight: 600; font-size: 14px; }
+.factor-val { font-family: 'Space Mono'; font-weight: 700; font-size: 14px; }
+.factor-desc { font-size: 12px; color: var(--slate-500); }
 
-.r-sh{font-size:18px;font-weight:800;color:var(--g800);margin-bottom:4px}
-.r-ss{font-size:13px;color:var(--g400);margin-bottom:16px}
+/* Carriers List */
+.carrier-list { display: flex; flex-direction: column; gap: 12px; }
+.carrier-item { border: 1px solid var(--slate-200); border-radius: 12px; padding: 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; transition: all 0.2s; }
+.carrier-item:hover { border-color: var(--blue-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.c-rank { font-size: 20px; font-weight: 700; color: var(--slate-400); width: 30px; text-align: center; }
+.c-main .c-nm { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.c-why { font-size: 13px; color: var(--slate-500); display: flex; align-items: center; gap: 6px; }
+.c-why::before { content: '💡'; }
+.c-mets { display: flex; gap: 24px; text-align: right; }
+.c-met-v { font-size: 18px; font-weight: 700; }
+.c-met-l { font-size: 11px; font-weight: 600; color: var(--slate-400); text-transform: uppercase; }
+.c-score .c-met-v { color: var(--blue); }
 
-/* winner */
-.winner{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);border-radius:var(--rxl);padding:28px 32px;margin-bottom:24px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;position:relative;overflow:hidden}
-@media(max-width:600px){.winner{grid-template-columns:1fr;gap:18px}}
-.winner::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 50%,rgba(59,130,246,.15) 0%,transparent 60%);pointer-events:none}
-.w-ey{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:rgba(255,255,255,.45);margin-bottom:7px}
-.w-nm{font-size:26px;font-weight:800;color:#fff;margin-bottom:9px;line-height:1.1}
-.w-line{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:500px}
-.w-line strong{color:rgba(255,255,255,.9)}
-.w-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
-.wtag{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);color:rgba(255,255,255,.55)}
-.wtag.hi{background:rgba(59,130,246,.18);border-color:rgba(59,130,246,.38);color:rgba(147,197,253,1)}
-.w-kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;min-width:152px}
-.wkpi{text-align:center;padding:12px 9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px}
-.wkpi-v{font-size:17px;font-weight:800;color:rgba(147,197,253,1)}
-.wkpi-l{font-size:9px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.lp-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.lp-table th { text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--slate-500); border-bottom: 2px solid var(--slate-100); }
+.lp-table td { padding: 12px; font-size: 14px; border-bottom: 1px solid var(--slate-100); }
+.lp-bar { width: 100px; height: 6px; background: var(--slate-100); border-radius: 3px; overflow: hidden; }
+.lp-fill { height: 100%; background: var(--blue); }
 
-/* market */
-.mkt-band{background:var(--amber-bg);border:1.5px solid var(--amber-bd);border-radius:11px;padding:12px 17px;margin-bottom:20px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
-.mkt-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--amber);flex-shrink:0}
-.mkt-pills{display:flex;gap:7px;flex-wrap:wrap;flex:1}
-.mpill{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--amber-bd);border-radius:20px;padding:3px 9px;font-size:11px}
-.mp-n{color:var(--g400)}
-.mp-m{font-weight:700;color:var(--red);font-family:var(--mono);font-size:10px}
-.mp-m.st{color:var(--green)}
-.mkt-total{font-size:12px;font-weight:700;color:var(--g800);white-space:nowrap;padding:4px 11px;background:#fff;border:1px solid var(--amber-bd);border-radius:7px;font-family:var(--mono)}
-
-/* factor cards */
-.fac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px;margin-bottom:26px}
-.fac{background:#fff;border:1px solid var(--g100);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(13,31,60,.06);transition:transform .18s,box-shadow .18s}
-.fac:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-.fac.yellow{border-color:#e6c254}.fac.pink{border-color:#e7a6bb}.fac.teal{border-color:#87cbbf}
-.fac-top{padding:13px 15px 11px;border-bottom:1px solid var(--g50);display:flex;justify-content:space-between;align-items:flex-start}
-.fac-ico{font-size:22px}
-.fac-m{font-size:18px;font-weight:800}
-.fac-m.up{color:var(--red)}.fac-m.st{color:var(--green)}
-.fac-body{padding:11px 15px}
-.fac-nm{font-size:12px;font-weight:700;color:var(--g800);margin-bottom:2px}
-.fac-sub{font-size:10px;color:var(--blue);margin-bottom:6px}
-.fac-det{font-size:11px;color:var(--g400);line-height:1.6}
-.fac-pills{display:flex;gap:5px;margin-top:8px}
-.fp{padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700}
-.fp-up{background:#fef3c7;color:#92400e}.fp-st{background:var(--green-bg);color:var(--green)}.fp-cf{background:var(--g50);color:var(--g400);border:1px solid var(--g100)}
-
-/* carrier cards */
-.c-list{display:flex;flex-direction:column;gap:11px;margin-bottom:26px}
-.cc{background:#fff;border:1.5px solid var(--g100);border-radius:var(--rl);overflow:hidden;box-shadow:0 1px 4px rgba(13,31,60,.06);transition:box-shadow .18s}
-.cc:hover{box-shadow:var(--shadow)}
-.cc.r1{border-color:var(--blue-lt);border-width:2px}
-.cc.r2{border-color:#9ca3af}.cc.r3{border-color:#d97706}
-
-.cc-hd{padding:14px 18px;background:var(--off);border-bottom:1px solid var(--g50);display:grid;grid-template-columns:42px 1fr auto auto;gap:12px;align-items:center;cursor:pointer;user-select:none}
-.medal{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-size:15px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
-.r1 .medal{background:var(--blue);color:#fff}
-.r2 .medal{background:#e5e7eb;color:#4b5563;font-size:13px}
-.r3 .medal{background:#fef3c7;color:#92400e;font-size:13px}
-.rN .medal{background:var(--g50);color:var(--g400);border:1.5px solid var(--g100);font-size:12px}
-.cc-nm{font-size:15px;font-weight:800;color:var(--g800)}
-.cc-sub{font-size:10px;color:var(--g400);margin-top:1px}
-.cc-sc{text-align:center}
-.cc-sn{font-size:21px;font-weight:800}
-.cc-sl{font-size:9px;color:var(--g400);text-transform:uppercase;letter-spacing:.3px}
-.sbar{height:3px;background:var(--g100);border-radius:2px;overflow:hidden;margin-top:4px}
-.sbar-f{height:100%;border-radius:2px;width:0;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
-.cc-arr{font-size:16px;color:var(--g400);transition:transform .2s}
-.cc-arr.open{transform:rotate(180deg)}
-
-.cc-mets{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--g50)}
-@media(max-width:640px){.cc-mets{grid-template-columns:repeat(2,1fr)}}
-.met{padding:10px 12px;border-right:1px solid var(--g50);text-align:center}
-.met:last-child{border-right:none}
-.met-v{font-size:14px;font-weight:800;color:var(--g800)}
-.met-v.g{color:var(--green)}.met-v.o{color:var(--amber)}.met-v.r{color:var(--red)}
-.met-l{font-size:9px;color:var(--g400);text-transform:uppercase;letter-spacing:.2px;margin-top:2px}
-
-.cc-verdict{padding:9px 18px;background:var(--off);border-top:1px solid var(--g50);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.vl{font-size:11px;font-weight:700}
-.vl.vg{color:var(--green)}.vl.vo{color:var(--amber)}.vl.vr{color:var(--red)}
-.vtags{display:flex;gap:6px;flex-wrap:wrap}
-.vtag{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:600;border:1px solid var(--g100);color:var(--g400);background:#fff}
-.vtag.cg{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
-.vtag.co{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd)}
-.vtag.cr{background:var(--red-bg);color:var(--red);border-color:var(--red-bd)}
-.vtag.cb{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd)}
-
-.cc-detail{display:none}
-.cc-detail.open{display:block;animation:fadeUp .25s ease}
-.det-grid{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--g50)}
-@media(max-width:780px){.det-grid{grid-template-columns:1fr}}
-.dc{padding:16px 18px;border-right:1px solid var(--g50)}
-.dc:last-child{border-right:none}
-.dc-t{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g400);padding-bottom:7px;border-bottom:1px solid var(--g50);margin-bottom:9px}
-.krow{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--g50);font-size:11px}
-.krow:last-child{border-bottom:none}
-.kk{color:var(--g400)}
-.kv{font-family:var(--mono);font-weight:500;color:var(--g800);text-align:right;white-space:nowrap}
-.why-list{display:flex;flex-direction:column;gap:6px}
-.why-i{padding:8px 11px;border-radius:7px;border-left:3px solid var(--blue-lt);background:var(--blue-bg);color:var(--g600);font-size:11px;line-height:1.6}
-
-/* optimisation */
-.opt-box{background:#fff;border:1px solid var(--g100);border-radius:var(--rl);overflow:hidden;margin-bottom:26px;box-shadow:0 1px 4px rgba(13,31,60,.06)}
-.opt-hd{padding:14px 18px;background:var(--off);border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px}
-.opt-hd h3{font-size:15px;font-weight:800}
-.opt-body{padding:18px}
-.opt-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
-@media(max-width:520px){.opt-kpis{grid-template-columns:1fr}}
-.okpi{text-align:center;padding:13px 9px;background:var(--blue-bg);border-radius:9px;border:1px solid var(--blue-bd)}
-.okpi-v{font-size:18px;font-weight:800;color:var(--blue)}
-.okpi-l{font-size:9px;color:var(--blue-lt);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
-.a-tbl{width:100%;border-collapse:collapse;font-size:11px}
-.a-tbl th{padding:7px 11px;background:var(--off);color:var(--g400);font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--g100);text-align:left}
-.a-tbl td{padding:8px 11px;border-bottom:1px solid var(--g50)}
-.a-tbl tr:last-child td{border-bottom:none}
-.a-tbl tr:hover td{background:var(--off)}
-.sh-bar{height:5px;background:var(--g100);border-radius:3px;overflow:hidden;min-width:55px}
-.sh-fill{height:100%;background:var(--blue);border-radius:3px;width:0;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
-
-.chip{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600}
-.ch-g{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
-.ch-b{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
-
-.err-box{background:var(--red-bg);border:1.5px solid var(--red-bd);border-radius:var(--rl);padding:26px;text-align:center}
-.err-t{font-size:17px;font-weight:800;color:var(--red);margin-bottom:7px}
-.err-m{font-size:10px;color:var(--g400);font-family:var(--mono);white-space:pre-wrap;text-align:left;background:#fff;border-radius:7px;padding:11px;margin-top:9px;max-height:180px;overflow:auto}
-
-@media(max-width:640px){header{padding:0 16px}.ticker{padding:0}}
-
-/* ─── AI ANALYSIS PANEL ─── */
-.ai-panel{
-  background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);
-  border:1.5px solid rgba(99,102,241,.25);
-  border-radius:var(--rxl);
-  overflow:hidden;
-  margin-bottom:26px;
-  position:relative;
-}
-.ai-panel::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:radial-gradient(ellipse at 30% 0%,rgba(99,102,241,.12) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 100%,rgba(168,85,247,.08) 0%,transparent 50%);
-  pointer-events:none;
-}
-.ai-panel-hd{
-  padding:20px 24px 14px;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  position:relative;
-}
-.ai-panel-hd h3{
-  font-size:16px;
-  font-weight:800;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  gap:9px;
-}
-.ai-badge{
-  font-size:9px;
-  font-weight:700;
-  letter-spacing:.5px;
-  text-transform:uppercase;
-  padding:3px 9px;
-  border-radius:20px;
-  background:rgba(99,102,241,.2);
-  border:1px solid rgba(99,102,241,.35);
-  color:rgba(165,180,252,1);
-}
-.ai-conf{
-  font-size:10px;
-  font-weight:700;
-  padding:3px 10px;
-  border-radius:20px;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-}
-.ai-conf.HIGH{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:#4ade80}
-.ai-conf.MEDIUM{background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.25);color:#fde047}
-.ai-conf.LOW{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.25);color:#fca5a5}
-.ai-panel-body{
-  padding:20px 24px;
-  position:relative;
-}
-.ai-headline{
-  font-size:17px;
-  font-weight:700;
-  color:#e0e7ff;
-  line-height:1.45;
-  padding:14px 18px;
-  background:rgba(99,102,241,.08);
-  border:1px solid rgba(99,102,241,.18);
-  border-radius:12px;
-  margin-bottom:18px;
-  border-left:3px solid #818cf8;
-}
-.ai-sections{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin-bottom:16px;
-}
-@media(max-width:700px){.ai-sections{grid-template-columns:1fr}}
-.ai-sect{
-  padding:14px 16px;
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:11px;
-  transition:background .2s;
-}
-.ai-sect:hover{background:rgba(255,255,255,.05)}
-.ai-sect-ico{font-size:16px;margin-bottom:6px}
-.ai-sect-t{
-  font-size:9px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  color:rgba(255,255,255,.3);
-  margin-bottom:6px;
-}
-.ai-sect-body{
-  font-size:12.5px;
-  color:rgba(255,255,255,.65);
-  line-height:1.65;
-}
-.ai-sect-body strong{color:rgba(255,255,255,.9)}
-.ai-actions{
-  padding:14px 18px;
-  background:rgba(99,102,241,.06);
-  border:1px solid rgba(99,102,241,.12);
-  border-radius:11px;
-}
-.ai-actions-t{
-  font-size:9px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  color:rgba(165,180,252,.6);
-  margin-bottom:8px;
-}
-.ai-action-item{
-  display:flex;
-  align-items:flex-start;
-  gap:8px;
-  padding:6px 0;
-  font-size:12px;
-  color:rgba(255,255,255,.6);
-  line-height:1.55;
-}
-.ai-action-num{
-  flex-shrink:0;
-  width:20px;
-  height:20px;
-  border-radius:6px;
-  background:rgba(99,102,241,.18);
-  border:1px solid rgba(99,102,241,.3);
-  display:grid;
-  place-items:center;
-  font-size:9px;
-  font-weight:800;
-  color:#a5b4fc;
-}
-.ai-powered{
-  margin-top:12px;
-  padding-top:12px;
-  border-top:1px solid rgba(255,255,255,.05);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  font-size:10px;
-  color:rgba(255,255,255,.2);
-}
-.ai-powered-logo{
-  display:flex;
-  align-items:center;
-  gap:5px;
-}
-.ai-powered-dot{
-  width:5px;
-  height:5px;
-  border-radius:50%;
-  background:#818cf8;
-  animation:blink 2s infinite;
-}
-
-/* ─── AI Loading Skeleton ─── */
-@keyframes aiShimmer{
-  0%{background-position:-400px 0}
-  100%{background-position:400px 0}
-}
-.ai-skeleton{
-  background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
-  border:1.5px solid rgba(99,102,241,.15);
-  border-radius:var(--rxl);
-  padding:28px 24px;
-  margin-bottom:26px;
-}
-.ai-skel-line{
-  height:12px;
-  border-radius:6px;
-  background:linear-gradient(90deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.03) 100%);
-  background-size:800px 12px;
-  animation:aiShimmer 1.5s infinite linear;
-  margin-bottom:10px;
-}
-.ai-skel-line:nth-child(2){width:85%}
-.ai-skel-line:nth-child(3){width:70%}
-.ai-skel-line:nth-child(4){width:90%;margin-top:18px}
-.ai-skel-line:nth-child(5){width:60%}
-
-/* ───── GOOGLE MAPS CARD ───── */
-.map-card{
-  background:var(--card); border-radius:16px; overflow:hidden;
-  border:1px solid var(--bd); margin-top:18px;
-}
-.map-header{
-  padding:14px 18px; display:flex; align-items:center; gap:10px;
-  border-bottom:1px solid var(--bd);
-}
-.map-header h3{margin:0; font-size:.95rem; font-weight:700; color:var(--tx)}
-.map-header .map-badge{
-  font-size:.7rem; padding:2px 8px; border-radius:8px;
-  background:rgba(99,102,241,.15); color:#818cf8; font-weight:600;
-}
-.map-container{width:100%;height:320px;position:relative;background:#1a1b2e}
-.map-container #routeMap{width:100%;height:100%}
-.map-info-bar{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
-  padding:12px 16px; background:rgba(15,20,50,.6);
-}
-.map-info-item{text-align:center}
-.map-info-label{font-size:.65rem;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
-.map-info-value{font-size:.95rem;font-weight:700;color:var(--tx);margin-top:2px}
-.map-info-value.live{color:#34d399}
-.map-pin-hint{
-  padding:8px 16px; font-size:.72rem; color:var(--t3);
-  border-top:1px solid var(--bd); display:flex; align-items:center; gap:6px;
-}
-.map-pin-hint .pin-dot{width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0}
-.map-no-key{
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  height:100%; color:var(--t3); font-size:.85rem; gap:8px;
-}
-.map-no-key .map-no-ico{font-size:2rem;opacity:.4}
-
-/* Transit override badge when Maps data is available */
-.transit-live{
-  display:inline-flex; align-items:center; gap:4px;
-  font-size:.6rem; color:#34d399; font-weight:600;
-  background:rgba(52,211,153,.1); border-radius:4px; padding:1px 6px;
-  margin-left:6px;
-}
+.empty-state { text-align: center; padding: 60px 20px; background: var(--white); border-radius: 16px; border: 2px dashed var(--slate-200); }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand">
-    <div class="b-icon">🚛</div>
-    <div>
-      <div class="b-name">FreightIQ</div>
-      <div class="b-tag">Intelligent Carrier Selection · India Road Freight</div>
-    </div>
+  <div class="logo">
+    <div class="logo-icon">Q</div>
+    <div>FreightIQ <span class="tagline">Multimodal Intelligence Engine</span></div>
   </div>
-  <div class="h-right">
-    <div class="status-badge"><div class="s-dot"></div><span id="apiStatus">Connecting…</span></div>
-    <div class="h-date" id="hdrDate"></div>
-  </div>
+  <div style="font-size:13px; opacity:0.8;">Live Models Active • Connected to Optimizer</div>
 </header>
 
-<div class="ticker">
-  <div class="t-track" id="tickerTrack">
-    <span class="t-item">📊 <strong>37 origins · 1,297 lanes</strong> from shipment history</span>
-    <span class="t-item">⏳ <strong>Loading live market data...</strong></span>
-    <span class="t-item">📊 <strong>37 origins · 1,297 lanes</strong> from shipment history</span>
-    <span class="t-item">⏳ <strong>Loading live market data...</strong></span>
-  </div>
-</div>
-
-<main class="shell">
-  <div class="pg-head au0">
-    <h1>Find the <span class="accent">best carrier</span><br>for your shipment</h1>
-    <p>ML scoring · live market intelligence · LP optimisation — all in one form.</p>
-  </div>
-
-  <div class="page-grid">
-
-    <!-- FORM -->
-    <div class="form-card au1">
-      <div class="fc-banner">
-        <h2>Shipment Details</h2>
-        <p>Pick an origin — destination chips update instantly. Distance &amp; transit auto-fill.</p>
+<main>
+  <!-- Left Form -->
+  <aside class="form-card">
+    <h3>1. Origin</h3>
+    <div class="pills-container" id="originBox"></div>
+    
+    <h3>2. Destination</h3>
+    <div class="pills-container" id="destBox">
+      <div style="font-size:13px; color:var(--slate-500); padding:6px;">Select an origin first</div>
+    </div>
+    
+    <h3>3. Transport Mode</h3>
+    <div class="modes-grid">
+      <div class="mode-card mode-roadways active" onclick="setMode('roadways')">
+        <div class="icon">🚛</div><div class="name">Roadways</div><div class="tag">Door-to-door</div>
       </div>
-      <div class="fc-body">
-
-        <div class="s-lbl">Route <span class="lbl-badge">Origin → Destination</span></div>
-        <div class="route-grid">
-          <div class="field">
-            <label>Pickup Location</label>
-            <input type="text" id="originSelect" class="route-select" placeholder="Search exact pickup...">
-          </div>
-          <div class="route-arrow">→</div>
-          <div class="field">
-            <label>Drop-off Location</label>
-            <input type="text" id="destSelect" class="route-select" placeholder="Search exact drop-off...">
-          </div>
-        </div>
-
-        <div class="auto-row" id="autoRow" style="display:none">
-          <div class="auto-box">
-            <div class="auto-lbl">Distance</div>
-            <div class="auto-val" id="autoDist">—</div>
-            <div class="auto-sub">km by road</div>
-          </div>
-          <div class="auto-box">
-            <div class="auto-lbl">Transit</div>
-            <div class="auto-val" id="autoTransit">—</div>
-            <div class="auto-sub" id="autoTransitSub">days estimated</div>
-          </div>
-        </div>
-
-        <!-- Google Maps Route Card -->
-        <div class="map-card" id="mapCard" style="display:none">
-          <div class="map-header">
-            <h3>📍 Route Map</h3>
-            <span class="map-badge" id="mapBadge">Estimated</span>
-          </div>
-          <div class="map-container">
-            <div id="routeMap"></div>
-          </div>
-          <div class="map-info-bar" id="mapInfoBar">
-            <div class="map-info-item">
-              <div class="map-info-label">Distance</div>
-              <div class="map-info-value" id="mapDist">—</div>
-            </div>
-            <div class="map-info-item">
-              <div class="map-info-label">Drive Time</div>
-              <div class="map-info-value" id="mapDuration">—</div>
-            </div>
-            <div class="map-info-item">
-              <div class="map-info-label">Transit Days</div>
-              <div class="map-info-value" id="mapTransit">—</div>
-            </div>
-            <div class="map-info-item">
-              <div class="map-info-label">Via</div>
-              <div class="map-info-value" id="mapVia" style="font-size:.75rem">—</div>
-            </div>
-          </div>
-          <div class="map-pin-hint">
-            <div class="pin-dot"></div>
-            <span>Click on the map to set exact <strong>pickup</strong> (green) and <strong>drop</strong> (red) points for precise routing</span>
-          </div>
-        </div>
-
-        <div class="s-lbl" style="margin-top:18px">Freight Type</div>
-        <div class="f-row full" style="margin-bottom:12px">
-          <div class="field">
-            <select id="freight_type" class="fs" onchange="updateSummary()">
-              <option value="Pharma">💊 Pharma — Medicines &amp; Healthcare</option>
-              <option value="Electronics">📱 Electronics — High-value devices</option>
-              <option value="Auto Parts">🔧 Auto Parts — Vehicle components</option>
-              <option value="FMCG" selected>🛒 FMCG — Fast Moving Consumer Goods</option>
-              <option value="Textiles">👕 Textiles — Fabric &amp; garments</option>
-              <option value="General Cargo">📦 General Cargo — Standard</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="s-lbl">Mode</div>
-        <div class="mode-grid" style="margin-bottom:14px">
-          <div class="m-btn active" id="btn-FTL" onclick="setMode('FTL')">
-            <div class="m-t">🚛 FTL</div><div class="m-s">Full Truck · 3,000+ kg</div>
-          </div>
-          <div class="m-btn" id="btn-LTL" onclick="setMode('LTL')">
-            <div class="m-t">📦 LTL</div><div class="m-s">Part Load · &lt;3,000 kg</div>
-          </div>
-        </div>
-
-        <div class="s-lbl">Cargo Details</div>
-        <div class="f-row">
-          <div class="field">
-            <label>Weight (kg) *</label>
-            <input id="weight_kg" class="fi" type="number" min="1" value="5000" oninput="updateSummary()">
-          </div>
-          <div class="field">
-            <label>Shipment Value (₹)</label>
-            <input id="shipment_value" class="fi" type="number" min="0" value="500000" oninput="updateSummary()">
-          </div>
-        </div>
-
-        <div class="s-lbl">Scoring Priority</div>
-        <div class="pri-grid" style="margin-bottom:4px">
-          <div class="p-card active" onclick="setPri('balanced',this)"><div class="p-icon">⚖️</div><div class="p-name">Balanced</div><div class="p-w">C40·OT30·R30</div></div>
-          <div class="p-card" onclick="setPri('cost',this)"><div class="p-icon">💰</div><div class="p-name">Cost-First</div><div class="p-w">C60·OT20·R20</div></div>
-          <div class="p-card" onclick="setPri('reliability',this)"><div class="p-icon">✅</div><div class="p-name">Reliability</div><div class="p-w">C20·OT50·R30</div></div>
-          <div class="p-card" onclick="setPri('risk',this)"><div class="p-icon">🛡️</div><div class="p-name">Risk-Averse</div><div class="p-w">C20·OT30·R50</div></div>
-          <div class="p-card" onclick="setPri('pharma',this)"><div class="p-icon">💊</div><div class="p-name">Pharma</div><div class="p-w">C15·OT35·R50</div></div>
-          <div class="p-card" onclick="setPri('sales',this)"><div class="p-icon">📈</div><div class="p-name">Sales</div><div class="p-w">C25·OT45·R30</div></div>
-        </div>
-
-        <div class="summary">
-          <div class="sum-row"><span class="sum-k">Route</span><span class="sum-v" id="sumRoute">—</span></div>
-          <div class="sum-row"><span class="sum-k">Cargo</span><span class="sum-v" id="sumCargo">—</span></div>
-          <div class="sum-row"><span class="sum-k">Priority</span><span class="sum-v" id="sumPri">Balanced</span></div>
-          <div class="sum-row"><span class="sum-k">Market</span><span class="sum-v" id="sumMkt">× — est.</span></div>
-        </div>
-
-        <button class="btn-go" id="goBtn" onclick="runAnalysis()">
-          <span id="btnIco">▶</span>
-          <span id="btnTxt">Analyse &amp; Score Carriers</span>
-        </button>
+      <div class="mode-card mode-railways" onclick="setMode('railways')">
+        <div class="icon">🚂</div><div class="name">Railways</div><div class="tag">Bulk freight</div>
+      </div>
+      <div class="mode-card mode-airways" onclick="setMode('airways')">
+        <div class="icon">✈️</div><div class="name">Airways</div><div class="tag">Next-day delivery</div>
       </div>
     </div>
-
-    <!-- RESULTS -->
-    <div id="resultsCol">
-      <div class="r-empty au2">
-        <div class="r-ico">🗺️</div>
-        <div class="r-t">Results appear here</div>
-        <div class="r-s">Select an origin, pick a destination, then click Analyse to see carrier rankings, market data &amp; LP optimisation.</div>
+    
+    <div class="svg-container" id="svgBox">
+       <span style="font-size:12px; color:var(--slate-400)">Select route to visualize path</span>
+    </div>
+    
+    <div class="info-grid" style="margin-bottom:24px;">
+      <div class="info-box">
+        <label>Routing Distance</label>
+        <div class="val mono" id="distVal">—</div>
+      </div>
+      <div class="info-box">
+        <label>Expected Transit</label>
+        <div class="val mono" id="transitVal">—</div>
       </div>
     </div>
-
-  </div>
+    
+    <h3>4. Shipment Details</h3>
+    <div class="info-grid">
+      <div class="input-grp">
+        <label>Freight Type</label>
+        <select id="goods">
+          <option>FMCG</option><option>Electronics</option><option>Apparel</option><option>Automotive</option><option>Industrial</option><option>Pharmaceuticals</option><option>Perishables</option>
+        </select>
+      </div>
+      <div class="input-grp">
+        <label>Weight (kg)</label>
+        <input type="number" id="weight" value="5000">
+      </div>
+    </div>
+    
+    <h3>5. Priority Profile</h3>
+    <div class="pri-grid">
+      <div class="pri-card active" onclick="setPri('balanced', this)">Balanced</div>
+      <div class="pri-card" onclick="setPri('cost-first', this)">Cost First</div>
+      <div class="pri-card" onclick="setPri('reliability', this)">Reliability</div>
+    </div>
+    
+    <button class="btn-primary" id="btnAnalyze" onclick="analyze()">🚀 Analyse & Score Route</button>
+  </aside>
+  
+  <!-- Right Results -->
+  <section class="results-col" id="resCol">
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <h2>Awaiting Execution</h2>
+      <p style="color:var(--slate-500); margin-top:8px;">Select parameters and click Analyse to trigger the ensemble ML models, scrape market data, run LP optimisation, and construct the multimodal route.</p>
+    </div>
+  </section>
 </main>
 
 <script>
-/* ─────────────── LANE DATA (from shipment_history_updated_v2.csv) ─────────────── */
-const LANES = {"Agra": {"Ahmedabad": {"distance_km": 932.0, "transit_days": 3}, "Amritsar": {"distance_km": 746.0, "transit_days": 2}, "Bangalore": {"distance_km": 2068.0, "transit_days": 3}, "Bhopal": {"distance_km": 569.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1434.0, "transit_days": 3}, "Chandigarh": {"distance_km": 528.0, "transit_days": 2}, "Chennai": {"distance_km": 2062.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2346.0, "transit_days": 3}, "Dehradun": {"distance_km": 448.0, "transit_days": 2}, "Delhi": {"distance_km": 227.0, "transit_days": 1}, "Guwahati": {"distance_km": 1774.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1418.0, "transit_days": 3}, "Indore": {"distance_km": 706.0, "transit_days": 2}, "Jabalpur": {"distance_km": 629.0, "transit_days": 2}, "Jaipur": {"distance_km": 287.0, "transit_days": 1}, "Kanpur": {"distance_km": 313.0, "transit_days": 2}, "Kochi": {"distance_km": 2497.0, "transit_days": 3}, "Kolkata": {"distance_km": 1516.0, "transit_days": 3}, "Lucknow": {"distance_km": 378.0, "transit_days": 2}, "Madurai": {"distance_km": 2501.0, "transit_days": 3}, "Mangalore": {"distance_km": 2109.0, "transit_days": 3}, "Mumbai": {"distance_km": 1352.0, "transit_days": 3}, "Nagpur": {"distance_km": 894.0, "transit_days": 3}, "Nashik": {"distance_km": 1180.0, "transit_days": 3}, "Noida": {"distance_km": 203.0, "transit_days": 1}, "Patna": {"distance_km": 948.0, "transit_days": 3}, "Pune": {"distance_km": 1371.0, "transit_days": 3}, "Raipur": {"distance_km": 976.0, "transit_days": 3}, "Rajkot": {"distance_km": 1181.0, "transit_days": 3}, "Ranchi": {"distance_km": 1101.0, "transit_days": 3}, "Surat": {"distance_km": 1105.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2707.0, "transit_days": 3}, "Vadodara": {"distance_km": 948.0, "transit_days": 3}, "Varanasi": {"distance_km": 704.0, "transit_days": 2}, "Vijayawada": {"distance_km": 1585.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1544.0, "transit_days": 3}}, "Ahmedabad": {"Agra": {"distance_km": 932.0, "transit_days": 3}, "Amritsar": {"distance_km": 1278.0, "transit_days": 3}, "Bangalore": {"distance_km": 1613.0, "transit_days": 3}, "Bhopal": {"distance_km": 639.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1815.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1238.0, "transit_days": 3}, "Chennai": {"distance_km": 1779.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1838.0, "transit_days": 3}, "Dehradun": {"distance_km": 1265.0, "transit_days": 3}, "Delhi": {"distance_km": 1007.0, "transit_days": 3}, "Guwahati": {"distance_km": 2550.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1138.0, "transit_days": 3}, "Indore": {"distance_km": 442.0, "transit_days": 2}, "Jabalpur": {"distance_km": 971.0, "transit_days": 3}, "Jaipur": {"distance_km": 703.0, "transit_days": 2}, "Kanpur": {"distance_km": 1130.0, "transit_days": 3}, "Kochi": {"distance_km": 1948.0, "transit_days": 3}, "Kolkata": {"distance_km": 2105.0, "transit_days": 3}, "Lucknow": {"distance_km": 1219.0, "transit_days": 3}, "Madurai": {"distance_km": 2041.0, "transit_days": 3}, "Mangalore": {"distance_km": 1494.0, "transit_days": 3}, "Mumbai": {"distance_km": 565.0, "transit_days": 2}, "Nagpur": {"distance_km": 913.0, "transit_days": 3}, "Nashik": {"distance_km": 463.0, "transit_days": 2}, "Noida": {"distance_km": 1011.0, "transit_days": 3}, "Patna": {"distance_km": 1688.0, "transit_days": 3}, "Pune": {"distance_km": 674.0, "transit_days": 2}, "Raipur": {"distance_km": 1230.0, "transit_days": 3}, "Rajkot": {"distance_km": 261.0, "transit_days": 1}, "Ranchi": {"distance_km": 1688.0, "transit_days": 3}, "Surat": {"distance_km": 262.0, "transit_days": 1}, "Thiruvananthapuram": {"distance_km": 2183.0, "transit_days": 3}, "Vadodara": {"distance_km": 129.0, "transit_days": 1}, "Varanasi": {"distance_km": 1411.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1437.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1639.0, "transit_days": 3}}, "Amritsar": {"Agra": {"distance_km": 746.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 1278.0, "transit_days": 3}, "Bangalore": {"distance_km": 2727.0, "transit_days": 3}, "Bhopal": {"distance_km": 1242.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 2159.0, "transit_days": 3}, "Chandigarh": {"distance_km": 269.0, "transit_days": 1}, "Chennai": {"distance_km": 2769.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2991.0, "transit_days": 3}, "Dehradun": {"distance_km": 428.0, "transit_days": 2}, "Delhi": {"distance_km": 520.0, "transit_days": 2}, "Guwahati": {"distance_km": 2262.0, "transit_days": 3}, "Hyderabad": {"distance_km": 2106.0, "transit_days": 3}, "Indore": {"distance_km": 1293.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1373.0, "transit_days": 3}, "Jaipur": {"distance_km": 689.0, "transit_days": 2}, "Kanpur": {"distance_km": 1004.0, "transit_days": 3}, "Kochi": {"distance_km": 3128.0, "transit_days": 3}, "Kolkata": {"distance_km": 2167.0, "transit_days": 3}, "Lucknow": {"distance_km": 1027.0, "transit_days": 3}, "Madurai": {"distance_km": 3166.0, "transit_days": 3}, "Mangalore": {"distance_km": 2703.0, "transit_days": 3}, "Mumbai": {"distance_km": 1826.0, "transit_days": 3}, "Nagpur": {"distance_km": 1612.0, "transit_days": 3}, "Nashik": {"distance_km": 1683.0, "transit_days": 3}, "Noida": {"distance_km": 546.0, "transit_days": 2}, "Patna": {"distance_km": 1557.0, "transit_days": 3}, "Pune": {"distance_km": 1898.0, "transit_days": 3}, "Raipur": {"distance_km": 1722.0, "transit_days": 3}, "Rajkot": {"distance_km": 1444.0, "transit_days": 3}, "Ranchi": {"distance_km": 1782.0, "transit_days": 3}, "Surat": {"distance_km": 1528.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 3351.0, "transit_days": 3}, "Vadodara": {"distance_km": 1362.0, "transit_days": 3}, "Varanasi": {"distance_km": 1374.0, "transit_days": 3}, "Vijayawada": {"distance_km": 2308.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 2290.0, "transit_days": 3}}, "Bangalore": {"Agra": {"distance_km": 2068.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1613.0, "transit_days": 3}, "Amritsar": {"distance_km": 2727.0, "transit_days": 3}, "Bhopal": {"distance_km": 1504.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1560.0, "transit_days": 3}, "Chandigarh": {"distance_km": 2575.0, "transit_days": 3}, "Chennai": {"distance_km": 381.0, "transit_days": 2}, "Coimbatore": {"distance_km": 287.0, "transit_days": 1}, "Dehradun": {"distance_km": 2516.0, "transit_days": 3}, "Delhi": {"distance_km": 2270.0, "transit_days": 3}, "Guwahati": {"distance_km": 2713.0, "transit_days": 3}, "Hyderabad": {"distance_km": 662.0, "transit_days": 2}, "Indore": {"distance_km": 1436.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1522.0, "transit_days": 3}, "Jaipur": {"distance_km": 2038.0, "transit_days": 3}, "Kanpur": {"distance_km": 2000.0, "transit_days": 3}, "Kochi": {"distance_km": 458.0, "transit_days": 2}, "Kolkata": {"distance_km": 2042.0, "transit_days": 3}, "Lucknow": {"distance_km": 2058.0, "transit_days": 3}, "Madurai": {"distance_km": 439.0, "transit_days": 2}, "Mangalore": {"distance_km": 380.0, "transit_days": 2}, "Mumbai": {"distance_km": 1109.0, "transit_days": 3}, "Nagpur": {"distance_km": 1203.0, "transit_days": 3}, "Nashik": {"distance_km": 1153.0, "transit_days": 3}, "Noida": {"distance_km": 2255.0, "transit_days": 3}, "Patna": {"distance_km": 2100.0, "transit_days": 3}, "Pune": {"distance_km": 959.0, "transit_days": 3}, "Raipur": {"distance_km": 1334.0, "transit_days": 3}, "Rajkot": {"distance_km": 1650.0, "transit_days": 3}, "Ranchi": {"distance_km": 1849.0, "transit_days": 3}, "Surat": {"distance_km": 1371.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 642.0, "transit_days": 2}, "Vadodara": {"distance_km": 1488.0, "transit_days": 3}, "Varanasi": {"distance_km": 1938.0, "transit_days": 3}, "Vijayawada": {"distance_km": 668.0, "transit_days": 2}, "Visakhapatnam": {"distance_km": 1055.0, "transit_days": 3}}, "Bhopal": {"Agra": {"distance_km": 569.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 639.0, "transit_days": 2}, "Amritsar": {"distance_km": 1242.0, "transit_days": 3}, "Bangalore": {"distance_km": 1504.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1208.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1072.0, "transit_days": 3}, "Chennai": {"distance_km": 1527.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1779.0, "transit_days": 3}, "Dehradun": {"distance_km": 1015.0, "transit_days": 3}, "Delhi": {"distance_km": 767.0, "transit_days": 2}, "Guwahati": {"distance_km": 1922.0, "transit_days": 3}, "Hyderabad": {"distance_km": 866.0, "transit_days": 3}, "Indore": {"distance_km": 218.0, "transit_days": 1}, "Jabalpur": {"distance_km": 332.0, "transit_days": 2}, "Jaipur": {"distance_km": 561.0, "transit_days": 2}, "Kanpur": {"distance_km": 599.0, "transit_days": 2}, "Kochi": {"distance_km": 1929.0, "transit_days": 3}, "Kolkata": {"distance_km": 1467.0, "transit_days": 3}, "Lucknow": {"distance_km": 683.0, "transit_days": 2}, "Madurai": {"distance_km": 1939.0, "transit_days": 3}, "Mangalore": {"distance_km": 1542.0, "transit_days": 3}, "Mumbai": {"distance_km": 858.0, "transit_days": 3}, "Nagpur": {"distance_km": 391.0, "transit_days": 2}, "Nashik": {"distance_km": 679.0, "transit_days": 2}, "Noida": {"distance_km": 752.0, "transit_days": 2}, "Patna": {"distance_km": 1066.0, "transit_days": 3}, "Pune": {"distance_km": 839.0, "transit_days": 3}, "Raipur": {"distance_km": 632.0, "transit_days": 2}, "Rajkot": {"distance_km": 891.0, "transit_days": 3}, "Ranchi": {"distance_km": 1048.0, "transit_days": 3}, "Surat": {"distance_km": 686.0, "transit_days": 2}, "Thiruvananthapuram": {"distance_km": 2140.0, "transit_days": 3}, "Vadodara": {"distance_km": 578.0, "transit_days": 2}, "Varanasi": {"distance_km": 792.0, "transit_days": 2}, "Vijayawada": {"distance_km": 1075.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1137.0, "transit_days": 3}}, "Bhubaneswar": {"Agra": {"distance_km": 1434.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1815.0, "transit_days": 3}, "Amritsar": {"distance_km": 2159.0, "transit_days": 3}, "Bangalore": {"distance_km": 1560.0, "transit_days": 3}, "Bhopal": {"distance_km": 1208.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1906.0, "transit_days": 3}, "Chennai": {"distance_km": 1289.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1818.0, "transit_days": 3}, "Dehradun": {"distance_km": 1767.0, "transit_days": 3}, "Delhi": {"distance_km": 1648.0, "transit_days": 3}, "Guwahati": {"distance_km": 1158.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1083.0, "transit_days": 3}, "Indore": {"distance_km": 1376.0, "transit_days": 3}, "Jabalpur": {"distance_km": 896.0, "transit_days": 3}, "Jaipur": {"distance_km": 1631.0, "transit_days": 3}, "Kanpur": {"distance_km": 1155.0, "transit_days": 3}, "Kochi": {"distance_km": 1992.0, "transit_days": 3}, "Kolkata": {"distance_km": 483.0, "transit_days": 2}, "Lucknow": {"distance_km": 1142.0, "transit_days": 3}, "Madurai": {"distance_km": 1847.0, "transit_days": 3}, "Mangalore": {"distance_km": 1849.0, "transit_days": 3}, "Mumbai": {"distance_km": 1764.0, "transit_days": 3}, "Nagpur": {"distance_km": 913.0, "transit_days": 3}, "Nashik": {"distance_km": 1629.0, "transit_days": 3}, "Noida": {"distance_km": 1620.0, "transit_days": 3}, "Patna": {"distance_km": 772.0, "transit_days": 2}, "Pune": {"distance_km": 1643.0, "transit_days": 3}, "Raipur": {"distance_km": 586.0, "transit_days": 2}, "Rajkot": {"distance_km": 2040.0, "transit_days": 3}, "Ranchi": {"distance_km": 453.0, "transit_days": 2}, "Surat": {"distance_km": 1762.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2103.0, "transit_days": 3}, "Vadodara": {"distance_km": 1721.0, "transit_days": 3}, "Varanasi": {"distance_km": 813.0, "transit_days": 3}, "Vijayawada": {"distance_km": 900.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 508.0, "transit_days": 2}}, "Chandigarh": {"Agra": {"distance_km": 528.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 1238.0, "transit_days": 3}, "Amritsar": {"distance_km": 269.0, "transit_days": 1}, "Bangalore": {"distance_km": 2575.0, "transit_days": 3}, "Bhopal": {"distance_km": 1072.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1906.0, "transit_days": 3}, "Chennai": {"distance_km": 2587.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2848.0, "transit_days": 3}, "Dehradun": {"distance_km": 160.0, "transit_days": 1}, "Delhi": {"distance_km": 308.0, "transit_days": 2}, "Guwahati": {"distance_km": 2000.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1936.0, "transit_days": 3}, "Indore": {"distance_km": 1162.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1155.0, "transit_days": 3}, "Jaipur": {"distance_km": 564.0, "transit_days": 2}, "Kanpur": {"distance_km": 752.0, "transit_days": 2}, "Kochi": {"distance_km": 2993.0, "transit_days": 3}, "Kolkata": {"distance_km": 1900.0, "transit_days": 3}, "Lucknow": {"distance_km": 767.0, "transit_days": 2}, "Madurai": {"distance_km": 3012.0, "transit_days": 3}, "Mangalore": {"distance_km": 2586.0, "transit_days": 3}, "Mumbai": {"distance_km": 1753.0, "transit_days": 3}, "Nagpur": {"distance_km": 1419.0, "transit_days": 3}, "Nashik": {"distance_km": 1595.0, "transit_days": 3}, "Noida": {"distance_km": 327.0, "transit_days": 2}, "Patna": {"distance_km": 1289.0, "transit_days": 3}, "Pune": {"distance_km": 1804.0, "transit_days": 3}, "Raipur": {"distance_km": 1495.0, "transit_days": 3}, "Rajkot": {"distance_km": 1440.0, "transit_days": 3}, "Ranchi": {"distance_km": 1519.0, "transit_days": 3}, "Surat": {"distance_km": 1468.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 3209.0, "transit_days": 3}, "Vadodara": {"distance_km": 1300.0, "transit_days": 3}, "Varanasi": {"distance_km": 1111.0, "transit_days": 3}, "Vijayawada": {"distance_km": 2113.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 2064.0, "transit_days": 3}}, "Chennai": {"Agra": {"distance_km": 2062.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1779.0, "transit_days": 3}, "Amritsar": {"distance_km": 2769.0, "transit_days": 3}, "Bangalore": {"distance_km": 381.0, "transit_days": 2}, "Bhopal": {"distance_km": 1527.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1289.0, "transit_days": 3}, "Chandigarh": {"distance_km": 2587.0, "transit_days": 3}, "Coimbatore": {"distance_km": 557.0, "transit_days": 2}, "Dehradun": {"distance_km": 2505.0, "transit_days": 3}, "Delhi": {"distance_km": 2279.0, "transit_days": 3}, "Guwahati": {"distance_km": 2445.0, "transit_days": 3}, "Hyderabad": {"distance_km": 670.0, "transit_days": 2}, "Indore": {"distance_km": 1514.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1461.0, "transit_days": 3}, "Jaipur": {"distance_km": 2086.0, "transit_days": 3}, "Kanpur": {"distance_km": 1937.0, "transit_days": 3}, "Kochi": {"distance_km": 722.0, "transit_days": 2}, "Kolkata": {"distance_km": 1768.0, "transit_days": 3}, "Lucknow": {"distance_km": 1982.0, "transit_days": 3}, "Madurai": {"distance_km": 558.0, "transit_days": 2}, "Mangalore": {"distance_km": 761.0, "transit_days": 2}, "Mumbai": {"distance_km": 1344.0, "transit_days": 3}, "Nagpur": {"distance_km": 1168.0, "transit_days": 3}, "Nashik": {"distance_km": 1343.0, "transit_days": 3}, "Noida": {"distance_km": 2260.0, "transit_days": 3}, "Patna": {"distance_km": 1921.0, "transit_days": 3}, "Pune": {"distance_km": 1184.0, "transit_days": 3}, "Raipur": {"distance_km": 1199.0, "transit_days": 3}, "Rajkot": {"distance_km": 1864.0, "transit_days": 3}, "Ranchi": {"distance_km": 1639.0, "transit_days": 3}, "Surat": {"distance_km": 1563.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 813.0, "transit_days": 3}, "Vadodara": {"distance_km": 1650.0, "transit_days": 3}, "Varanasi": {"distance_km": 1801.0, "transit_days": 3}, "Vijayawada": {"distance_km": 493.0, "transit_days": 2}, "Visakhapatnam": {"distance_km": 785.0, "transit_days": 2}}, "Coimbatore": {"Agra": {"distance_km": 2346.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1838.0, "transit_days": 3}, "Amritsar": {"distance_km": 2991.0, "transit_days": 3}, "Bangalore": {"distance_km": 287.0, "transit_days": 1}, "Bhopal": {"distance_km": 1779.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1818.0, "transit_days": 3}, "Chandigarh": {"distance_km": 2848.0, "transit_days": 3}, "Chennai": {"distance_km": 557.0, "transit_days": 2}, "Dehradun": {"distance_km": 2793.0, "transit_days": 3}, "Delhi": {"distance_km": 2544.0, "transit_days": 3}, "Guwahati": {"distance_km": 2975.0, "transit_days": 3}, "Hyderabad": {"distance_km": 949.0, "transit_days": 3}, "Indore": {"distance_km": 1698.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1808.0, "transit_days": 3}, "Jaipur": {"distance_km": 2304.0, "transit_days": 3}, "Kanpur": {"distance_km": 2285.0, "transit_days": 3}, "Kochi": {"distance_km": 175.0, "transit_days": 1}, "Kolkata": {"distance_km": 2300.0, "transit_days": 3}, "Lucknow": {"distance_km": 2345.0, "transit_days": 3}, "Madurai": {"distance_km": 223.0, "transit_days": 1}, "Mangalore": {"distance_km": 405.0, "transit_days": 2}, "Mumbai": {"distance_km": 1303.0, "transit_days": 3}, "Nagpur": {"distance_km": 1489.0, "transit_days": 3}, "Nashik": {"distance_km": 1375.0, "transit_days": 3}, "Noida": {"distance_km": 2530.0, "transit_days": 3}, "Patna": {"distance_km": 2383.0, "transit_days": 3}, "Pune": {"distance_km": 1167.0, "transit_days": 3}, "Raipur": {"distance_km": 1620.0, "transit_days": 3}, "Rajkot": {"distance_km": 1845.0, "transit_days": 3}, "Ranchi": {"distance_km": 2126.0, "transit_days": 3}, "Surat": {"distance_km": 1585.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 361.0, "transit_days": 2}, "Vadodara": {"distance_km": 1716.0, "transit_days": 3}, "Varanasi": {"distance_km": 2224.0, "transit_days": 3}, "Vijayawada": {"distance_km": 942.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1310.0, "transit_days": 3}}, "Dehradun": {"Agra": {"distance_km": 448.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 1265.0, "transit_days": 3}, "Amritsar": {"distance_km": 428.0, "transit_days": 2}, "Bangalore": {"distance_km": 2516.0, "transit_days": 3}, "Bhopal": {"distance_km": 1015.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1767.0, "transit_days": 3}, "Chandigarh": {"distance_km": 160.0, "transit_days": 1}, "Chennai": {"distance_km": 2505.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2793.0, "transit_days": 3}, "Delhi": {"distance_km": 266.0, "transit_days": 1}, "Guwahati": {"distance_km": 1841.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1866.0, "transit_days": 3}, "Indore": {"distance_km": 1132.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1055.0, "transit_days": 3}, "Jaipur": {"distance_km": 565.0, "transit_days": 2}, "Kanpur": {"distance_km": 622.0, "transit_days": 2}, "Kochi": {"distance_km": 2943.0, "transit_days": 3}, "Kolkata": {"distance_km": 1745.0, "transit_days": 3}, "Lucknow": {"distance_km": 626.0, "transit_days": 2}, "Madurai": {"distance_km": 2949.0, "transit_days": 3}, "Mangalore": {"distance_km": 2549.0, "transit_days": 3}, "Mumbai": {"distance_km": 1751.0, "transit_days": 3}, "Nagpur": {"distance_km": 1338.0, "transit_days": 3}, "Nashik": {"distance_km": 1587.0, "transit_days": 3}, "Noida": {"distance_km": 271.0, "transit_days": 1}, "Patna": {"distance_km": 1132.0, "transit_days": 3}, "Pune": {"distance_km": 1789.0, "transit_days": 3}, "Raipur": {"distance_km": 1382.0, "transit_days": 3}, "Rajkot": {"distance_km": 1485.0, "transit_days": 3}, "Ranchi": {"distance_km": 1371.0, "transit_days": 3}, "Surat": {"distance_km": 1479.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 3154.0, "transit_days": 3}, "Vadodara": {"distance_km": 1313.0, "transit_days": 3}, "Varanasi": {"distance_km": 965.0, "transit_days": 3}, "Vijayawada": {"distance_km": 2024.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1950.0, "transit_days": 3}}, "Delhi": {"Agra": {"distance_km": 227.0, "transit_days": 1}, "Ahmedabad": {"distance_km": 1007.0, "transit_days": 3}, "Amritsar": {"distance_km": 520.0, "transit_days": 2}, "Bangalore": {"distance_km": 2270.0, "transit_days": 3}, "Bhopal": {"distance_km": 767.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1648.0, "transit_days": 3}, "Chandigarh": {"distance_km": 308.0, "transit_days": 2}, "Chennai": {"distance_km": 2279.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2544.0, "transit_days": 3}, "Dehradun": {"distance_km": 266.0, "transit_days": 1}, "Guwahati": {"distance_km": 1892.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1628.0, "transit_days": 3}, "Indore": {"distance_km": 870.0, "transit_days": 3}, "Jabalpur": {"distance_km": 856.0, "transit_days": 3}, "Jaipur": {"distance_km": 304.0, "transit_days": 2}, "Kanpur": {"distance_km": 500.0, "transit_days": 2}, "Kochi": {"distance_km": 2691.0, "transit_days": 3}, "Kolkata": {"distance_km": 1697.0, "transit_days": 3}, "Lucknow": {"distance_km": 540.0, "transit_days": 2}, "Madurai": {"distance_km": 2706.0, "transit_days": 3}, "Mangalore": {"distance_km": 2290.0, "transit_days": 3}, "Mumbai": {"distance_km": 1486.0, "transit_days": 3}, "Nagpur": {"distance_km": 1112.0, "transit_days": 3}, "Nashik": {"distance_km": 1321.0, "transit_days": 3}, "Noida": {"distance_km": 29.0, "transit_days": 1}, "Patna": {"distance_km": 1105.0, "transit_days": 3}, "Pune": {"distance_km": 1524.0, "transit_days": 3}, "Raipur": {"distance_km": 1202.0, "transit_days": 3}, "Rajkot": {"distance_km": 1235.0, "transit_days": 3}, "Ranchi": {"distance_km": 1293.0, "transit_days": 3}, "Surat": {"distance_km": 1215.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2906.0, "transit_days": 3}, "Vadodara": {"distance_km": 1050.0, "transit_days": 3}, "Varanasi": {"distance_km": 886.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1807.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1771.0, "transit_days": 3}}, "Guwahati": {"Agra": {"distance_km": 1774.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 2550.0, "transit_days": 3}, "Amritsar": {"distance_km": 2262.0, "transit_days": 3}, "Bangalore": {"distance_km": 2713.0, "transit_days": 3}, "Bhopal": {"distance_km": 1922.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1158.0, "transit_days": 3}, "Chandigarh": {"distance_km": 2000.0, "transit_days": 3}, "Chennai": {"distance_km": 2445.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2975.0, "transit_days": 3}, "Dehradun": {"distance_km": 1841.0, "transit_days": 3}, "Delhi": {"distance_km": 1892.0, "transit_days": 3}, "Hyderabad": {"distance_km": 2178.0, "transit_days": 3}, "Indore": {"distance_km": 2138.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1608.0, "transit_days": 3}, "Jaipur": {"distance_km": 2057.0, "transit_days": 3}, "Kanpur": {"distance_km": 1477.0, "transit_days": 3}, "Kochi": {"distance_km": 3149.0, "transit_days": 3}, "Kolkata": {"distance_km": 678.0, "transit_days": 2}, "Lucknow": {"distance_km": 1399.0, "transit_days": 3}, "Madurai": {"distance_km": 3002.0, "transit_days": 3}, "Mangalore": {"distance_km": 2983.0, "transit_days": 3}, "Mumbai": {"distance_km": 2706.0, "transit_days": 3}, "Nagpur": {"distance_km": 1823.0, "transit_days": 3}, "Nashik": {"distance_km": 2540.0, "transit_days": 3}, "Noida": {"distance_km": 1865.0, "transit_days": 3}, "Patna": {"distance_km": 862.0, "transit_days": 3}, "Pune": {"distance_km": 2623.0, "transit_days": 3}, "Raipur": {"distance_km": 1512.0, "transit_days": 3}, "Rajkot": {"distance_km": 2808.0, "transit_days": 3}, "Ranchi": {"distance_km": 932.0, "transit_days": 3}, "Surat": {"distance_km": 2601.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 3258.0, "transit_days": 3}, "Vadodara": {"distance_km": 2500.0, "transit_days": 3}, "Varanasi": {"distance_km": 1140.0, "transit_days": 3}, "Vijayawada": {"distance_km": 2047.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1666.0, "transit_days": 3}}, "Hyderabad": {"Agra": {"distance_km": 1418.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1138.0, "transit_days": 3}, "Amritsar": {"distance_km": 2106.0, "transit_days": 3}, "Bangalore": {"distance_km": 662.0, "transit_days": 2}, "Bhopal": {"distance_km": 866.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1083.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1936.0, "transit_days": 3}, "Chennai": {"distance_km": 670.0, "transit_days": 2}, "Coimbatore": {"distance_km": 949.0, "transit_days": 3}, "Dehradun": {"distance_km": 1866.0, "transit_days": 3}, "Delhi": {"distance_km": 1628.0, "transit_days": 3}, "Guwahati": {"distance_km": 2178.0, "transit_days": 3}, "Indore": {"distance_km": 843.0, "transit_days": 3}, "Jabalpur": {"distance_km": 860.0, "transit_days": 3}, "Jaipur": {"distance_km": 1420.0, "transit_days": 3}, "Kanpur": {"distance_km": 1337.0, "transit_days": 3}, "Kochi": {"distance_km": 1113.0, "transit_days": 3}, "Kolkata": {"distance_km": 1540.0, "transit_days": 3}, "Lucknow": {"distance_km": 1396.0, "transit_days": 3}, "Madurai": {"distance_km": 1086.0, "transit_days": 3}, "Mangalore": {"distance_km": 822.0, "transit_days": 3}, "Mumbai": {"distance_km": 807.0, "transit_days": 3}, "Nagpur": {"distance_km": 541.0, "transit_days": 2}, "Nashik": {"distance_km": 745.0, "transit_days": 2}, "Noida": {"distance_km": 1611.0, "transit_days": 3}, "Patna": {"distance_km": 1480.0, "transit_days": 3}, "Pune": {"distance_km": 652.0, "transit_days": 2}, "Raipur": {"distance_km": 705.0, "transit_days": 2}, "Rajkot": {"distance_km": 1264.0, "transit_days": 3}, "Ranchi": {"distance_km": 1265.0, "transit_days": 3}, "Surat": {"distance_km": 952.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 1304.0, "transit_days": 3}, "Vadodara": {"distance_km": 1010.0, "transit_days": 3}, "Varanasi": {"distance_km": 1292.0, "transit_days": 3}, "Vijayawada": {"distance_km": 318.0, "transit_days": 2}, "Visakhapatnam": {"distance_km": 663.0, "transit_days": 2}}, "Indore": {"Agra": {"distance_km": 706.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 442.0, "transit_days": 2}, "Amritsar": {"distance_km": 1293.0, "transit_days": 3}, "Bangalore": {"distance_km": 1436.0, "transit_days": 3}, "Bhopal": {"distance_km": 218.0, "transit_days": 1}, "Bhubaneswar": {"distance_km": 1376.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1162.0, "transit_days": 3}, "Chennai": {"distance_km": 1514.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1698.0, "transit_days": 3}, "Dehradun": {"distance_km": 1132.0, "transit_days": 3}, "Delhi": {"distance_km": 870.0, "transit_days": 3}, "Guwahati": {"distance_km": 2138.0, "transit_days": 3}, "Hyderabad": {"distance_km": 843.0, "transit_days": 3}, "Jabalpur": {"distance_km": 537.0, "transit_days": 2}, "Jaipur": {"distance_km": 607.0, "transit_days": 2}, "Kanpur": {"distance_km": 797.0, "transit_days": 2}, "Kochi": {"distance_km": 1837.0, "transit_days": 3}, "Kolkata": {"distance_km": 1667.0, "transit_days": 3}, "Lucknow": {"distance_km": 884.0, "transit_days": 3}, "Madurai": {"distance_km": 1875.0, "transit_days": 3}, "Mangalore": {"distance_km": 1423.0, "transit_days": 3}, "Mumbai": {"distance_km": 659.0, "transit_days": 2}, "Nagpur": {"distance_km": 488.0, "transit_days": 2}, "Nashik": {"distance_km": 482.0, "transit_days": 2}, "Noida": {"distance_km": 861.0, "transit_days": 3}, "Patna": {"distance_km": 1283.0, "transit_days": 3}, "Pune": {"distance_km": 665.0, "transit_days": 2}, "Raipur": {"distance_km": 790.0, "transit_days": 2}, "Rajkot": {"distance_km": 684.0, "transit_days": 2}, "Ranchi": {"distance_km": 1254.0, "transit_days": 3}, "Surat": {"distance_km": 469.0, "transit_days": 2}, "Thiruvananthapuram": {"distance_km": 2058.0, "transit_days": 3}, "Vadodara": {"distance_km": 365.0, "transit_days": 2}, "Varanasi": {"distance_km": 1010.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1101.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1237.0, "transit_days": 3}}, "Jabalpur": {"Agra": {"distance_km": 629.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 971.0, "transit_days": 3}, "Amritsar": {"distance_km": 1373.0, "transit_days": 3}, "Bangalore": {"distance_km": 1522.0, "transit_days": 3}, "Bhopal": {"distance_km": 332.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 896.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1155.0, "transit_days": 3}, "Chennai": {"distance_km": 1461.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1808.0, "transit_days": 3}, "Dehradun": {"distance_km": 1055.0, "transit_days": 3}, "Delhi": {"distance_km": 856.0, "transit_days": 3}, "Guwahati": {"distance_km": 1608.0, "transit_days": 3}, "Hyderabad": {"distance_km": 860.0, "transit_days": 3}, "Indore": {"distance_km": 537.0, "transit_days": 2}, "Jaipur": {"distance_km": 758.0, "transit_days": 2}, "Kanpur": {"distance_km": 480.0, "transit_days": 2}, "Kochi": {"distance_km": 1972.0, "transit_days": 3}, "Kolkata": {"distance_km": 1135.0, "transit_days": 3}, "Lucknow": {"distance_km": 537.0, "transit_days": 2}, "Madurai": {"distance_km": 1939.0, "transit_days": 3}, "Mangalore": {"distance_km": 1639.0, "transit_days": 3}, "Mumbai": {"distance_km": 1114.0, "transit_days": 3}, "Nagpur": {"distance_km": 322.0, "transit_days": 2}, "Nashik": {"distance_km": 941.0, "transit_days": 3}, "Noida": {"distance_km": 832.0, "transit_days": 3}, "Patna": {"distance_km": 767.0, "transit_days": 2}, "Pune": {"distance_km": 1057.0, "transit_days": 3}, "Raipur": {"distance_km": 357.0, "transit_days": 2}, "Rajkot": {"distance_km": 1220.0, "transit_days": 3}, "Ranchi": {"distance_km": 717.0, "transit_days": 2}, "Surat": {"distance_km": 993.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2163.0, "transit_days": 3}, "Vadodara": {"distance_km": 902.0, "transit_days": 3}, "Varanasi": {"distance_km": 509.0, "transit_days": 2}, "Vijayawada": {"distance_km": 973.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 919.0, "transit_days": 3}}, "Jaipur": {"Agra": {"distance_km": 287.0, "transit_days": 1}, "Ahmedabad": {"distance_km": 703.0, "transit_days": 2}, "Amritsar": {"distance_km": 689.0, "transit_days": 2}, "Bangalore": {"distance_km": 2038.0, "transit_days": 3}, "Bhopal": {"distance_km": 561.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1631.0, "transit_days": 3}, "Chandigarh": {"distance_km": 564.0, "transit_days": 2}, "Chennai": {"distance_km": 2086.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2304.0, "transit_days": 3}, "Dehradun": {"distance_km": 565.0, "transit_days": 2}, "Delhi": {"distance_km": 304.0, "transit_days": 2}, "Guwahati": {"distance_km": 2057.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1420.0, "transit_days": 3}, "Indore": {"distance_km": 607.0, "transit_days": 2}, "Jabalpur": {"distance_km": 758.0, "transit_days": 2}, "Kanpur": {"distance_km": 584.0, "transit_days": 2}, "Kochi": {"distance_km": 2444.0, "transit_days": 3}, "Kolkata": {"distance_km": 1766.0, "transit_days": 3}, "Lucknow": {"distance_km": 658.0, "transit_days": 2}, "Madurai": {"distance_km": 2477.0, "transit_days": 3}, "Mangalore": {"distance_km": 2027.0, "transit_days": 3}, "Mumbai": {"distance_km": 1192.0, "transit_days": 3}, "Nagpur": {"distance_km": 945.0, "transit_days": 3}, "Nashik": {"distance_km": 1032.0, "transit_days": 3}, "Noida": {"distance_km": 309.0, "transit_days": 2}, "Patna": {"distance_km": 1220.0, "transit_days": 3}, "Pune": {"distance_km": 1240.0, "transit_days": 3}, "Raipur": {"distance_km": 1114.0, "transit_days": 3}, "Rajkot": {"distance_km": 935.0, "transit_days": 3}, "Ranchi": {"distance_km": 1342.0, "transit_days": 3}, "Surat": {"distance_km": 914.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2665.0, "transit_days": 3}, "Vadodara": {"distance_km": 748.0, "transit_days": 2}, "Varanasi": {"distance_km": 963.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1635.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1665.0, "transit_days": 3}}, "Kanpur": {"Agra": {"distance_km": 313.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 1130.0, "transit_days": 3}, "Amritsar": {"distance_km": 1004.0, "transit_days": 3}, "Bangalore": {"distance_km": 2000.0, "transit_days": 3}, "Bhopal": {"distance_km": 599.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1155.0, "transit_days": 3}, "Chandigarh": {"distance_km": 752.0, "transit_days": 2}, "Chennai": {"distance_km": 1937.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2285.0, "transit_days": 3}, "Dehradun": {"distance_km": 622.0, "transit_days": 2}, "Delhi": {"distance_km": 500.0, "transit_days": 2}, "Guwahati": {"distance_km": 1477.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1337.0, "transit_days": 3}, "Indore": {"distance_km": 797.0, "transit_days": 2}, "Jabalpur": {"distance_km": 480.0, "transit_days": 2}, "Jaipur": {"distance_km": 584.0, "transit_days": 2}, "Kochi": {"distance_km": 2447.0, "transit_days": 3}, "Kolkata": {"distance_km": 1205.0, "transit_days": 3}, "Lucknow": {"distance_km": 89.0, "transit_days": 1}, "Madurai": {"distance_km": 2418.0, "transit_days": 3}, "Mangalore": {"distance_km": 2098.0, "transit_days": 3}, "Mumbai": {"distance_km": 1454.0, "transit_days": 3}, "Nagpur": {"distance_km": 797.0, "transit_days": 2}, "Nashik": {"distance_km": 1275.0, "transit_days": 3}, "Noida": {"distance_km": 471.0, "transit_days": 2}, "Patna": {"distance_km": 637.0, "transit_days": 2}, "Pune": {"distance_km": 1437.0, "transit_days": 3}, "Raipur": {"distance_km": 771.0, "transit_days": 2}, "Rajkot": {"distance_km": 1390.0, "transit_days": 3}, "Ranchi": {"distance_km": 794.0, "transit_days": 2}, "Surat": {"distance_km": 1253.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2641.0, "transit_days": 3}, "Vadodara": {"distance_km": 1114.0, "transit_days": 3}, "Varanasi": {"distance_km": 392.0, "transit_days": 2}, "Vijayawada": {"distance_km": 1446.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1334.0, "transit_days": 3}}, "Kochi": {"Agra": {"distance_km": 2497.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1948.0, "transit_days": 3}, "Amritsar": {"distance_km": 3128.0, "transit_days": 3}, "Bangalore": {"distance_km": 458.0, "transit_days": 2}, "Bhopal": {"distance_km": 1929.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1992.0, "transit_days": 3}, "Chandigarh": {"distance_km": 2993.0, "transit_days": 3}, "Chennai": {"distance_km": 722.0, "transit_days": 2}, "Coimbatore": {"distance_km": 175.0, "transit_days": 1}, "Dehradun": {"distance_km": 2943.0, "transit_days": 3}, "Delhi": {"distance_km": 2691.0, "transit_days": 3}, "Guwahati": {"distance_km": 3149.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1113.0, "transit_days": 3}, "Indore": {"distance_km": 1837.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1972.0, "transit_days": 3}, "Jaipur": {"distance_km": 2444.0, "transit_days": 3}, "Kanpur": {"distance_km": 2447.0, "transit_days": 3}, "Kolkata": {"distance_km": 2474.0, "transit_days": 3}, "Lucknow": {"distance_km": 2508.0, "transit_days": 3}, "Madurai": {"distance_km": 257.0, "transit_days": 1}, "Mangalore": {"distance_km": 464.0, "transit_days": 2}, "Mumbai": {"distance_km": 1399.0, "transit_days": 3}, "Nagpur": {"distance_km": 1651.0, "transit_days": 3}, "Nashik": {"distance_km": 1487.0, "transit_days": 3}, "Noida": {"distance_km": 2678.0, "transit_days": 3}, "Patna": {"distance_km": 2557.0, "transit_days": 3}, "Pune": {"distance_km": 1274.0, "transit_days": 3}, "Raipur": {"distance_km": 1792.0, "transit_days": 3}, "Rajkot": {"distance_km": 1934.0, "transit_days": 3}, "Ranchi": {"distance_km": 2301.0, "transit_days": 3}, "Surat": {"distance_km": 1690.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 239.0, "transit_days": 1}, "Vadodara": {"distance_km": 1829.0, "transit_days": 3}, "Varanasi": {"distance_km": 2395.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1117.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1484.0, "transit_days": 3}}, "Kolkata": {"Agra": {"distance_km": 1516.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 2105.0, "transit_days": 3}, "Amritsar": {"distance_km": 2167.0, "transit_days": 3}, "Bangalore": {"distance_km": 2042.0, "transit_days": 3}, "Bhopal": {"distance_km": 1467.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 483.0, "transit_days": 2}, "Chandigarh": {"distance_km": 1900.0, "transit_days": 3}, "Chennai": {"distance_km": 1768.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2300.0, "transit_days": 3}, "Dehradun": {"distance_km": 1745.0, "transit_days": 3}, "Delhi": {"distance_km": 1697.0, "transit_days": 3}, "Guwahati": {"distance_km": 678.0, "transit_days": 2}, "Hyderabad": {"distance_km": 1540.0, "transit_days": 3}, "Indore": {"distance_km": 1667.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1135.0, "transit_days": 3}, "Jaipur": {"distance_km": 1766.0, "transit_days": 3}, "Kanpur": {"distance_km": 1205.0, "transit_days": 3}, "Kochi": {"distance_km": 2474.0, "transit_days": 3}, "Lucknow": {"distance_km": 1157.0, "transit_days": 3}, "Madurai": {"distance_km": 2324.0, "transit_days": 3}, "Mangalore": {"distance_km": 2326.0, "transit_days": 3}, "Mumbai": {"distance_km": 2153.0, "transit_days": 3}, "Nagpur": {"distance_km": 1266.0, "transit_days": 3}, "Nashik": {"distance_km": 2001.0, "transit_days": 3}, "Noida": {"distance_km": 1668.0, "transit_days": 3}, "Patna": {"distance_km": 614.0, "transit_days": 2}, "Pune": {"distance_km": 2049.0, "transit_days": 3}, "Raipur": {"distance_km": 931.0, "transit_days": 3}, "Rajkot": {"distance_km": 2350.0, "transit_days": 3}, "Ranchi": {"distance_km": 428.0, "transit_days": 2}, "Surat": {"distance_km": 2101.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2580.0, "transit_days": 3}, "Vadodara": {"distance_km": 2030.0, "transit_days": 3}, "Varanasi": {"distance_km": 813.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1380.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 990.0, "transit_days": 3}}, "Lucknow": {"Agra": {"distance_km": 378.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 1219.0, "transit_days": 3}, "Amritsar": {"distance_km": 1027.0, "transit_days": 3}, "Bangalore": {"distance_km": 2058.0, "transit_days": 3}, "Bhopal": {"distance_km": 683.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1142.0, "transit_days": 3}, "Chandigarh": {"distance_km": 767.0, "transit_days": 2}, "Chennai": {"distance_km": 1982.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2345.0, "transit_days": 3}, "Dehradun": {"distance_km": 626.0, "transit_days": 2}, "Delhi": {"distance_km": 540.0, "transit_days": 2}, "Guwahati": {"distance_km": 1399.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1396.0, "transit_days": 3}, "Indore": {"distance_km": 884.0, "transit_days": 3}, "Jabalpur": {"distance_km": 537.0, "transit_days": 2}, "Jaipur": {"distance_km": 658.0, "transit_days": 2}, "Kanpur": {"distance_km": 89.0, "transit_days": 1}, "Kochi": {"distance_km": 2508.0, "transit_days": 3}, "Kolkata": {"distance_km": 1157.0, "transit_days": 3}, "Madurai": {"distance_km": 2473.0, "transit_days": 3}, "Mangalore": {"distance_km": 2168.0, "transit_days": 3}, "Mumbai": {"distance_km": 1539.0, "transit_days": 3}, "Nagpur": {"distance_km": 858.0, "transit_days": 3}, "Nashik": {"distance_km": 1361.0, "transit_days": 3}, "Noida": {"distance_km": 511.0, "transit_days": 2}, "Patna": {"distance_km": 572.0, "transit_days": 2}, "Pune": {"distance_km": 1520.0, "transit_days": 3}, "Raipur": {"distance_km": 800.0, "transit_days": 2}, "Rajkot": {"distance_km": 1478.0, "transit_days": 3}, "Ranchi": {"distance_km": 757.0, "transit_days": 2}, "Surat": {"distance_km": 1341.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2699.0, "transit_days": 3}, "Vadodara": {"distance_km": 1203.0, "transit_days": 3}, "Varanasi": {"distance_km": 348.0, "transit_days": 2}, "Vijayawada": {"distance_km": 1489.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1354.0, "transit_days": 3}}, "Madurai": {"Agra": {"distance_km": 2501.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 2041.0, "transit_days": 3}, "Amritsar": {"distance_km": 3166.0, "transit_days": 3}, "Bangalore": {"distance_km": 439.0, "transit_days": 2}, "Bhopal": {"distance_km": 1939.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1847.0, "transit_days": 3}, "Chandigarh": {"distance_km": 3012.0, "transit_days": 3}, "Chennai": {"distance_km": 558.0, "transit_days": 2}, "Coimbatore": {"distance_km": 223.0, "transit_days": 1}, "Dehradun": {"distance_km": 2949.0, "transit_days": 3}, "Delhi": {"distance_km": 2706.0, "transit_days": 3}, "Guwahati": {"distance_km": 3002.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1086.0, "transit_days": 3}, "Indore": {"distance_km": 1875.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1939.0, "transit_days": 3}, "Jaipur": {"distance_km": 2477.0, "transit_days": 3}, "Kanpur": {"distance_km": 2418.0, "transit_days": 3}, "Kochi": {"distance_km": 257.0, "transit_days": 1}, "Kolkata": {"distance_km": 2324.0, "transit_days": 3}, "Lucknow": {"distance_km": 2473.0, "transit_days": 3}, "Mangalore": {"distance_km": 627.0, "transit_days": 2}, "Mumbai": {"distance_km": 1516.0, "transit_days": 3}, "Nagpur": {"distance_km": 1625.0, "transit_days": 3}, "Nashik": {"distance_km": 1578.0, "transit_days": 3}, "Noida": {"distance_km": 2690.0, "transit_days": 3}, "Patna": {"distance_km": 2464.0, "transit_days": 3}, "Pune": {"distance_km": 1375.0, "transit_days": 3}, "Raipur": {"distance_km": 1718.0, "transit_days": 3}, "Rajkot": {"distance_km": 2058.0, "transit_days": 3}, "Ranchi": {"distance_km": 2190.0, "transit_days": 3}, "Surat": {"distance_km": 1792.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 256.0, "transit_days": 1}, "Vadodara": {"distance_km": 1917.0, "transit_days": 3}, "Varanasi": {"distance_km": 2325.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1017.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1343.0, "transit_days": 3}}, "Mangalore": {"Agra": {"distance_km": 2109.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1494.0, "transit_days": 3}, "Amritsar": {"distance_km": 2703.0, "transit_days": 3}, "Bangalore": {"distance_km": 380.0, "transit_days": 2}, "Bhopal": {"distance_km": 1542.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1849.0, "transit_days": 3}, "Chandigarh": {"distance_km": 2586.0, "transit_days": 3}, "Chennai": {"distance_km": 761.0, "transit_days": 2}, "Coimbatore": {"distance_km": 405.0, "transit_days": 2}, "Dehradun": {"distance_km": 2549.0, "transit_days": 3}, "Delhi": {"distance_km": 2290.0, "transit_days": 3}, "Guwahati": {"distance_km": 2983.0, "transit_days": 3}, "Hyderabad": {"distance_km": 822.0, "transit_days": 3}, "Indore": {"distance_km": 1423.0, "transit_days": 3}, "Jabalpur": {"distance_km": 1639.0, "transit_days": 3}, "Jaipur": {"distance_km": 2027.0, "transit_days": 3}, "Kanpur": {"distance_km": 2098.0, "transit_days": 3}, "Kochi": {"distance_km": 464.0, "transit_days": 2}, "Kolkata": {"distance_km": 2326.0, "transit_days": 3}, "Lucknow": {"distance_km": 2168.0, "transit_days": 3}, "Madurai": {"distance_km": 627.0, "transit_days": 2}, "Mumbai": {"distance_km": 938.0, "transit_days": 3}, "Nagpur": {"distance_km": 1320.0, "transit_days": 3}, "Nashik": {"distance_km": 1038.0, "transit_days": 3}, "Noida": {"distance_km": 2280.0, "transit_days": 3}, "Patna": {"distance_km": 2301.0, "transit_days": 3}, "Pune": {"distance_km": 821.0, "transit_days": 3}, "Raipur": {"distance_km": 1526.0, "transit_days": 3}, "Rajkot": {"distance_km": 1471.0, "transit_days": 3}, "Ranchi": {"distance_km": 2082.0, "transit_days": 3}, "Surat": {"distance_km": 1234.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 702.0, "transit_days": 2}, "Vadodara": {"distance_km": 1379.0, "transit_days": 3}, "Varanasi": {"distance_km": 2105.0, "transit_days": 3}, "Vijayawada": {"distance_km": 952.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1361.0, "transit_days": 3}}, "Mumbai": {"Agra": {"distance_km": 1352.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 565.0, "transit_days": 2}, "Amritsar": {"distance_km": 1826.0, "transit_days": 3}, "Bangalore": {"distance_km": 1109.0, "transit_days": 3}, "Bhopal": {"distance_km": 858.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1764.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1753.0, "transit_days": 3}, "Chennai": {"distance_km": 1344.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1303.0, "transit_days": 3}, "Dehradun": {"distance_km": 1751.0, "transit_days": 3}, "Delhi": {"distance_km": 1486.0, "transit_days": 3}, "Guwahati": {"distance_km": 2706.0, "transit_days": 3}, "Hyderabad": {"distance_km": 807.0, "transit_days": 3}, "Indore": {"distance_km": 659.0, "transit_days": 2}, "Jabalpur": {"distance_km": 1114.0, "transit_days": 3}, "Jaipur": {"distance_km": 1192.0, "transit_days": 3}, "Kanpur": {"distance_km": 1454.0, "transit_days": 3}, "Kochi": {"distance_km": 1399.0, "transit_days": 3}, "Kolkata": {"distance_km": 2153.0, "transit_days": 3}, "Lucknow": {"distance_km": 1539.0, "transit_days": 3}, "Madurai": {"distance_km": 1516.0, "transit_days": 3}, "Mangalore": {"distance_km": 938.0, "transit_days": 3}, "Nagpur": {"distance_km": 890.0, "transit_days": 3}, "Nashik": {"distance_km": 179.0, "transit_days": 1}, "Noida": {"distance_km": 1483.0, "transit_days": 3}, "Patna": {"distance_km": 1881.0, "transit_days": 3}, "Pune": {"distance_km": 162.0, "transit_days": 1}, "Raipur": {"distance_km": 1222.0, "transit_days": 3}, "Rajkot": {"distance_km": 543.0, "transit_days": 2}, "Ranchi": {"distance_km": 1782.0, "transit_days": 3}, "Surat": {"distance_km": 304.0, "transit_days": 2}, "Thiruvananthapuram": {"distance_km": 1636.0, "transit_days": 3}, "Vadodara": {"distance_km": 464.0, "transit_days": 2}, "Varanasi": {"distance_km": 1621.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1124.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1441.0, "transit_days": 3}}, "Nagpur": {"Agra": {"distance_km": 894.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 913.0, "transit_days": 3}, "Amritsar": {"distance_km": 1612.0, "transit_days": 3}, "Bangalore": {"distance_km": 1203.0, "transit_days": 3}, "Bhopal": {"distance_km": 391.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 913.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1419.0, "transit_days": 3}, "Chennai": {"distance_km": 1168.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1489.0, "transit_days": 3}, "Dehradun": {"distance_km": 1338.0, "transit_days": 3}, "Delhi": {"distance_km": 1112.0, "transit_days": 3}, "Guwahati": {"distance_km": 1823.0, "transit_days": 3}, "Hyderabad": {"distance_km": 541.0, "transit_days": 2}, "Indore": {"distance_km": 488.0, "transit_days": 2}, "Jabalpur": {"distance_km": 322.0, "transit_days": 2}, "Jaipur": {"distance_km": 945.0, "transit_days": 3}, "Kanpur": {"distance_km": 797.0, "transit_days": 2}, "Kochi": {"distance_km": 1651.0, "transit_days": 3}, "Kolkata": {"distance_km": 1266.0, "transit_days": 3}, "Lucknow": {"distance_km": 858.0, "transit_days": 3}, "Madurai": {"distance_km": 1625.0, "transit_days": 3}, "Mangalore": {"distance_km": 1320.0, "transit_days": 3}, "Mumbai": {"distance_km": 890.0, "transit_days": 3}, "Nashik": {"distance_km": 735.0, "transit_days": 2}, "Noida": {"distance_km": 1093.0, "transit_days": 3}, "Patna": {"distance_km": 1028.0, "transit_days": 3}, "Pune": {"distance_km": 801.0, "transit_days": 3}, "Raipur": {"distance_km": 338.0, "transit_days": 2}, "Rajkot": {"distance_km": 1128.0, "transit_days": 3}, "Ranchi": {"distance_km": 894.0, "transit_days": 3}, "Surat": {"distance_km": 849.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 1845.0, "transit_days": 3}, "Vadodara": {"distance_km": 811.0, "transit_days": 3}, "Varanasi": {"distance_km": 798.0, "transit_days": 2}, "Vijayawada": {"distance_km": 696.0, "transit_days": 2}, "Visakhapatnam": {"distance_km": 755.0, "transit_days": 2}}, "Nashik": {"Agra": {"distance_km": 1180.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 463.0, "transit_days": 2}, "Amritsar": {"distance_km": 1683.0, "transit_days": 3}, "Bangalore": {"distance_km": 1153.0, "transit_days": 3}, "Bhopal": {"distance_km": 679.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1629.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1595.0, "transit_days": 3}, "Chennai": {"distance_km": 1343.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1375.0, "transit_days": 3}, "Dehradun": {"distance_km": 1587.0, "transit_days": 3}, "Delhi": {"distance_km": 1321.0, "transit_days": 3}, "Guwahati": {"distance_km": 2540.0, "transit_days": 3}, "Hyderabad": {"distance_km": 745.0, "transit_days": 2}, "Indore": {"distance_km": 482.0, "transit_days": 2}, "Jabalpur": {"distance_km": 941.0, "transit_days": 3}, "Jaipur": {"distance_km": 1032.0, "transit_days": 3}, "Kanpur": {"distance_km": 1275.0, "transit_days": 3}, "Kochi": {"distance_km": 1487.0, "transit_days": 3}, "Kolkata": {"distance_km": 2001.0, "transit_days": 3}, "Lucknow": {"distance_km": 1361.0, "transit_days": 3}, "Madurai": {"distance_km": 1578.0, "transit_days": 3}, "Mangalore": {"distance_km": 1038.0, "transit_days": 3}, "Mumbai": {"distance_km": 179.0, "transit_days": 1}, "Nagpur": {"distance_km": 735.0, "transit_days": 2}, "Noida": {"distance_km": 1317.0, "transit_days": 3}, "Patna": {"distance_km": 1708.0, "transit_days": 3}, "Pune": {"distance_km": 217.0, "transit_days": 1}, "Raipur": {"distance_km": 1072.0, "transit_days": 3}, "Rajkot": {"distance_km": 524.0, "transit_days": 2}, "Ranchi": {"distance_km": 1620.0, "transit_days": 3}, "Surat": {"distance_km": 220.0, "transit_days": 1}, "Thiruvananthapuram": {"distance_km": 1722.0, "transit_days": 3}, "Vadodara": {"distance_km": 342.0, "transit_days": 2}, "Varanasi": {"distance_km": 1446.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1062.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1341.0, "transit_days": 3}}, "Noida": {"Agra": {"distance_km": 203.0, "transit_days": 1}, "Ahmedabad": {"distance_km": 1011.0, "transit_days": 3}, "Amritsar": {"distance_km": 546.0, "transit_days": 2}, "Bangalore": {"distance_km": 2255.0, "transit_days": 3}, "Bhopal": {"distance_km": 752.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1620.0, "transit_days": 3}, "Chandigarh": {"distance_km": 327.0, "transit_days": 2}, "Chennai": {"distance_km": 2260.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2530.0, "transit_days": 3}, "Dehradun": {"distance_km": 271.0, "transit_days": 1}, "Delhi": {"distance_km": 29.0, "transit_days": 1}, "Guwahati": {"distance_km": 1865.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1611.0, "transit_days": 3}, "Indore": {"distance_km": 861.0, "transit_days": 3}, "Jabalpur": {"distance_km": 832.0, "transit_days": 3}, "Jaipur": {"distance_km": 309.0, "transit_days": 2}, "Kanpur": {"distance_km": 471.0, "transit_days": 2}, "Kochi": {"distance_km": 2678.0, "transit_days": 3}, "Kolkata": {"distance_km": 1668.0, "transit_days": 3}, "Lucknow": {"distance_km": 511.0, "transit_days": 2}, "Madurai": {"distance_km": 2690.0, "transit_days": 3}, "Mangalore": {"distance_km": 2280.0, "transit_days": 3}, "Mumbai": {"distance_km": 1483.0, "transit_days": 3}, "Nagpur": {"distance_km": 1093.0, "transit_days": 3}, "Nashik": {"distance_km": 1317.0, "transit_days": 3}, "Patna": {"distance_km": 1076.0, "transit_days": 3}, "Pune": {"distance_km": 1518.0, "transit_days": 3}, "Raipur": {"distance_km": 1177.0, "transit_days": 3}, "Rajkot": {"distance_km": 1243.0, "transit_days": 3}, "Ranchi": {"distance_km": 1263.0, "transit_days": 3}, "Surat": {"distance_km": 1215.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2892.0, "transit_days": 3}, "Vadodara": {"distance_km": 1050.0, "transit_days": 3}, "Varanasi": {"distance_km": 857.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1786.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1746.0, "transit_days": 3}}, "Patna": {"Agra": {"distance_km": 948.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1688.0, "transit_days": 3}, "Amritsar": {"distance_km": 1557.0, "transit_days": 3}, "Bangalore": {"distance_km": 2100.0, "transit_days": 3}, "Bhopal": {"distance_km": 1066.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 772.0, "transit_days": 2}, "Chandigarh": {"distance_km": 1289.0, "transit_days": 3}, "Chennai": {"distance_km": 1921.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2383.0, "transit_days": 3}, "Dehradun": {"distance_km": 1132.0, "transit_days": 3}, "Delhi": {"distance_km": 1105.0, "transit_days": 3}, "Guwahati": {"distance_km": 862.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1480.0, "transit_days": 3}, "Indore": {"distance_km": 1283.0, "transit_days": 3}, "Jabalpur": {"distance_km": 767.0, "transit_days": 2}, "Jaipur": {"distance_km": 1220.0, "transit_days": 3}, "Kanpur": {"distance_km": 637.0, "transit_days": 2}, "Kochi": {"distance_km": 2557.0, "transit_days": 3}, "Kolkata": {"distance_km": 614.0, "transit_days": 2}, "Lucknow": {"distance_km": 572.0, "transit_days": 2}, "Madurai": {"distance_km": 2464.0, "transit_days": 3}, "Mangalore": {"distance_km": 2301.0, "transit_days": 3}, "Mumbai": {"distance_km": 1881.0, "transit_days": 3}, "Nagpur": {"distance_km": 1028.0, "transit_days": 3}, "Nashik": {"distance_km": 1708.0, "transit_days": 3}, "Noida": {"distance_km": 1076.0, "transit_days": 3}, "Pune": {"distance_km": 1817.0, "transit_days": 3}, "Raipur": {"distance_km": 776.0, "transit_days": 2}, "Rajkot": {"distance_km": 1947.0, "transit_days": 3}, "Ranchi": {"distance_km": 319.0, "transit_days": 2}, "Surat": {"distance_km": 1750.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2711.0, "transit_days": 3}, "Vadodara": {"distance_km": 1642.0, "transit_days": 3}, "Varanasi": {"distance_km": 278.0, "transit_days": 1}, "Vijayawada": {"distance_km": 1448.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1167.0, "transit_days": 3}}, "Pune": {"Agra": {"distance_km": 1371.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 674.0, "transit_days": 2}, "Amritsar": {"distance_km": 1898.0, "transit_days": 3}, "Bangalore": {"distance_km": 959.0, "transit_days": 3}, "Bhopal": {"distance_km": 839.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 1643.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1804.0, "transit_days": 3}, "Chennai": {"distance_km": 1184.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1167.0, "transit_days": 3}, "Dehradun": {"distance_km": 1789.0, "transit_days": 3}, "Delhi": {"distance_km": 1524.0, "transit_days": 3}, "Guwahati": {"distance_km": 2623.0, "transit_days": 3}, "Hyderabad": {"distance_km": 652.0, "transit_days": 2}, "Indore": {"distance_km": 665.0, "transit_days": 2}, "Jabalpur": {"distance_km": 1057.0, "transit_days": 3}, "Jaipur": {"distance_km": 1240.0, "transit_days": 3}, "Kanpur": {"distance_km": 1437.0, "transit_days": 3}, "Kochi": {"distance_km": 1274.0, "transit_days": 3}, "Kolkata": {"distance_km": 2049.0, "transit_days": 3}, "Lucknow": {"distance_km": 1520.0, "transit_days": 3}, "Madurai": {"distance_km": 1375.0, "transit_days": 3}, "Mangalore": {"distance_km": 821.0, "transit_days": 3}, "Mumbai": {"distance_km": 162.0, "transit_days": 1}, "Nagpur": {"distance_km": 801.0, "transit_days": 3}, "Nashik": {"distance_km": 217.0, "transit_days": 1}, "Noida": {"distance_km": 1518.0, "transit_days": 3}, "Patna": {"distance_km": 1817.0, "transit_days": 3}, "Raipur": {"distance_km": 1122.0, "transit_days": 3}, "Rajkot": {"distance_km": 691.0, "transit_days": 2}, "Ranchi": {"distance_km": 1693.0, "transit_days": 3}, "Surat": {"distance_km": 418.0, "transit_days": 2}, "Thiruvananthapuram": {"distance_km": 1510.0, "transit_days": 3}, "Vadodara": {"distance_km": 557.0, "transit_days": 2}, "Varanasi": {"distance_km": 1566.0, "transit_days": 3}, "Vijayawada": {"distance_km": 968.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1297.0, "transit_days": 3}}, "Raipur": {"Agra": {"distance_km": 976.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1230.0, "transit_days": 3}, "Amritsar": {"distance_km": 1722.0, "transit_days": 3}, "Bangalore": {"distance_km": 1334.0, "transit_days": 3}, "Bhopal": {"distance_km": 632.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 586.0, "transit_days": 2}, "Chandigarh": {"distance_km": 1495.0, "transit_days": 3}, "Chennai": {"distance_km": 1199.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1620.0, "transit_days": 3}, "Dehradun": {"distance_km": 1382.0, "transit_days": 3}, "Delhi": {"distance_km": 1202.0, "transit_days": 3}, "Guwahati": {"distance_km": 1512.0, "transit_days": 3}, "Hyderabad": {"distance_km": 705.0, "transit_days": 2}, "Indore": {"distance_km": 790.0, "transit_days": 2}, "Jabalpur": {"distance_km": 357.0, "transit_days": 2}, "Jaipur": {"distance_km": 1114.0, "transit_days": 3}, "Kanpur": {"distance_km": 771.0, "transit_days": 2}, "Kochi": {"distance_km": 1792.0, "transit_days": 3}, "Kolkata": {"distance_km": 931.0, "transit_days": 3}, "Lucknow": {"distance_km": 800.0, "transit_days": 2}, "Madurai": {"distance_km": 1718.0, "transit_days": 3}, "Mangalore": {"distance_km": 1526.0, "transit_days": 3}, "Mumbai": {"distance_km": 1222.0, "transit_days": 3}, "Nagpur": {"distance_km": 338.0, "transit_days": 2}, "Nashik": {"distance_km": 1072.0, "transit_days": 3}, "Noida": {"distance_km": 1177.0, "transit_days": 3}, "Patna": {"distance_km": 776.0, "transit_days": 2}, "Pune": {"distance_km": 1122.0, "transit_days": 3}, "Rajkot": {"distance_km": 1456.0, "transit_days": 3}, "Ranchi": {"distance_km": 580.0, "transit_days": 2}, "Surat": {"distance_km": 1186.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 1958.0, "transit_days": 3}, "Vadodara": {"distance_km": 1136.0, "transit_days": 3}, "Varanasi": {"distance_km": 607.0, "transit_days": 2}, "Vijayawada": {"distance_km": 707.0, "transit_days": 2}, "Visakhapatnam": {"distance_km": 570.0, "transit_days": 2}}, "Rajkot": {"Agra": {"distance_km": 1181.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 261.0, "transit_days": 1}, "Amritsar": {"distance_km": 1444.0, "transit_days": 3}, "Bangalore": {"distance_km": 1650.0, "transit_days": 3}, "Bhopal": {"distance_km": 891.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 2040.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1440.0, "transit_days": 3}, "Chennai": {"distance_km": 1864.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1845.0, "transit_days": 3}, "Dehradun": {"distance_km": 1485.0, "transit_days": 3}, "Delhi": {"distance_km": 1235.0, "transit_days": 3}, "Guwahati": {"distance_km": 2808.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1264.0, "transit_days": 3}, "Indore": {"distance_km": 684.0, "transit_days": 2}, "Jabalpur": {"distance_km": 1220.0, "transit_days": 3}, "Jaipur": {"distance_km": 935.0, "transit_days": 3}, "Kanpur": {"distance_km": 1390.0, "transit_days": 3}, "Kochi": {"distance_km": 1934.0, "transit_days": 3}, "Kolkata": {"distance_km": 2350.0, "transit_days": 3}, "Lucknow": {"distance_km": 1478.0, "transit_days": 3}, "Madurai": {"distance_km": 2058.0, "transit_days": 3}, "Mangalore": {"distance_km": 1471.0, "transit_days": 3}, "Mumbai": {"distance_km": 543.0, "transit_days": 2}, "Nagpur": {"distance_km": 1128.0, "transit_days": 3}, "Nashik": {"distance_km": 524.0, "transit_days": 2}, "Noida": {"distance_km": 1243.0, "transit_days": 3}, "Patna": {"distance_km": 1947.0, "transit_days": 3}, "Pune": {"distance_km": 691.0, "transit_days": 2}, "Raipur": {"distance_km": 1456.0, "transit_days": 3}, "Ranchi": {"distance_km": 1937.0, "transit_days": 3}, "Surat": {"distance_km": 312.0, "transit_days": 2}, "Thiruvananthapuram": {"distance_km": 2173.0, "transit_days": 3}, "Vadodara": {"distance_km": 321.0, "transit_days": 2}, "Varanasi": {"distance_km": 1670.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1577.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1823.0, "transit_days": 3}}, "Ranchi": {"Agra": {"distance_km": 1101.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1688.0, "transit_days": 3}, "Amritsar": {"distance_km": 1782.0, "transit_days": 3}, "Bangalore": {"distance_km": 1849.0, "transit_days": 3}, "Bhopal": {"distance_km": 1048.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 453.0, "transit_days": 2}, "Chandigarh": {"distance_km": 1519.0, "transit_days": 3}, "Chennai": {"distance_km": 1639.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2126.0, "transit_days": 3}, "Dehradun": {"distance_km": 1371.0, "transit_days": 3}, "Delhi": {"distance_km": 1293.0, "transit_days": 3}, "Guwahati": {"distance_km": 932.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1265.0, "transit_days": 3}, "Indore": {"distance_km": 1254.0, "transit_days": 3}, "Jabalpur": {"distance_km": 717.0, "transit_days": 2}, "Jaipur": {"distance_km": 1342.0, "transit_days": 3}, "Kanpur": {"distance_km": 794.0, "transit_days": 2}, "Kochi": {"distance_km": 2301.0, "transit_days": 3}, "Kolkata": {"distance_km": 428.0, "transit_days": 2}, "Lucknow": {"distance_km": 757.0, "transit_days": 2}, "Madurai": {"distance_km": 2190.0, "transit_days": 3}, "Mangalore": {"distance_km": 2082.0, "transit_days": 3}, "Mumbai": {"distance_km": 1782.0, "transit_days": 3}, "Nagpur": {"distance_km": 894.0, "transit_days": 3}, "Nashik": {"distance_km": 1620.0, "transit_days": 3}, "Noida": {"distance_km": 1263.0, "transit_days": 3}, "Patna": {"distance_km": 319.0, "transit_days": 2}, "Pune": {"distance_km": 1693.0, "transit_days": 3}, "Raipur": {"distance_km": 580.0, "transit_days": 2}, "Rajkot": {"distance_km": 1937.0, "transit_days": 3}, "Surat": {"distance_km": 1701.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2441.0, "transit_days": 3}, "Vadodara": {"distance_km": 1619.0, "transit_days": 3}, "Varanasi": {"distance_km": 409.0, "transit_days": 2}, "Vijayawada": {"distance_km": 1184.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 867.0, "transit_days": 3}}, "Surat": {"Agra": {"distance_km": 1105.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 262.0, "transit_days": 1}, "Amritsar": {"distance_km": 1528.0, "transit_days": 3}, "Bangalore": {"distance_km": 1371.0, "transit_days": 3}, "Bhopal": {"distance_km": 686.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1762.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1468.0, "transit_days": 3}, "Chennai": {"distance_km": 1563.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1585.0, "transit_days": 3}, "Dehradun": {"distance_km": 1479.0, "transit_days": 3}, "Delhi": {"distance_km": 1215.0, "transit_days": 3}, "Guwahati": {"distance_km": 2601.0, "transit_days": 3}, "Hyderabad": {"distance_km": 952.0, "transit_days": 3}, "Indore": {"distance_km": 469.0, "transit_days": 2}, "Jabalpur": {"distance_km": 993.0, "transit_days": 3}, "Jaipur": {"distance_km": 914.0, "transit_days": 3}, "Kanpur": {"distance_km": 1253.0, "transit_days": 3}, "Kochi": {"distance_km": 1690.0, "transit_days": 3}, "Kolkata": {"distance_km": 2101.0, "transit_days": 3}, "Lucknow": {"distance_km": 1341.0, "transit_days": 3}, "Madurai": {"distance_km": 1792.0, "transit_days": 3}, "Mangalore": {"distance_km": 1234.0, "transit_days": 3}, "Mumbai": {"distance_km": 304.0, "transit_days": 2}, "Nagpur": {"distance_km": 849.0, "transit_days": 3}, "Nashik": {"distance_km": 220.0, "transit_days": 1}, "Noida": {"distance_km": 1215.0, "transit_days": 3}, "Patna": {"distance_km": 1750.0, "transit_days": 3}, "Pune": {"distance_km": 418.0, "transit_days": 2}, "Raipur": {"distance_km": 1186.0, "transit_days": 3}, "Rajkot": {"distance_km": 312.0, "transit_days": 2}, "Ranchi": {"distance_km": 1701.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 1927.0, "transit_days": 3}, "Vadodara": {"distance_km": 168.0, "transit_days": 1}, "Varanasi": {"distance_km": 1478.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1265.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1517.0, "transit_days": 3}}, "Thiruvananthapuram": {"Agra": {"distance_km": 2707.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 2183.0, "transit_days": 3}, "Amritsar": {"distance_km": 3351.0, "transit_days": 3}, "Bangalore": {"distance_km": 642.0, "transit_days": 2}, "Bhopal": {"distance_km": 2140.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 2103.0, "transit_days": 3}, "Chandigarh": {"distance_km": 3209.0, "transit_days": 3}, "Chennai": {"distance_km": 813.0, "transit_days": 3}, "Coimbatore": {"distance_km": 361.0, "transit_days": 2}, "Dehradun": {"distance_km": 3154.0, "transit_days": 3}, "Delhi": {"distance_km": 2906.0, "transit_days": 3}, "Guwahati": {"distance_km": 3258.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1304.0, "transit_days": 3}, "Indore": {"distance_km": 2058.0, "transit_days": 3}, "Jabalpur": {"distance_km": 2163.0, "transit_days": 3}, "Jaipur": {"distance_km": 2665.0, "transit_days": 3}, "Kanpur": {"distance_km": 2641.0, "transit_days": 3}, "Kochi": {"distance_km": 239.0, "transit_days": 1}, "Kolkata": {"distance_km": 2580.0, "transit_days": 3}, "Lucknow": {"distance_km": 2699.0, "transit_days": 3}, "Madurai": {"distance_km": 256.0, "transit_days": 1}, "Mangalore": {"distance_km": 702.0, "transit_days": 2}, "Mumbai": {"distance_km": 1636.0, "transit_days": 3}, "Nagpur": {"distance_km": 1845.0, "transit_days": 3}, "Nashik": {"distance_km": 1722.0, "transit_days": 3}, "Noida": {"distance_km": 2892.0, "transit_days": 3}, "Patna": {"distance_km": 2711.0, "transit_days": 3}, "Pune": {"distance_km": 1510.0, "transit_days": 3}, "Raipur": {"distance_km": 1958.0, "transit_days": 3}, "Rajkot": {"distance_km": 2173.0, "transit_days": 3}, "Ranchi": {"distance_km": 2441.0, "transit_days": 3}, "Surat": {"distance_km": 1927.0, "transit_days": 3}, "Vadodara": {"distance_km": 2064.0, "transit_days": 3}, "Varanasi": {"distance_km": 2565.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1263.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1598.0, "transit_days": 3}}, "Vadodara": {"Agra": {"distance_km": 948.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 129.0, "transit_days": 1}, "Amritsar": {"distance_km": 1362.0, "transit_days": 3}, "Bangalore": {"distance_km": 1488.0, "transit_days": 3}, "Bhopal": {"distance_km": 578.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 1721.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1300.0, "transit_days": 3}, "Chennai": {"distance_km": 1650.0, "transit_days": 3}, "Coimbatore": {"distance_km": 1716.0, "transit_days": 3}, "Dehradun": {"distance_km": 1313.0, "transit_days": 3}, "Delhi": {"distance_km": 1050.0, "transit_days": 3}, "Guwahati": {"distance_km": 2500.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1010.0, "transit_days": 3}, "Indore": {"distance_km": 365.0, "transit_days": 2}, "Jabalpur": {"distance_km": 902.0, "transit_days": 3}, "Jaipur": {"distance_km": 748.0, "transit_days": 2}, "Kanpur": {"distance_km": 1114.0, "transit_days": 3}, "Kochi": {"distance_km": 1829.0, "transit_days": 3}, "Kolkata": {"distance_km": 2030.0, "transit_days": 3}, "Lucknow": {"distance_km": 1203.0, "transit_days": 3}, "Madurai": {"distance_km": 1917.0, "transit_days": 3}, "Mangalore": {"distance_km": 1379.0, "transit_days": 3}, "Mumbai": {"distance_km": 464.0, "transit_days": 2}, "Nagpur": {"distance_km": 811.0, "transit_days": 3}, "Nashik": {"distance_km": 342.0, "transit_days": 2}, "Noida": {"distance_km": 1050.0, "transit_days": 3}, "Patna": {"distance_km": 1642.0, "transit_days": 3}, "Pune": {"distance_km": 557.0, "transit_days": 2}, "Raipur": {"distance_km": 1136.0, "transit_days": 3}, "Rajkot": {"distance_km": 321.0, "transit_days": 2}, "Ranchi": {"distance_km": 1619.0, "transit_days": 3}, "Surat": {"distance_km": 168.0, "transit_days": 1}, "Thiruvananthapuram": {"distance_km": 2064.0, "transit_days": 3}, "Varanasi": {"distance_km": 1366.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1311.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1524.0, "transit_days": 3}}, "Varanasi": {"Agra": {"distance_km": 704.0, "transit_days": 2}, "Ahmedabad": {"distance_km": 1411.0, "transit_days": 3}, "Amritsar": {"distance_km": 1374.0, "transit_days": 3}, "Bangalore": {"distance_km": 1938.0, "transit_days": 3}, "Bhopal": {"distance_km": 792.0, "transit_days": 2}, "Bhubaneswar": {"distance_km": 813.0, "transit_days": 3}, "Chandigarh": {"distance_km": 1111.0, "transit_days": 3}, "Chennai": {"distance_km": 1801.0, "transit_days": 3}, "Coimbatore": {"distance_km": 2224.0, "transit_days": 3}, "Dehradun": {"distance_km": 965.0, "transit_days": 3}, "Delhi": {"distance_km": 886.0, "transit_days": 3}, "Guwahati": {"distance_km": 1140.0, "transit_days": 3}, "Hyderabad": {"distance_km": 1292.0, "transit_days": 3}, "Indore": {"distance_km": 1010.0, "transit_days": 3}, "Jabalpur": {"distance_km": 509.0, "transit_days": 2}, "Jaipur": {"distance_km": 963.0, "transit_days": 3}, "Kanpur": {"distance_km": 392.0, "transit_days": 2}, "Kochi": {"distance_km": 2395.0, "transit_days": 3}, "Kolkata": {"distance_km": 813.0, "transit_days": 3}, "Lucknow": {"distance_km": 348.0, "transit_days": 2}, "Madurai": {"distance_km": 2325.0, "transit_days": 3}, "Mangalore": {"distance_km": 2105.0, "transit_days": 3}, "Mumbai": {"distance_km": 1621.0, "transit_days": 3}, "Nagpur": {"distance_km": 798.0, "transit_days": 2}, "Nashik": {"distance_km": 1446.0, "transit_days": 3}, "Noida": {"distance_km": 857.0, "transit_days": 3}, "Patna": {"distance_km": 278.0, "transit_days": 1}, "Pune": {"distance_km": 1566.0, "transit_days": 3}, "Raipur": {"distance_km": 607.0, "transit_days": 2}, "Rajkot": {"distance_km": 1670.0, "transit_days": 3}, "Ranchi": {"distance_km": 409.0, "transit_days": 2}, "Surat": {"distance_km": 1478.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 2565.0, "transit_days": 3}, "Vadodara": {"distance_km": 1366.0, "transit_days": 3}, "Vijayawada": {"distance_km": 1313.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 1099.0, "transit_days": 3}}, "Vijayawada": {"Agra": {"distance_km": 1585.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1437.0, "transit_days": 3}, "Amritsar": {"distance_km": 2308.0, "transit_days": 3}, "Bangalore": {"distance_km": 668.0, "transit_days": 2}, "Bhopal": {"distance_km": 1075.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 900.0, "transit_days": 3}, "Chandigarh": {"distance_km": 2113.0, "transit_days": 3}, "Chennai": {"distance_km": 493.0, "transit_days": 2}, "Coimbatore": {"distance_km": 942.0, "transit_days": 3}, "Dehradun": {"distance_km": 2024.0, "transit_days": 3}, "Delhi": {"distance_km": 1807.0, "transit_days": 3}, "Guwahati": {"distance_km": 2047.0, "transit_days": 3}, "Hyderabad": {"distance_km": 318.0, "transit_days": 2}, "Indore": {"distance_km": 1101.0, "transit_days": 3}, "Jabalpur": {"distance_km": 973.0, "transit_days": 3}, "Jaipur": {"distance_km": 1635.0, "transit_days": 3}, "Kanpur": {"distance_km": 1446.0, "transit_days": 3}, "Kochi": {"distance_km": 1117.0, "transit_days": 3}, "Kolkata": {"distance_km": 1380.0, "transit_days": 3}, "Lucknow": {"distance_km": 1489.0, "transit_days": 3}, "Madurai": {"distance_km": 1017.0, "transit_days": 3}, "Mangalore": {"distance_km": 952.0, "transit_days": 3}, "Mumbai": {"distance_km": 1124.0, "transit_days": 3}, "Nagpur": {"distance_km": 696.0, "transit_days": 2}, "Nashik": {"distance_km": 1062.0, "transit_days": 3}, "Noida": {"distance_km": 1786.0, "transit_days": 3}, "Patna": {"distance_km": 1448.0, "transit_days": 3}, "Pune": {"distance_km": 968.0, "transit_days": 3}, "Raipur": {"distance_km": 707.0, "transit_days": 2}, "Rajkot": {"distance_km": 1577.0, "transit_days": 3}, "Ranchi": {"distance_km": 1184.0, "transit_days": 3}, "Surat": {"distance_km": 1265.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 1263.0, "transit_days": 3}, "Vadodara": {"distance_km": 1311.0, "transit_days": 3}, "Varanasi": {"distance_km": 1313.0, "transit_days": 3}, "Visakhapatnam": {"distance_km": 411.0, "transit_days": 2}}, "Visakhapatnam": {"Agra": {"distance_km": 1544.0, "transit_days": 3}, "Ahmedabad": {"distance_km": 1639.0, "transit_days": 3}, "Amritsar": {"distance_km": 2290.0, "transit_days": 3}, "Bangalore": {"distance_km": 1055.0, "transit_days": 3}, "Bhopal": {"distance_km": 1137.0, "transit_days": 3}, "Bhubaneswar": {"distance_km": 508.0, "transit_days": 2}, "Chandigarh": {"distance_km": 2064.0, "transit_days": 3}, "Chennai": {"distance_km": 785.0, "transit_days": 2}, "Coimbatore": {"distance_km": 1310.0, "transit_days": 3}, "Dehradun": {"distance_km": 1950.0, "transit_days": 3}, "Delhi": {"distance_km": 1771.0, "transit_days": 3}, "Guwahati": {"distance_km": 1666.0, "transit_days": 3}, "Hyderabad": {"distance_km": 663.0, "transit_days": 2}, "Indore": {"distance_km": 1237.0, "transit_days": 3}, "Jabalpur": {"distance_km": 919.0, "transit_days": 3}, "Jaipur": {"distance_km": 1665.0, "transit_days": 3}, "Kanpur": {"distance_km": 1334.0, "transit_days": 3}, "Kochi": {"distance_km": 1484.0, "transit_days": 3}, "Kolkata": {"distance_km": 990.0, "transit_days": 3}, "Lucknow": {"distance_km": 1354.0, "transit_days": 3}, "Madurai": {"distance_km": 1343.0, "transit_days": 3}, "Mangalore": {"distance_km": 1361.0, "transit_days": 3}, "Mumbai": {"distance_km": 1441.0, "transit_days": 3}, "Nagpur": {"distance_km": 755.0, "transit_days": 2}, "Nashik": {"distance_km": 1341.0, "transit_days": 3}, "Noida": {"distance_km": 1746.0, "transit_days": 3}, "Patna": {"distance_km": 1167.0, "transit_days": 3}, "Pune": {"distance_km": 1297.0, "transit_days": 3}, "Raipur": {"distance_km": 570.0, "transit_days": 2}, "Rajkot": {"distance_km": 1823.0, "transit_days": 3}, "Ranchi": {"distance_km": 867.0, "transit_days": 3}, "Surat": {"distance_km": 1517.0, "transit_days": 3}, "Thiruvananthapuram": {"distance_km": 1598.0, "transit_days": 3}, "Vadodara": {"distance_km": 1524.0, "transit_days": 3}, "Varanasi": {"distance_km": 1099.0, "transit_days": 3}, "Vijayawada": {"distance_km": 411.0, "transit_days": 2}}};
+const CITIES = ["Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Delhi", "Guwahati", "Hyderabad", "Indore", "Jabalpur", "Jaipur", "Kanpur", "Kochi", "Kolkata", "Lucknow", "Madurai", "Mangalore", "Mumbai", "Nagpur", "Nashik", "Noida", "Patna", "Pune", "Raipur", "Rajkot", "Ranchi", "Surat", "Thiruvananthapuram", "Vadodara", "Varanasi", "Vijayawada", "Visakhapatnam"];
 
-/* ─────────────── CONFIG ─────────────── */
-const API = window.location.origin;
-const LANE_ID_MAP = {"Agra|Ahmedabad": "L395", "Agra|Amritsar": "L535", "Agra|Bangalore": "L495", "Agra|Bhopal": "L637", "Agra|Bhubaneswar": "L275", "Agra|Chandigarh": "L640", "Agra|Chennai": "L489", "Agra|Coimbatore": "L565", "Agra|Dehradun": "L522", "Agra|Delhi": "L448", "Agra|Guwahati": "L087", "Agra|Hyderabad": "L029", "Agra|Indore": "L454", "Agra|Jabalpur": "L373", "Agra|Jaipur": "L447", "Agra|Kanpur": "L230", "Agra|Kochi": "L490", "Agra|Kolkata": "L062", "Agra|Lucknow": "L227", "Agra|Madurai": "L078", "Agra|Mangalore": "L263", "Agra|Mumbai": "L148", "Agra|Nagpur": "L572", "Agra|Nashik": "L481", "Agra|Noida": "L245", "Agra|Patna": "L653", "Agra|Pune": "L147", "Agra|Raipur": "L331", "Agra|Rajkot": "L383", "Agra|Ranchi": "L595", "Agra|Surat": "L470", "Agra|Thiruvananthapuram": "L362", "Agra|Vadodara": "L209", "Agra|Varanasi": "L167", "Agra|Vijayawada": "L051", "Agra|Visakhapatnam": "L156", "Ahmedabad|Agra": "L395", "Ahmedabad|Amritsar": "L146", "Ahmedabad|Bangalore": "L287", "Ahmedabad|Bhopal": "L179", "Ahmedabad|Bhubaneswar": "L168", "Ahmedabad|Chandigarh": "L484", "Ahmedabad|Chennai": "L315", "Ahmedabad|Coimbatore": "L537", "Ahmedabad|Dehradun": "L491", "Ahmedabad|Delhi": "L037", "Ahmedabad|Guwahati": "L485", "Ahmedabad|Hyderabad": "L501", "Ahmedabad|Indore": "L665", "Ahmedabad|Jabalpur": "L231", "Ahmedabad|Jaipur": "L667", "Ahmedabad|Kanpur": "L290", "Ahmedabad|Kochi": "L039", "Ahmedabad|Kolkata": "L627", "Ahmedabad|Lucknow": "L151", "Ahmedabad|Madurai": "L442", "Ahmedabad|Mangalore": "L636", "Ahmedabad|Mumbai": "L063", "Ahmedabad|Nagpur": "L559", "Ahmedabad|Nashik": "L633", "Ahmedabad|Noida": "L288", "Ahmedabad|Patna": "L334", "Ahmedabad|Pune": "L573", "Ahmedabad|Raipur": "L143", "Ahmedabad|Rajkot": "L554", "Ahmedabad|Ranchi": "L378", "Ahmedabad|Surat": "L140", "Ahmedabad|Thiruvananthapuram": "L390", "Ahmedabad|Vadodara": "L668", "Ahmedabad|Varanasi": "L469", "Ahmedabad|Vijayawada": "L408", "Ahmedabad|Visakhapatnam": "L160", "Amritsar|Agra": "L535", "Amritsar|Ahmedabad": "L146", "Amritsar|Bangalore": "L008", "Amritsar|Bhopal": "L530", "Amritsar|Bhubaneswar": "L506", "Amritsar|Chandigarh": "L021", "Amritsar|Chennai": "L518", "Amritsar|Coimbatore": "L113", "Amritsar|Dehradun": "L617", "Amritsar|Delhi": "L433", "Amritsar|Guwahati": "L456", "Amritsar|Hyderabad": "L463", "Amritsar|Indore": "L207", "Amritsar|Jabalpur": "L661", "Amritsar|Jaipur": "L118", "Amritsar|Kanpur": "L549", "Amritsar|Kochi": "L438", "Amritsar|Kolkata": "L583", "Amritsar|Lucknow": "L507", "Amritsar|Madurai": "L669", "Amritsar|Mangalore": "L618", "Amritsar|Mumbai": "L398", "Amritsar|Nagpur": "L169", "Amritsar|Nashik": "L510", "Amritsar|Noida": "L504", "Amritsar|Patna": "L647", "Amritsar|Pune": "L439", "Amritsar|Raipur": "L345", "Amritsar|Rajkot": "L264", "Amritsar|Ranchi": "L630", "Amritsar|Surat": "L204", "Amritsar|Thiruvananthapuram": "L094", "Amritsar|Vadodara": "L425", "Amritsar|Varanasi": "L126", "Amritsar|Vijayawada": "L505", "Amritsar|Visakhapatnam": "L082", "Bangalore|Agra": "L495", "Bangalore|Ahmedabad": "L287", "Bangalore|Amritsar": "L008", "Bangalore|Bhopal": "L070", "Bangalore|Bhubaneswar": "L534", "Bangalore|Chandigarh": "L283", "Bangalore|Chennai": "L479", "Bangalore|Coimbatore": "L536", "Bangalore|Dehradun": "L333", "Bangalore|Delhi": "L620", "Bangalore|Guwahati": "L377", "Bangalore|Hyderabad": "L344", "Bangalore|Indore": "L223", "Bangalore|Jabalpur": "L379", "Bangalore|Jaipur": "L670", "Bangalore|Kanpur": "L208", "Bangalore|Kochi": "L375", "Bangalore|Kolkata": "L243", "Bangalore|Lucknow": "L339", "Bangalore|Madurai": "L279", "Bangalore|Mangalore": "L648", "Bangalore|Mumbai": "L293", "Bangalore|Nagpur": "L198", "Bangalore|Nashik": "L196", "Bangalore|Noida": "L133", "Bangalore|Patna": "L164", "Bangalore|Pune": "L294", "Bangalore|Raipur": "L015", "Bangalore|Rajkot": "L443", "Bangalore|Ranchi": "L141", "Bangalore|Surat": "L302", "Bangalore|Thiruvananthapuram": "L284", "Bangalore|Vadodara": "L628", "Bangalore|Varanasi": "L671", "Bangalore|Vijayawada": "L644", "Bangalore|Visakhapatnam": "L600", "Bhopal|Agra": "L637", "Bhopal|Ahmedabad": "L179", "Bhopal|Amritsar": "L530", "Bhopal|Bangalore": "L070", "Bhopal|Bhubaneswar": "L090", "Bhopal|Chandigarh": "L589", "Bhopal|Chennai": "L105", "Bhopal|Coimbatore": "L136", "Bhopal|Dehradun": "L291", "Bhopal|Delhi": "L352", "Bhopal|Guwahati": "L085", "Bhopal|Hyderabad": "L019", "Bhopal|Indore": "L060", "Bhopal|Jabalpur": "L354", "Bhopal|Jaipur": "L590", "Bhopal|Kanpur": "L672", "Bhopal|Kochi": "L203", "Bhopal|Kolkata": "L464", "Bhopal|Lucknow": "L662", "Bhopal|Madurai": "L555", "Bhopal|Mangalore": "L056", "Bhopal|Mumbai": "L381", "Bhopal|Nagpur": "L418", "Bhopal|Nashik": "L446", "Bhopal|Noida": "L508", "Bhopal|Patna": "L568", "Bhopal|Pune": "L044", "Bhopal|Raipur": "L197", "Bhopal|Rajkot": "L387", "Bhopal|Ranchi": "L161", "Bhopal|Surat": "L594", "Bhopal|Thiruvananthapuram": "L458", "Bhopal|Vadodara": "L211", "Bhopal|Varanasi": "L393", "Bhopal|Vijayawada": "L411", "Bhopal|Visakhapatnam": "L426", "Bhubaneswar|Agra": "L275", "Bhubaneswar|Ahmedabad": "L168", "Bhubaneswar|Amritsar": "L506", "Bhubaneswar|Bangalore": "L534", "Bhubaneswar|Bhopal": "L090", "Bhubaneswar|Chandigarh": "L399", "Bhubaneswar|Chennai": "L528", "Bhubaneswar|Coimbatore": "L003", "Bhubaneswar|Dehradun": "L092", "Bhubaneswar|Delhi": "L307", "Bhubaneswar|Guwahati": "L219", "Bhubaneswar|Hyderabad": "L282", "Bhubaneswar|Indore": "L356", "Bhubaneswar|Jabalpur": "L176", "Bhubaneswar|Jaipur": "L472", "Bhubaneswar|Kanpur": "L054", "Bhubaneswar|Kochi": "L116", "Bhubaneswar|Kolkata": "L655", "Bhubaneswar|Lucknow": "L252", "Bhubaneswar|Madurai": "L277", "Bhubaneswar|Mangalore": "L445", "Bhubaneswar|Mumbai": "L276", "Bhubaneswar|Nagpur": "L416", "Bhubaneswar|Nashik": "L477", "Bhubaneswar|Noida": "L171", "Bhubaneswar|Patna": "L388", "Bhubaneswar|Pune": "L338", "Bhubaneswar|Raipur": "L268", "Bhubaneswar|Rajkot": "L526", "Bhubaneswar|Ranchi": "L478", "Bhubaneswar|Surat": "L138", "Bhubaneswar|Thiruvananthapuram": "L272", "Bhubaneswar|Vadodara": "L079", "Bhubaneswar|Varanasi": "L280", "Bhubaneswar|Vijayawada": "L607", "Bhubaneswar|Visakhapatnam": "L225", "Chandigarh|Agra": "L640", "Chandigarh|Ahmedabad": "L484", "Chandigarh|Amritsar": "L021", "Chandigarh|Bangalore": "L283", "Chandigarh|Bhopal": "L589", "Chandigarh|Bhubaneswar": "L399", "Chandigarh|Chennai": "L497", "Chandigarh|Coimbatore": "L091", "Chandigarh|Dehradun": "L327", "Chandigarh|Delhi": "L324", "Chandigarh|Guwahati": "L190", "Chandigarh|Hyderabad": "L417", "Chandigarh|Indore": "L026", "Chandigarh|Jabalpur": "L186", "Chandigarh|Jaipur": "L437", "Chandigarh|Kanpur": "L634", "Chandigarh|Kochi": "L480", "Chandigarh|Kolkata": "L205", "Chandigarh|Lucknow": "L256", "Chandigarh|Madurai": "L557", "Chandigarh|Mangalore": "L336", "Chandigarh|Mumbai": "L009", "Chandigarh|Nagpur": "L117", "Chandigarh|Nashik": "L673", "Chandigarh|Noida": "L300", "Chandigarh|Patna": "L406", "Chandigarh|Pune": "L539", "Chandigarh|Raipur": "L312", "Chandigarh|Rajkot": "L435", "Chandigarh|Ranchi": "L467", "Chandigarh|Surat": "L612", "Chandigarh|Thiruvananthapuram": "L413", "Chandigarh|Vadodara": "L314", "Chandigarh|Varanasi": "L024", "Chandigarh|Vijayawada": "L128", "Chandigarh|Visakhapatnam": "L017", "Chennai|Agra": "L489", "Chennai|Ahmedabad": "L315", "Chennai|Amritsar": "L518", "Chennai|Bangalore": "L479", "Chennai|Bhopal": "L105", "Chennai|Bhubaneswar": "L528", "Chennai|Chandigarh": "L497", "Chennai|Coimbatore": "L487", "Chennai|Dehradun": "L012", "Chennai|Delhi": "L548", "Chennai|Guwahati": "L651", "Chennai|Hyderabad": "L103", "Chennai|Indore": "L247", "Chennai|Jabalpur": "L615", "Chennai|Jaipur": "L550", "Chennai|Kanpur": "L664", "Chennai|Kochi": "L386", "Chennai|Kolkata": "L455", "Chennai|Lucknow": "L625", "Chennai|Madurai": "L451", "Chennai|Mangalore": "L674", "Chennai|Mumbai": "L067", "Chennai|Nagpur": "L297", "Chennai|Nashik": "L675", "Chennai|Noida": "L415", "Chennai|Patna": "L061", "Chennai|Pune": "L132", "Chennai|Raipur": "L335", "Chennai|Rajkot": "L414", "Chennai|Ranchi": "L326", "Chennai|Surat": "L016", "Chennai|Thiruvananthapuram": "L449", "Chennai|Vadodara": "L267", "Chennai|Varanasi": "L558", "Chennai|Vijayawada": "L546", "Chennai|Visakhapatnam": "L040", "Coimbatore|Agra": "L565", "Coimbatore|Ahmedabad": "L537", "Coimbatore|Amritsar": "L113", "Coimbatore|Bangalore": "L536", "Coimbatore|Bhopal": "L136", "Coimbatore|Bhubaneswar": "L003", "Coimbatore|Chandigarh": "L091", "Coimbatore|Chennai": "L487", "Coimbatore|Dehradun": "L659", "Coimbatore|Delhi": "L244", "Coimbatore|Guwahati": "L396", "Coimbatore|Hyderabad": "L340", "Coimbatore|Indore": "L153", "Coimbatore|Jabalpur": "L298", "Coimbatore|Jaipur": "L547", "Coimbatore|Kanpur": "L202", "Coimbatore|Kochi": "L513", "Coimbatore|Kolkata": "L258", "Coimbatore|Lucknow": "L543", "Coimbatore|Madurai": "L666", "Coimbatore|Mangalore": "L404", "Coimbatore|Mumbai": "L574", "Coimbatore|Nagpur": "L587", "Coimbatore|Nashik": "L053", "Coimbatore|Noida": "L570", "Coimbatore|Patna": "L104", "Coimbatore|Pune": "L270", "Coimbatore|Raipur": "L410", "Coimbatore|Rajkot": "L364", "Coimbatore|Ranchi": "L529", "Coimbatore|Surat": "L492", "Coimbatore|Thiruvananthapuram": "L585", "Coimbatore|Vadodara": "L343", "Coimbatore|Varanasi": "L080", "Coimbatore|Vijayawada": "L552", "Coimbatore|Visakhapatnam": "L194", "Dehradun|Agra": "L522", "Dehradun|Ahmedabad": "L491", "Dehradun|Amritsar": "L617", "Dehradun|Bangalore": "L333", "Dehradun|Bhopal": "L291", "Dehradun|Bhubaneswar": "L092", "Dehradun|Chandigarh": "L327", "Dehradun|Chennai": "L012", "Dehradun|Coimbatore": "L659", "Dehradun|Delhi": "L266", "Dehradun|Guwahati": "L466", "Dehradun|Hyderabad": "L218", "Dehradun|Indore": "L083", "Dehradun|Jabalpur": "L124", "Dehradun|Jaipur": "L001", "Dehradun|Kanpur": "L250", "Dehradun|Kochi": "L488", "Dehradun|Kolkata": "L564", "Dehradun|Lucknow": "L045", "Dehradun|Madurai": "L020", "Dehradun|Mangalore": "L461", "Dehradun|Mumbai": "L581", "Dehradun|Nagpur": "L405", "Dehradun|Nashik": "L265", "Dehradun|Noida": "L174", "Dehradun|Patna": "L110", "Dehradun|Pune": "L361", "Dehradun|Raipur": "L271", "Dehradun|Rajkot": "L261", "Dehradun|Ranchi": "L322", "Dehradun|Surat": "L236", "Dehradun|Thiruvananthapuram": "L503", "Dehradun|Vadodara": "L457", "Dehradun|Varanasi": "L308", "Dehradun|Vijayawada": "L014", "Dehradun|Visakhapatnam": "L646", "Delhi|Agra": "L448", "Delhi|Ahmedabad": "L037", "Delhi|Amritsar": "L433", "Delhi|Bangalore": "L620", "Delhi|Bhopal": "L352", "Delhi|Bhubaneswar": "L307", "Delhi|Chandigarh": "L324", "Delhi|Chennai": "L548", "Delhi|Coimbatore": "L244", "Delhi|Dehradun": "L266", "Delhi|Guwahati": "L316", "Delhi|Hyderabad": "L629", "Delhi|Indore": "L038", "Delhi|Jabalpur": "L034", "Delhi|Jaipur": "L658", "Delhi|Kanpur": "L420", "Delhi|Kochi": "L586", "Delhi|Kolkata": "L158", "Delhi|Lucknow": "L613", "Delhi|Madurai": "L577", "Delhi|Mangalore": "L601", "Delhi|Mumbai": "L402", "Delhi|Nagpur": "L551", "Delhi|Nashik": "L081", "Delhi|Noida": "L273", "Delhi|Patna": "L032", "Delhi|Pune": "L274", "Delhi|Raipur": "L397", "Delhi|Rajkot": "L434", "Delhi|Ranchi": "L248", "Delhi|Surat": "L544", "Delhi|Thiruvananthapuram": "L580", "Delhi|Vadodara": "L556", "Delhi|Varanasi": "L370", "Delhi|Vijayawada": "L200", "Delhi|Visakhapatnam": "L676", "Guwahati|Agra": "L087", "Guwahati|Ahmedabad": "L485", "Guwahati|Amritsar": "L456", "Guwahati|Bangalore": "L377", "Guwahati|Bhopal": "L085", "Guwahati|Bhubaneswar": "L219", "Guwahati|Chandigarh": "L190", "Guwahati|Chennai": "L651", "Guwahati|Coimbatore": "L396", "Guwahati|Dehradun": "L466", "Guwahati|Delhi": "L316", "Guwahati|Hyderabad": "L496", "Guwahati|Indore": "L159", "Guwahati|Jabalpur": "L428", "Guwahati|Jaipur": "L185", "Guwahati|Kanpur": "L582", "Guwahati|Kochi": "L022", "Guwahati|Kolkata": "L372", "Guwahati|Lucknow": "L289", "Guwahati|Madurai": "L077", "Guwahati|Mangalore": "L465", "Guwahati|Mumbai": "L145", "Guwahati|Nagpur": "L249", "Guwahati|Nashik": "L527", "Guwahati|Noida": "L095", "Guwahati|Patna": "L360", "Guwahati|Pune": "L650", "Guwahati|Raipur": "L419", "Guwahati|Rajkot": "L626", "Guwahati|Ranchi": "L036", "Guwahati|Surat": "L075", "Guwahati|Thiruvananthapuram": "L107", "Guwahati|Vadodara": "L606", "Guwahati|Varanasi": "L069", "Guwahati|Vijayawada": "L483", "Guwahati|Visakhapatnam": "L521", "Hyderabad|Agra": "L029", "Hyderabad|Ahmedabad": "L501", "Hyderabad|Amritsar": "L463", "Hyderabad|Bangalore": "L344", "Hyderabad|Bhopal": "L019", "Hyderabad|Bhubaneswar": "L282", "Hyderabad|Chandigarh": "L417", "Hyderabad|Chennai": "L103", "Hyderabad|Coimbatore": "L340", "Hyderabad|Dehradun": "L218", "Hyderabad|Delhi": "L629", "Hyderabad|Guwahati": "L496", "Hyderabad|Indore": "L540", "Hyderabad|Jabalpur": "L006", "Hyderabad|Jaipur": "L325", "Hyderabad|Kanpur": "L155", "Hyderabad|Kochi": "L193", "Hyderabad|Kolkata": "L632", "Hyderabad|Lucknow": "L165", "Hyderabad|Madurai": "L376", "Hyderabad|Mangalore": "L517", "Hyderabad|Mumbai": "L096", "Hyderabad|Nagpur": "L023", "Hyderabad|Nashik": "L257", "Hyderabad|Noida": "L363", "Hyderabad|Patna": "L042", "Hyderabad|Pune": "L392", "Hyderabad|Raipur": "L187", "Hyderabad|Rajkot": "L068", "Hyderabad|Ranchi": "L566", "Hyderabad|Surat": "L638", "Hyderabad|Thiruvananthapuram": "L677", "Hyderabad|Vadodara": "L046", "Hyderabad|Varanasi": "L301", "Hyderabad|Vijayawada": "L319", "Hyderabad|Visakhapatnam": "L150", "Indore|Agra": "L454", "Indore|Ahmedabad": "L665", "Indore|Amritsar": "L207", "Indore|Bangalore": "L223", "Indore|Bhopal": "L060", "Indore|Bhubaneswar": "L356", "Indore|Chandigarh": "L026", "Indore|Chennai": "L247", "Indore|Coimbatore": "L153", "Indore|Dehradun": "L083", "Indore|Delhi": "L038", "Indore|Guwahati": "L159", "Indore|Hyderabad": "L540", "Indore|Jabalpur": "L127", "Indore|Jaipur": "L064", "Indore|Kanpur": "L120", "Indore|Kochi": "L217", "Indore|Kolkata": "L251", "Indore|Lucknow": "L452", "Indore|Madurai": "L602", "Indore|Mangalore": "L286", "Indore|Mumbai": "L057", "Indore|Nagpur": "L592", "Indore|Nashik": "L482", "Indore|Noida": "L035", "Indore|Patna": "L576", "Indore|Pune": "L678", "Indore|Raipur": "L394", "Indore|Rajkot": "L500", "Indore|Ranchi": "L403", "Indore|Surat": "L111", "Indore|Thiruvananthapuram": "L262", "Indore|Vadodara": "L229", "Indore|Varanasi": "L459", "Indore|Vijayawada": "L180", "Indore|Visakhapatnam": "L285", "Jabalpur|Agra": "L373", "Jabalpur|Ahmedabad": "L231", "Jabalpur|Amritsar": "L661", "Jabalpur|Bangalore": "L379", "Jabalpur|Bhopal": "L354", "Jabalpur|Bhubaneswar": "L176", "Jabalpur|Chandigarh": "L186", "Jabalpur|Chennai": "L615", "Jabalpur|Coimbatore": "L298", "Jabalpur|Dehradun": "L124", "Jabalpur|Delhi": "L034", "Jabalpur|Guwahati": "L428", "Jabalpur|Hyderabad": "L006", "Jabalpur|Indore": "L127", "Jabalpur|Jaipur": "L313", "Jabalpur|Kanpur": "L380", "Jabalpur|Kochi": "L066", "Jabalpur|Kolkata": "L154", "Jabalpur|Lucknow": "L086", "Jabalpur|Madurai": "L431", "Jabalpur|Mangalore": "L533", "Jabalpur|Mumbai": "L184", "Jabalpur|Nagpur": "L181", "Jabalpur|Nashik": "L215", "Jabalpur|Noida": "L305", "Jabalpur|Patna": "L309", "Jabalpur|Pune": "L430", "Jabalpur|Raipur": "L654", "Jabalpur|Rajkot": "L645", "Jabalpur|Ranchi": "L337", "Jabalpur|Surat": "L382", "Jabalpur|Thiruvananthapuram": "L106", "Jabalpur|Vadodara": "L059", "Jabalpur|Varanasi": "L579", "Jabalpur|Vijayawada": "L619", "Jabalpur|Visakhapatnam": "L304", "Jaipur|Agra": "L447", "Jaipur|Ahmedabad": "L311", "Jaipur|Amritsar": "L118", "Jaipur|Bangalore": "L541", "Jaipur|Bhopal": "L590", "Jaipur|Bhubaneswar": "L472", "Jaipur|Chandigarh": "L437", "Jaipur|Chennai": "L550", "Jaipur|Coimbatore": "L547", "Jaipur|Dehradun": "L001", "Jaipur|Delhi": "L658", "Jaipur|Guwahati": "L185", "Jaipur|Hyderabad": "L325", "Jaipur|Indore": "L064", "Jaipur|Jabalpur": "L313", "Jaipur|Kanpur": "L611", "Jaipur|Kochi": "L509", "Jaipur|Kolkata": "L299", "Jaipur|Lucknow": "L474", "Jaipur|Madurai": "L065", "Jaipur|Mangalore": "L130", "Jaipur|Mumbai": "L514", "Jaipur|Nagpur": "L206", "Jaipur|Nashik": "L616", "Jaipur|Noida": "L052", "Jaipur|Patna": "L498", "Jaipur|Pune": "L072", "Jaipur|Raipur": "L224", "Jaipur|Rajkot": "L588", "Jaipur|Ranchi": "L320", "Jaipur|Surat": "L162", "Jaipur|Thiruvananthapuram": "L561", "Jaipur|Vadodara": "L409", "Jaipur|Varanasi": "L002", "Jaipur|Vijayawada": "L432", "Jaipur|Visakhapatnam": "L520", "Kanpur|Agra": "L230", "Kanpur|Ahmedabad": "L290", "Kanpur|Amritsar": "L549", "Kanpur|Bangalore": "L208", "Kanpur|Bhopal": "L631", "Kanpur|Bhubaneswar": "L054", "Kanpur|Chandigarh": "L634", "Kanpur|Chennai": "L664", "Kanpur|Coimbatore": "L202", "Kanpur|Dehradun": "L250", "Kanpur|Delhi": "L420", "Kanpur|Guwahati": "L582", "Kanpur|Hyderabad": "L155", "Kanpur|Indore": "L120", "Kanpur|Jabalpur": "L380", "Kanpur|Jaipur": "L611", "Kanpur|Kochi": "L639", "Kanpur|Kolkata": "L025", "Kanpur|Lucknow": "L163", "Kanpur|Madurai": "L254", "Kanpur|Mangalore": "L135", "Kanpur|Mumbai": "L237", "Kanpur|Nagpur": "L609", "Kanpur|Nashik": "L234", "Kanpur|Noida": "L018", "Kanpur|Patna": "L532", "Kanpur|Pune": "L444", "Kanpur|Raipur": "L494", "Kanpur|Rajkot": "L368", "Kanpur|Ranchi": "L359", "Kanpur|Surat": "L614", "Kanpur|Thiruvananthapuram": "L657", "Kanpur|Vadodara": "L183", "Kanpur|Varanasi": "L563", "Kanpur|Vijayawada": "L486", "Kanpur|Visakhapatnam": "L210", "Kochi|Agra": "L490", "Kochi|Ahmedabad": "L039", "Kochi|Amritsar": "L438", "Kochi|Bangalore": "L375", "Kochi|Bhopal": "L203", "Kochi|Bhubaneswar": "L116", "Kochi|Chandigarh": "L480", "Kochi|Chennai": "L386", "Kochi|Coimbatore": "L513", "Kochi|Dehradun": "L488", "Kochi|Delhi": "L586", "Kochi|Guwahati": "L022", "Kochi|Hyderabad": "L193", "Kochi|Indore": "L217", "Kochi|Jabalpur": "L066", "Kochi|Jaipur": "L509", "Kochi|Kanpur": "L679", "Kochi|Kolkata": "L050", "Kochi|Lucknow": "L166", "Kochi|Madurai": "L296", "Kochi|Mangalore": "L542", "Kochi|Mumbai": "L680", "Kochi|Nagpur": "L524", "Kochi|Nashik": "L367", "Kochi|Noida": "L260", "Kochi|Patna": "L027", "Kochi|Pune": "L278", "Kochi|Raipur": "L604", "Kochi|Rajkot": "L475", "Kochi|Ranchi": "L010", "Kochi|Surat": "L253", "Kochi|Thiruvananthapuram": "L441", "Kochi|Vadodara": "L515", "Kochi|Varanasi": "L560", "Kochi|Vijayawada": "L571", "Kochi|Visakhapatnam": "L119", "Kolkata|Agra": "L062", "Kolkata|Ahmedabad": "L627", "Kolkata|Amritsar": "L583", "Kolkata|Bangalore": "L243", "Kolkata|Bhopal": "L464", "Kolkata|Bhubaneswar": "L655", "Kolkata|Chandigarh": "L205", "Kolkata|Chennai": "L455", "Kolkata|Coimbatore": "L258", "Kolkata|Dehradun": "L564", "Kolkata|Delhi": "L158", "Kolkata|Guwahati": "L372", "Kolkata|Hyderabad": "L632", "Kolkata|Indore": "L251", "Kolkata|Jabalpur": "L154", "Kolkata|Jaipur": "L299", "Kolkata|Kanpur": "L681", "Kolkata|Kochi": "L050", "Kolkata|Lucknow": "L152", "Kolkata|Madurai": "L599", "Kolkata|Mangalore": "L317", "Kolkata|Mumbai": "L137", "Kolkata|Nagpur": "L584", "Kolkata|Nashik": "L593", "Kolkata|Noida": "L366", "Kolkata|Patna": "L122", "Kolkata|Pune": "L240", "Kolkata|Raipur": "L259", "Kolkata|Rajkot": "L401", "Kolkata|Ranchi": "L622", "Kolkata|Surat": "L047", "Kolkata|Thiruvananthapuram": "L028", "Kolkata|Vadodara": "L374", "Kolkata|Varanasi": "L098", "Kolkata|Vijayawada": "L516", "Kolkata|Visakhapatnam": "L440", "Lucknow|Agra": "L227", "Lucknow|Ahmedabad": "L151", "Lucknow|Amritsar": "L507", "Lucknow|Bangalore": "L339", "Lucknow|Bhopal": "L662", "Lucknow|Bhubaneswar": "L252", "Lucknow|Chandigarh": "L256", "Lucknow|Chennai": "L625", "Lucknow|Coimbatore": "L543", "Lucknow|Dehradun": "L045", "Lucknow|Delhi": "L613", "Lucknow|Guwahati": "L289", "Lucknow|Hyderabad": "L165", "Lucknow|Indore": "L452", "Lucknow|Jabalpur": "L086", "Lucknow|Jaipur": "L474", "Lucknow|Kanpur": "L163", "Lucknow|Kochi": "L166", "Lucknow|Kolkata": "L152", "Lucknow|Madurai": "L005", "Lucknow|Mangalore": "L610", "Lucknow|Mumbai": "L643", "Lucknow|Nagpur": "L310", "Lucknow|Nashik": "L212", "Lucknow|Noida": "L170", "Lucknow|Patna": "L422", "Lucknow|Pune": "L350", "Lucknow|Raipur": "L562", "Lucknow|Rajkot": "L371", "Lucknow|Ranchi": "L649", "Lucknow|Surat": "L502", "Lucknow|Thiruvananthapuram": "L192", "Lucknow|Vadodara": "L623", "Lucknow|Varanasi": "L030", "Lucknow|Vijayawada": "L242", "Lucknow|Visakhapatnam": "L213", "Madurai|Agra": "L078", "Madurai|Ahmedabad": "L442", "Madurai|Amritsar": "L421", "Madurai|Bangalore": "L279", "Madurai|Bhopal": "L555", "Madurai|Bhubaneswar": "L277", "Madurai|Chandigarh": "L557", "Madurai|Chennai": "L451", "Madurai|Coimbatore": "L682", "Madurai|Dehradun": "L020", "Madurai|Delhi": "L577", "Madurai|Guwahati": "L077", "Madurai|Hyderabad": "L376", "Madurai|Indore": "L602", "Madurai|Jabalpur": "L431", "Madurai|Jaipur": "L065", "Madurai|Kanpur": "L254", "Madurai|Kochi": "L296", "Madurai|Kolkata": "L599", "Madurai|Lucknow": "L005", "Madurai|Mangalore": "L173", "Madurai|Mumbai": "L089", "Madurai|Nagpur": "L471", "Madurai|Nashik": "L351", "Madurai|Noida": "L663", "Madurai|Patna": "L099", "Madurai|Pune": "L306", "Madurai|Raipur": "L013", "Madurai|Rajkot": "L575", "Madurai|Ranchi": "L222", "Madurai|Surat": "L233", "Madurai|Thiruvananthapuram": "L341", "Madurai|Vadodara": "L545", "Madurai|Varanasi": "L239", "Madurai|Vijayawada": "L076", "Madurai|Visakhapatnam": "L468", "Mangalore|Agra": "L263", "Mangalore|Ahmedabad": "L636", "Mangalore|Amritsar": "L618", "Mangalore|Bangalore": "L648", "Mangalore|Bhopal": "L056", "Mangalore|Bhubaneswar": "L445", "Mangalore|Chandigarh": "L336", "Mangalore|Chennai": "L109", "Mangalore|Coimbatore": "L404", "Mangalore|Dehradun": "L683", "Mangalore|Delhi": "L601", "Mangalore|Guwahati": "L465", "Mangalore|Hyderabad": "L517", "Mangalore|Indore": "L286", "Mangalore|Jabalpur": "L533", "Mangalore|Jaipur": "L130", "Mangalore|Kanpur": "L135", "Mangalore|Kochi": "L542", "Mangalore|Kolkata": "L317", "Mangalore|Lucknow": "L610", "Mangalore|Madurai": "L173", "Mangalore|Mumbai": "L172", "Mangalore|Nagpur": "L134", "Mangalore|Nashik": "L357", "Mangalore|Noida": "L004", "Mangalore|Patna": "L429", "Mangalore|Pune": "L255", "Mangalore|Raipur": "L578", "Mangalore|Rajkot": "L385", "Mangalore|Ranchi": "L232", "Mangalore|Surat": "L538", "Mangalore|Thiruvananthapuram": "L073", "Mangalore|Vadodara": "L553", "Mangalore|Varanasi": "L624", "Mangalore|Vijayawada": "L591", "Mangalore|Visakhapatnam": "L031", "Mumbai|Agra": "L148", "Mumbai|Ahmedabad": "L063", "Mumbai|Amritsar": "L398", "Mumbai|Bangalore": "L293", "Mumbai|Bhopal": "L381", "Mumbai|Bhubaneswar": "L276", "Mumbai|Chandigarh": "L009", "Mumbai|Chennai": "L684", "Mumbai|Coimbatore": "L574", "Mumbai|Dehradun": "L581", "Mumbai|Delhi": "L402", "Mumbai|Guwahati": "L145", "Mumbai|Hyderabad": "L096", "Mumbai|Indore": "L057", "Mumbai|Jabalpur": "L685", "Mumbai|Jaipur": "L514", "Mumbai|Kanpur": "L237", "Mumbai|Kochi": "L656", "Mumbai|Kolkata": "L137", "Mumbai|Lucknow": "L643", "Mumbai|Madurai": "L089", "Mumbai|Mangalore": "L172", "Mumbai|Nagpur": "L412", "Mumbai|Nashik": "L108", "Mumbai|Noida": "L142", "Mumbai|Patna": "L199", "Mumbai|Pune": "L424", "Mumbai|Raipur": "L476", "Mumbai|Rajkot": "L347", "Mumbai|Ranchi": "L407", "Mumbai|Surat": "L220", "Mumbai|Thiruvananthapuram": "L235", "Mumbai|Vadodara": "L100", "Mumbai|Varanasi": "L596", "Mumbai|Vijayawada": "L427", "Mumbai|Visakhapatnam": "L071", "Nagpur|Agra": "L572", "Nagpur|Ahmedabad": "L559", "Nagpur|Amritsar": "L169", "Nagpur|Bangalore": "L198", "Nagpur|Bhopal": "L418", "Nagpur|Bhubaneswar": "L416", "Nagpur|Chandigarh": "L117", "Nagpur|Chennai": "L297", "Nagpur|Coimbatore": "L587", "Nagpur|Dehradun": "L405", "Nagpur|Delhi": "L551", "Nagpur|Guwahati": "L249", "Nagpur|Hyderabad": "L023", "Nagpur|Indore": "L686", "Nagpur|Jabalpur": "L181", "Nagpur|Jaipur": "L206", "Nagpur|Kanpur": "L609", "Nagpur|Kochi": "L524", "Nagpur|Kolkata": "L584", "Nagpur|Lucknow": "L310", "Nagpur|Madurai": "L471", "Nagpur|Mangalore": "L134", "Nagpur|Mumbai": "L412", "Nagpur|Nashik": "L058", "Nagpur|Noida": "L131", "Nagpur|Patna": "L641", "Nagpur|Pune": "L228", "Nagpur|Raipur": "L177", "Nagpur|Rajkot": "L384", "Nagpur|Ranchi": "L088", "Nagpur|Surat": "L687", "Nagpur|Thiruvananthapuram": "L329", "Nagpur|Vadodara": "L049", "Nagpur|Varanasi": "L125", "Nagpur|Vijayawada": "L189", "Nagpur|Visakhapatnam": "L182", "Nashik|Agra": "L481", "Nashik|Ahmedabad": "L633", "Nashik|Amritsar": "L510", "Nashik|Bangalore": "L196", "Nashik|Bhopal": "L446", "Nashik|Bhubaneswar": "L477", "Nashik|Chandigarh": "L598", "Nashik|Chennai": "L523", "Nashik|Coimbatore": "L053", "Nashik|Dehradun": "L265", "Nashik|Delhi": "L081", "Nashik|Guwahati": "L527", "Nashik|Hyderabad": "L257", "Nashik|Indore": "L482", "Nashik|Jabalpur": "L215", "Nashik|Jaipur": "L616", "Nashik|Kanpur": "L234", "Nashik|Kochi": "L367", "Nashik|Kolkata": "L593", "Nashik|Lucknow": "L212", "Nashik|Madurai": "L351", "Nashik|Mangalore": "L357", "Nashik|Mumbai": "L108", "Nashik|Nagpur": "L058", "Nashik|Noida": "L115", "Nashik|Patna": "L688", "Nashik|Pune": "L323", "Nashik|Raipur": "L178", "Nashik|Rajkot": "L011", "Nashik|Ranchi": "L055", "Nashik|Surat": "L389", "Nashik|Thiruvananthapuram": "L450", "Nashik|Vadodara": "L246", "Nashik|Varanasi": "L101", "Nashik|Vijayawada": "L499", "Nashik|Visakhapatnam": "L391", "Noida|Agra": "L245", "Noida|Ahmedabad": "L288", "Noida|Amritsar": "L504", "Noida|Bangalore": "L133", "Noida|Bhopal": "L508", "Noida|Bhubaneswar": "L171", "Noida|Chandigarh": "L300", "Noida|Chennai": "L415", "Noida|Coimbatore": "L570", "Noida|Dehradun": "L174", "Noida|Delhi": "L273", "Noida|Guwahati": "L095", "Noida|Hyderabad": "L363", "Noida|Indore": "L035", "Noida|Jabalpur": "L305", "Noida|Jaipur": "L052", "Noida|Kanpur": "L018", "Noida|Kochi": "L260", "Noida|Kolkata": "L366", "Noida|Lucknow": "L170", "Noida|Madurai": "L663", "Noida|Mangalore": "L004", "Noida|Mumbai": "L142", "Noida|Nagpur": "L131", "Noida|Nashik": "L115", "Noida|Patna": "L328", "Noida|Pune": "L511", "Noida|Raipur": "L608", "Noida|Rajkot": "L453", "Noida|Ranchi": "L355", "Noida|Surat": "L635", "Noida|Thiruvananthapuram": "L221", "Noida|Vadodara": "L358", "Noida|Varanasi": "L303", "Noida|Vijayawada": "L216", "Noida|Visakhapatnam": "L652", "Patna|Agra": "L653", "Patna|Ahmedabad": "L334", "Patna|Amritsar": "L647", "Patna|Bangalore": "L164", "Patna|Bhopal": "L568", "Patna|Bhubaneswar": "L388", "Patna|Chandigarh": "L406", "Patna|Chennai": "L061", "Patna|Coimbatore": "L104", "Patna|Dehradun": "L689", "Patna|Delhi": "L032", "Patna|Guwahati": "L690", "Patna|Hyderabad": "L042", "Patna|Indore": "L576", "Patna|Jabalpur": "L309", "Patna|Jaipur": "L498", "Patna|Kanpur": "L532", "Patna|Kochi": "L027", "Patna|Kolkata": "L122", "Patna|Lucknow": "L422", "Patna|Madurai": "L099", "Patna|Mangalore": "L429", "Patna|Mumbai": "L199", "Patna|Nagpur": "L641", "Patna|Nashik": "L460", "Patna|Noida": "L328", "Patna|Pune": "L423", "Patna|Raipur": "L569", "Patna|Rajkot": "L238", "Patna|Ranchi": "L074", "Patna|Surat": "L269", "Patna|Thiruvananthapuram": "L462", "Patna|Vadodara": "L597", "Patna|Varanasi": "L241", "Patna|Vijayawada": "L567", "Patna|Visakhapatnam": "L093", "Pune|Agra": "L147", "Pune|Ahmedabad": "L573", "Pune|Amritsar": "L439", "Pune|Bangalore": "L294", "Pune|Bhopal": "L044", "Pune|Bhubaneswar": "L338", "Pune|Chandigarh": "L539", "Pune|Chennai": "L132", "Pune|Coimbatore": "L270", "Pune|Dehradun": "L361", "Pune|Delhi": "L274", "Pune|Guwahati": "L650", "Pune|Hyderabad": "L392", "Pune|Indore": "L621", "Pune|Jabalpur": "L430", "Pune|Jaipur": "L072", "Pune|Kanpur": "L444", "Pune|Kochi": "L278", "Pune|Kolkata": "L240", "Pune|Lucknow": "L350", "Pune|Madurai": "L306", "Pune|Mangalore": "L255", "Pune|Mumbai": "L424", "Pune|Nagpur": "L228", "Pune|Nashik": "L323", "Pune|Noida": "L511", "Pune|Patna": "L423", "Pune|Raipur": "L188", "Pune|Rajkot": "L043", "Pune|Ranchi": "L691", "Pune|Surat": "L332", "Pune|Thiruvananthapuram": "L195", "Pune|Vadodara": "L346", "Pune|Varanasi": "L226", "Pune|Vijayawada": "L292", "Pune|Visakhapatnam": "L121", "Raipur|Agra": "L331", "Raipur|Ahmedabad": "L143", "Raipur|Amritsar": "L345", "Raipur|Bangalore": "L015", "Raipur|Bhopal": "L197", "Raipur|Bhubaneswar": "L268", "Raipur|Chandigarh": "L312", "Raipur|Chennai": "L335", "Raipur|Coimbatore": "L410", "Raipur|Dehradun": "L271", "Raipur|Delhi": "L397", "Raipur|Guwahati": "L419", "Raipur|Hyderabad": "L187", "Raipur|Indore": "L394", "Raipur|Jabalpur": "L692", "Raipur|Jaipur": "L224", "Raipur|Kanpur": "L494", "Raipur|Kochi": "L604", "Raipur|Kolkata": "L259", "Raipur|Lucknow": "L562", "Raipur|Madurai": "L013", "Raipur|Mangalore": "L578", "Raipur|Mumbai": "L476", "Raipur|Nagpur": "L177", "Raipur|Nashik": "L178", "Raipur|Noida": "L608", "Raipur|Patna": "L569", "Raipur|Pune": "L188", "Raipur|Rajkot": "L201", "Raipur|Ranchi": "L348", "Raipur|Surat": "L175", "Raipur|Thiruvananthapuram": "L512", "Raipur|Vadodara": "L191", "Raipur|Varanasi": "L642", "Raipur|Vijayawada": "L048", "Raipur|Visakhapatnam": "L342", "Rajkot|Agra": "L383", "Rajkot|Ahmedabad": "L554", "Rajkot|Amritsar": "L264", "Rajkot|Bangalore": "L443", "Rajkot|Bhopal": "L387", "Rajkot|Bhubaneswar": "L693", "Rajkot|Chandigarh": "L435", "Rajkot|Chennai": "L414", "Rajkot|Coimbatore": "L694", "Rajkot|Dehradun": "L261", "Rajkot|Delhi": "L434", "Rajkot|Guwahati": "L626", "Rajkot|Hyderabad": "L068", "Rajkot|Indore": "L500", "Rajkot|Jabalpur": "L645", "Rajkot|Jaipur": "L588", "Rajkot|Kanpur": "L368", "Rajkot|Kochi": "L475", "Rajkot|Kolkata": "L401", "Rajkot|Lucknow": "L371", "Rajkot|Madurai": "L575", "Rajkot|Mangalore": "L385", "Rajkot|Mumbai": "L347", "Rajkot|Nagpur": "L384", "Rajkot|Nashik": "L011", "Rajkot|Noida": "L453", "Rajkot|Patna": "L238", "Rajkot|Pune": "L043", "Rajkot|Raipur": "L201", "Rajkot|Ranchi": "L369", "Rajkot|Surat": "L281", "Rajkot|Thiruvananthapuram": "L605", "Rajkot|Vadodara": "L097", "Rajkot|Varanasi": "L007", "Rajkot|Vijayawada": "L139", "Rajkot|Visakhapatnam": "L157", "Ranchi|Agra": "L595", "Ranchi|Ahmedabad": "L378", "Ranchi|Amritsar": "L630", "Ranchi|Bangalore": "L141", "Ranchi|Bhopal": "L161", "Ranchi|Bhubaneswar": "L478", "Ranchi|Chandigarh": "L467", "Ranchi|Chennai": "L326", "Ranchi|Coimbatore": "L529", "Ranchi|Dehradun": "L322", "Ranchi|Delhi": "L248", "Ranchi|Guwahati": "L036", "Ranchi|Hyderabad": "L566", "Ranchi|Indore": "L403", "Ranchi|Jabalpur": "L337", "Ranchi|Jaipur": "L320", "Ranchi|Kanpur": "L359", "Ranchi|Kochi": "L010", "Ranchi|Kolkata": "L622", "Ranchi|Lucknow": "L649", "Ranchi|Madurai": "L222", "Ranchi|Mangalore": "L232", "Ranchi|Mumbai": "L407", "Ranchi|Nagpur": "L088", "Ranchi|Nashik": "L055", "Ranchi|Noida": "L355", "Ranchi|Patna": "L074", "Ranchi|Pune": "L660", "Ranchi|Raipur": "L348", "Ranchi|Rajkot": "L369", "Ranchi|Surat": "L149", "Ranchi|Thiruvananthapuram": "L214", "Ranchi|Vadodara": "L144", "Ranchi|Varanasi": "L123", "Ranchi|Vijayawada": "L695", "Ranchi|Visakhapatnam": "L436", "Surat|Agra": "L470", "Surat|Ahmedabad": "L140", "Surat|Amritsar": "L204", "Surat|Bangalore": "L302", "Surat|Bhopal": "L594", "Surat|Bhubaneswar": "L138", "Surat|Chandigarh": "L612", "Surat|Chennai": "L016", "Surat|Coimbatore": "L492", "Surat|Dehradun": "L236", "Surat|Delhi": "L544", "Surat|Guwahati": "L075", "Surat|Hyderabad": "L638", "Surat|Indore": "L696", "Surat|Jabalpur": "L382", "Surat|Jaipur": "L162", "Surat|Kanpur": "L697", "Surat|Kochi": "L253", "Surat|Kolkata": "L047", "Surat|Lucknow": "L502", "Surat|Madurai": "L233", "Surat|Mangalore": "L538", "Surat|Mumbai": "L220", "Surat|Nagpur": "L525", "Surat|Nashik": "L389", "Surat|Noida": "L635", "Surat|Patna": "L269", "Surat|Pune": "L332", "Surat|Raipur": "L175", "Surat|Rajkot": "L281", "Surat|Ranchi": "L149", "Surat|Thiruvananthapuram": "L102", "Surat|Vadodara": "L112", "Surat|Varanasi": "L129", "Surat|Vijayawada": "L493", "Surat|Visakhapatnam": "L295", "Thiruvananthapuram|Agra": "L362", "Thiruvananthapuram|Ahmedabad": "L390", "Thiruvananthapuram|Amritsar": "L094", "Thiruvananthapuram|Bangalore": "L284", "Thiruvananthapuram|Bhopal": "L458", "Thiruvananthapuram|Bhubaneswar": "L272", "Thiruvananthapuram|Chandigarh": "L413", "Thiruvananthapuram|Chennai": "L449", "Thiruvananthapuram|Coimbatore": "L585", "Thiruvananthapuram|Dehradun": "L503", "Thiruvananthapuram|Delhi": "L580", "Thiruvananthapuram|Guwahati": "L107", "Thiruvananthapuram|Hyderabad": "L473", "Thiruvananthapuram|Indore": "L262", "Thiruvananthapuram|Jabalpur": "L106", "Thiruvananthapuram|Jaipur": "L561", "Thiruvananthapuram|Kanpur": "L657", "Thiruvananthapuram|Kochi": "L441", "Thiruvananthapuram|Kolkata": "L028", "Thiruvananthapuram|Lucknow": "L192", "Thiruvananthapuram|Madurai": "L341", "Thiruvananthapuram|Mangalore": "L073", "Thiruvananthapuram|Mumbai": "L235", "Thiruvananthapuram|Nagpur": "L698", "Thiruvananthapuram|Nashik": "L450", "Thiruvananthapuram|Noida": "L221", "Thiruvananthapuram|Patna": "L462", "Thiruvananthapuram|Pune": "L195", "Thiruvananthapuram|Raipur": "L512", "Thiruvananthapuram|Rajkot": "L605", "Thiruvananthapuram|Ranchi": "L699", "Thiruvananthapuram|Surat": "L102", "Thiruvananthapuram|Vadodara": "L603", "Thiruvananthapuram|Varanasi": "L321", "Thiruvananthapuram|Vijayawada": "L084", "Thiruvananthapuram|Visakhapatnam": "L041", "Vadodara|Agra": "L209", "Vadodara|Ahmedabad": "L365", "Vadodara|Amritsar": "L425", "Vadodara|Bangalore": "L628", "Vadodara|Bhopal": "L211", "Vadodara|Bhubaneswar": "L079", "Vadodara|Chandigarh": "L314", "Vadodara|Chennai": "L267", "Vadodara|Coimbatore": "L343", "Vadodara|Dehradun": "L457", "Vadodara|Delhi": "L556", "Vadodara|Guwahati": "L606", "Vadodara|Hyderabad": "L046", "Vadodara|Indore": "L229", "Vadodara|Jabalpur": "L059", "Vadodara|Jaipur": "L409", "Vadodara|Kanpur": "L183", "Vadodara|Kochi": "L515", "Vadodara|Kolkata": "L374", "Vadodara|Lucknow": "L623", "Vadodara|Madurai": "L545", "Vadodara|Mangalore": "L553", "Vadodara|Mumbai": "L100", "Vadodara|Nagpur": "L049", "Vadodara|Nashik": "L246", "Vadodara|Noida": "L358", "Vadodara|Patna": "L597", "Vadodara|Pune": "L346", "Vadodara|Raipur": "L191", "Vadodara|Rajkot": "L097", "Vadodara|Ranchi": "L144", "Vadodara|Surat": "L112", "Vadodara|Thiruvananthapuram": "L603", "Vadodara|Varanasi": "L531", "Vadodara|Vijayawada": "L353", "Vadodara|Visakhapatnam": "L033", "Varanasi|Agra": "L167", "Varanasi|Ahmedabad": "L469", "Varanasi|Amritsar": "L126", "Varanasi|Bangalore": "L349", "Varanasi|Bhopal": "L393", "Varanasi|Bhubaneswar": "L280", "Varanasi|Chandigarh": "L024", "Varanasi|Chennai": "L558", "Varanasi|Coimbatore": "L080", "Varanasi|Dehradun": "L308", "Varanasi|Delhi": "L370", "Varanasi|Guwahati": "L069", "Varanasi|Hyderabad": "L301", "Varanasi|Indore": "L459", "Varanasi|Jabalpur": "L579", "Varanasi|Jaipur": "L002", "Varanasi|Kanpur": "L563", "Varanasi|Kochi": "L700", "Varanasi|Kolkata": "L098", "Varanasi|Lucknow": "L030", "Varanasi|Madurai": "L239", "Varanasi|Mangalore": "L624", "Varanasi|Mumbai": "L701", "Varanasi|Nagpur": "L125", "Varanasi|Nashik": "L101", "Varanasi|Noida": "L303", "Varanasi|Patna": "L241", "Varanasi|Pune": "L226", "Varanasi|Raipur": "L642", "Varanasi|Rajkot": "L007", "Varanasi|Ranchi": "L123", "Varanasi|Surat": "L129", "Varanasi|Thiruvananthapuram": "L321", "Varanasi|Vadodara": "L531", "Varanasi|Vijayawada": "L318", "Varanasi|Visakhapatnam": "L400", "Vijayawada|Agra": "L051", "Vijayawada|Ahmedabad": "L408", "Vijayawada|Amritsar": "L505", "Vijayawada|Bangalore": "L644", "Vijayawada|Bhopal": "L411", "Vijayawada|Bhubaneswar": "L607", "Vijayawada|Chandigarh": "L128", "Vijayawada|Chennai": "L546", "Vijayawada|Coimbatore": "L552", "Vijayawada|Dehradun": "L014", "Vijayawada|Delhi": "L200", "Vijayawada|Guwahati": "L483", "Vijayawada|Hyderabad": "L319", "Vijayawada|Indore": "L180", "Vijayawada|Jabalpur": "L619", "Vijayawada|Jaipur": "L432", "Vijayawada|Kanpur": "L486", "Vijayawada|Kochi": "L571", "Vijayawada|Kolkata": "L516", "Vijayawada|Lucknow": "L242", "Vijayawada|Madurai": "L076", "Vijayawada|Mangalore": "L591", "Vijayawada|Mumbai": "L427", "Vijayawada|Nagpur": "L189", "Vijayawada|Nashik": "L499", "Vijayawada|Noida": "L216", "Vijayawada|Patna": "L567", "Vijayawada|Pune": "L292", "Vijayawada|Raipur": "L048", "Vijayawada|Rajkot": "L139", "Vijayawada|Ranchi": "L114", "Vijayawada|Surat": "L493", "Vijayawada|Thiruvananthapuram": "L084", "Vijayawada|Vadodara": "L353", "Vijayawada|Varanasi": "L318", "Vijayawada|Visakhapatnam": "L519", "Visakhapatnam|Agra": "L156", "Visakhapatnam|Ahmedabad": "L160", "Visakhapatnam|Amritsar": "L082", "Visakhapatnam|Bangalore": "L600", "Visakhapatnam|Bhopal": "L426", "Visakhapatnam|Bhubaneswar": "L225", "Visakhapatnam|Chandigarh": "L017", "Visakhapatnam|Chennai": "L040", "Visakhapatnam|Coimbatore": "L194", "Visakhapatnam|Dehradun": "L646", "Visakhapatnam|Delhi": "L330", "Visakhapatnam|Guwahati": "L521", "Visakhapatnam|Hyderabad": "L150", "Visakhapatnam|Indore": "L285", "Visakhapatnam|Jabalpur": "L304", "Visakhapatnam|Jaipur": "L520", "Visakhapatnam|Kanpur": "L210", "Visakhapatnam|Kochi": "L119", "Visakhapatnam|Kolkata": "L440", "Visakhapatnam|Lucknow": "L213", "Visakhapatnam|Madurai": "L468", "Visakhapatnam|Mangalore": "L031", "Visakhapatnam|Mumbai": "L071", "Visakhapatnam|Nagpur": "L182", "Visakhapatnam|Nashik": "L391", "Visakhapatnam|Noida": "L652", "Visakhapatnam|Patna": "L093", "Visakhapatnam|Pune": "L121", "Visakhapatnam|Raipur": "L342", "Visakhapatnam|Rajkot": "L157", "Visakhapatnam|Ranchi": "L436", "Visakhapatnam|Surat": "L295", "Visakhapatnam|Thiruvananthapuram": "L041", "Visakhapatnam|Vadodara": "L033", "Visakhapatnam|Varanasi": "L400", "Visakhapatnam|Vijayawada": "L519"};
+let G = { o:"", d:"", mode:"roadways", pri:"balanced", dist:0, transit:0 };
+const $ = id => document.getElementById(id);
 
-/* ─────────────── STATE ─────────────── */
-let selO="", selD="", selMode="FTL", selPri="balanced", selPriLbl="Balanced";
-let gMap=null, gDirections=null, gOriginMarker=null, gDestMarker=null, gRenderer=null;
-let mapsKey="", realDirections=null; // holds live Maps API result
-let clickMode=null; // 'pickup' or 'drop'
+// Init Form
+function init(){
+  const oBox = $("originBox");
+  oBox.innerHTML = CITIES.map(c => `<div class="pill" id="o-${c}" onclick="selO('${c}')">${c}</div>`).join("");
+}
+init();
 
-/* ─────────────── UTILS ─────────────── */
-const $  = id => document.getElementById(id);
-const es = v => String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-const inr = n => "₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
-const pct = n => (Number(n||0)*100).toFixed(1)+"%";
-function laneId(o,d){ return LANE_ID_MAP[`${o}|${d}`]||"L001"; }
-
-const ICON_MAP = {fuel:'⛽', toll:'🛣️', festival:'🎉', weather:'🌤️', carrier:'🏦'};
-
-/* ─────────────── DYNAMIC TICKER ─────────────── */
-async function loadTicker(){
-  try{
-    const r = await fetch(`${API}/api/market/intelligence`,{signal:AbortSignal.timeout(8000)});
-    const d = await r.json();
-    if(!d.success||!d.data?.factors) return;
-    const track = $("tickerTrack");
-    const items = d.data.factors.map(f=>{
-      const ico = ICON_MAP[f.key]||'📊';
-      return `<span class="t-item">${ico} <strong>${es(f.label)}</strong> ${es(f.sub)}</span>`;
-    });
-    items.push('<span class="t-item">📊 <strong>37 origins · 1,297 lanes</strong> from shipment history</span>');
-    track.innerHTML = items.join('') + items.join(''); // duplicate for seamless scroll
-  } catch(e){ console.warn('Ticker load failed:', e); }
+function selO(c){
+  G.o = c; G.d = "";
+  document.querySelectorAll("#originBox .pill").forEach(p=>p.classList.remove("active"));
+  $(`o-${c}`).classList.add("active");
+  const dBox = $("destBox");
+  dBox.innerHTML = CITIES.filter(x=>x!==c).map(x => `<div class="pill" id="d-${x}" onclick="selD('${x}')">${x}</div>`).join("");
+  updateRoute();
 }
 
-/* ─────────────── GOOGLE MAPS ─────────────── */
-function loadGoogleMaps(key){
-  if(!key) return;
-  const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap&libraries=places`;
-  s.async = true; s.defer = true;
-  document.head.appendChild(s);
+function selD(c){
+  G.d = c;
+  document.querySelectorAll("#destBox .pill").forEach(p=>p.classList.remove("active"));
+  $(`d-${c}`).classList.add("active");
+  updateRoute();
 }
 
-function initMap(){
-  const center = {lat:22.5, lng:79}; // center of India
-  gMap = new google.maps.Map($("routeMap"),{
-    zoom:5, center, mapTypeControl:false, streetViewControl:false,
-    styles:[
-      {elementType:'geometry',stylers:[{color:'#1a1b2e'}]},
-      {elementType:'labels.text.fill',stylers:[{color:'#8b8fa8'}]},
-      {elementType:'labels.text.stroke',stylers:[{color:'#0f1432'}]},
-      {featureType:'road',elementType:'geometry',stylers:[{color:'#2a2d4a'}]},
-      {featureType:'road',elementType:'geometry.stroke',stylers:[{color:'#1e2040'}]},
-      {featureType:'water',elementType:'geometry',stylers:[{color:'#0e1a3d'}]},
-      {featureType:'poi',stylers:[{visibility:'off'}]},
-    ],
-  });
-  gRenderer = new google.maps.DirectionsRenderer({
-    map:gMap, suppressMarkers:true,
-    polylineOptions:{strokeColor:'#818cf8',strokeWeight:4,strokeOpacity:0.8},
-  });
-  gDirections = new google.maps.DirectionsService();
-
-  // Attach Places Autocomplete to the new inputs
-  const originInput = $("originSelect");
-  const destInput = $("destSelect");
-  const originAuto = new google.maps.places.Autocomplete(originInput, {componentRestrictions:{country:'in'}});
-  const destAuto = new google.maps.places.Autocomplete(destInput, {componentRestrictions:{country:'in'}});
-
-  originAuto.addListener('place_changed', () => {
-    const place = originAuto.getPlace();
-    if (place.geometry) {
-       selO = originInput.value;
-       originInput.dataset.lat = place.geometry.location.lat();
-       originInput.dataset.lng = place.geometry.location.lng();
-       
-       if(gOriginMarker) gOriginMarker.setMap(null);
-       gOriginMarker = new google.maps.Marker({position:place.geometry.location, map:gMap, icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#22c55e',fillOpacity:1,strokeColor:'#fff',strokeWeight:2}, title:'Pickup'});
-       gMap.panTo(place.geometry.location);
-       triggerDirections();
-    }
-  });
-
-  destAuto.addListener('place_changed', () => {
-    const place = destAuto.getPlace();
-    if (place.geometry) {
-       selD = destInput.value;
-       destInput.dataset.lat = place.geometry.location.lat();
-       destInput.dataset.lng = place.geometry.location.lng();
-
-       if(gDestMarker) gDestMarker.setMap(null);
-       gDestMarker = new google.maps.Marker({position:place.geometry.location, map:gMap, icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#ef4444',fillOpacity:1,strokeColor:'#fff',strokeWeight:2}, title:'Drop'});
-       triggerDirections();
-    }
-  });
-
-  // Click-to-pin
-  gMap.addListener('click',(e)=>{
-    if (!selO || !selD) {
-      alert("Please search for a general Pickup and Drop-off location in the input fields first.");
-      return;
-    }
-    if(!clickMode) clickMode='pickup';
-    const pos = {lat:e.latLng.lat(), lng:e.latLng.lng()};
-    
-    // Geocode to get address for the clicked pin
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({location: pos}, (results, status) => {
-      let addr = results && results[0] ? results[0].formatted_address : pos.lat.toFixed(4)+", "+pos.lng.toFixed(4);
-      
-      if(clickMode==='pickup'){
-        if(gOriginMarker) gOriginMarker.setMap(null);
-        gOriginMarker = new google.maps.Marker({position:pos,map:gMap,icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#22c55e',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},title:'Pickup'});
-        clickMode='drop';
-        originInput.value = addr;
-        selO = addr;
-        originInput.dataset.lat = pos.lat;
-        originInput.dataset.lng = pos.lng;
-      } else {
-        if(gDestMarker) gDestMarker.setMap(null);
-        gDestMarker = new google.maps.Marker({position:pos,map:gMap,icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#ef4444',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},title:'Drop'});
-        clickMode='pickup';
-        destInput.value = addr;
-        selD = addr;
-        destInput.dataset.lat = pos.lat;
-        destInput.dataset.lng = pos.lng;
-        // Recalculate with exact points
-        if(gOriginMarker) fetchDirectionsLatLng(gOriginMarker.getPosition().lat(), gOriginMarker.getPosition().lng(), pos.lat, pos.lng);
-      }
-      updateSummary();
-    });
-  });
-}
-window.initMap = initMap;
-
-async function fetchDirections(origin, dest){
-  try{
-    const r = await fetch(`${API}/api/maps/directions`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({origin,destination:dest})
-    });
-    const d = await r.json();
-    if(d.success && d.directions?.source==='google_maps'){
-      realDirections = d.directions;
-      updateMapUI(d.directions);
-      if(gDirections && gMap) renderRoute(origin+', India', dest+', India');
-    }
-  } catch(e){ console.warn('Directions failed:',e); }
-}
-
-async function fetchDirectionsLatLng(oLat,oLng,dLat,dLng){
-  try{
-    const r = await fetch(`${API}/api/maps/directions`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({origin_lat:oLat,origin_lng:oLng,dest_lat:dLat,dest_lng:dLng,origin:selO,destination:selD})
-    });
-    const d = await r.json();
-    if(d.success && d.directions?.distance_km){
-      realDirections = d.directions;
-      updateMapUI(d.directions);
-      renderRouteLatLng(oLat,oLng,dLat,dLng);
-    }
-  } catch(e){ console.warn('LatLng directions failed:',e); }
-}
-
-function renderRoute(origin,dest){
-  if(!gDirections||!gRenderer) return;
-  gDirections.route({origin,destination:dest,travelMode:'DRIVING'},(res,st)=>{
-    if(st==='OK') gRenderer.setDirections(res);
-  });
-}
-function renderRouteLatLng(oLat,oLng,dLat,dLng){
-  if(!gDirections||!gRenderer) return;
-  gDirections.route({
-    origin:{lat:oLat,lng:oLng},destination:{lat:dLat,lng:dLng},travelMode:'DRIVING'
-  },(res,st)=>{ if(st==='OK') gRenderer.setDirections(res); });
-}
-
-function updateMapUI(dir){
-  $("mapDist").textContent = dir.distance_km ? `${dir.distance_km} km` : '—';
-  $("mapDist").classList.toggle('live', !!dir.distance_km);
-  $("mapDuration").textContent = dir.duration_text || '—';
-  $("mapDuration").classList.toggle('live', !!dir.duration_text);
-  $("mapTransit").textContent = dir.transit_days ? `${dir.transit_days}d` : '—';
-  $("mapTransit").classList.toggle('live', !!dir.transit_days);
-  $("mapVia").textContent = dir.via || '—';
-  $("mapBadge").textContent = dir.source==='google_maps' ? 'Google Maps ✓' : 'Estimated';
-  $("mapBadge").style.background = dir.source==='google_maps' ? 'rgba(34,197,94,.15)' : '';
-  $("mapBadge").style.color = dir.source==='google_maps' ? '#22c55e' : '';
-  // Override form auto-row with real data
-  if(dir.distance_km){
-    $("autoDist").textContent = `${dir.distance_km} km`;
-    $("autoTransitSub").textContent = 'days (Maps)';
-  }
-  if(dir.transit_days){
-    $("autoTransit").textContent = `${dir.transit_days}d`;
-    $("autoTransitSub").innerHTML = 'days <span class="transit-live">LIVE</span>';
-  }
-}
-
-/* ─────────────── BOOT ─────────────── */
-$("hdrDate").textContent = new Date().toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
-(async()=>{
-  try{
-    const h=await fetch(`${API}/api/health`,{signal:AbortSignal.timeout(4000)});
-    const hd=await h.json();
-    $("apiStatus").textContent=h.ok?"Live API ✓":"Offline — demo";
-    if(hd.google_maps_key){
-      mapsKey = hd.google_maps_key;
-      loadGoogleMaps(mapsKey);
-    }
-  }catch{ $("apiStatus").textContent="Offline — demo"; }
-  buildOriginDropdown();
-  loadTicker();
-})();
-
-/* ─────────────── ORIGIN/DEST DROPDOWNS ─────────────── */
-function buildOriginDropdown(){
-  const sel = $("originSelect");
-  sel.innerHTML = '<option value="">— Select origin —</option>';
-  // Only show origins that have at least one lane in LANE_ID_MAP
-  const validOrigins = [...new Set(Object.keys(LANE_ID_MAP).map(k => k.split("|")[0]))].sort();
-  validOrigins.forEach(o => {
-    const opt = document.createElement("option");
-    opt.value = o; opt.textContent = o;
-    sel.appendChild(opt);
-  });
-}
-
-function onOriginChange(o){
-  selO = o; selD = "";
-  const destSel = $("destSelect");
-  destSel.innerHTML = '<option value="">— Select destination —</option>';
-  if(!o){ destSel.disabled=true; $("autoRow").style.display="none"; updateSummary(); return; }
-  // Only show destinations that have a valid lane entry in LANE_ID_MAP
-  const validDests = Object.keys(LANE_ID_MAP)
-    .filter(k => k.startsWith(o + "|"))
-    .map(k => k.split("|")[1])
-    .sort();
-  validDests.forEach(d => {
-    const opt = document.createElement("option");
-    opt.value = d; opt.textContent = d;
-    destSel.appendChild(opt);
-  });
-  destSel.disabled = validDests.length === 0;
-  $("autoRow").style.display="none";
-  $("sumRoute").textContent="—"; $("sumCargo").textContent="—";
-}
-
-function onDestChange(d){
-  selD = d;
-  realDirections = null; // reset
-  if(!d){ $("autoRow").style.display="none"; $("mapCard").style.display="none"; updateSummary(); return; }
-  const lane = LANES[selO]?.[d];
-  if(lane){
-    $("autoDist").textContent=`${lane.distance_km.toFixed(0)} km`;
-    $("autoTransit").textContent=`${lane.transit_days}d`;
-    $("autoTransitSub").textContent = 'days estimated';
-    $("autoRow").style.display="grid";
-  }
-  // Show map card and fetch real directions
-  $("mapCard").style.display="block";
-  // Reset click markers
-  if(gOriginMarker){ gOriginMarker.setMap(null); gOriginMarker=null; }
-  if(gDestMarker){ gDestMarker.setMap(null); gDestMarker=null; }
-  clickMode=null;
-  fetchDirections(selO, selD);
-  updateSummary();
-}
-
-/* ─────────────── CONTROLS ─────────────── */
 function setMode(m){
-  // If weight > 3000, force FTL
-  const w = Number($("weight_kg").value) || 0;
-  if(w > 3000) m = "FTL";
-  selMode=m;
-  document.querySelectorAll(".m-btn").forEach(b=>b.classList.remove("active"));
-  $(`btn-${m}`).classList.add("active");
-  updateSummary();
-}
-function checkWeightLock(){
-  const w = Number($("weight_kg").value) || 0;
-  const ltlBtn = $("btn-LTL");
-  if(w > 3000){
-    // Force FTL and lock LTL
-    if(selMode !== "FTL") setMode("FTL");
-    ltlBtn.style.opacity = "0.35";
-    ltlBtn.style.pointerEvents = "none";
-    ltlBtn.title = "LTL unavailable for shipments over 3,000 kg";
-  } else {
-    ltlBtn.style.opacity = "";
-    ltlBtn.style.pointerEvents = "";
-    ltlBtn.title = "";
-  }
-}
-function setPri(p,card){
-  selPri=p; selPriLbl=card.querySelector(".p-name").textContent;
-  document.querySelectorAll(".p-card").forEach(c=>c.classList.remove("active"));
-  card.classList.add("active");
-  $("sumPri").textContent=selPriLbl;
-}
-function updateSummary(){
-  if(selO&&selD) $("sumRoute").textContent=`${selO} → ${selD}`;
-  const w=$("weight_kg").value, ft=$("freight_type").value;
-  if(w) $("sumCargo").textContent=`${Number(w).toLocaleString("en-IN")} kg · ${ft} · ${selMode}`;
-  checkWeightLock();
+  G.mode = m;
+  document.querySelectorAll(".mode-card").forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.mode-${m}`).classList.add('active');
+  
+  const sPaths = document.querySelectorAll(".svg-path");
+  sPaths.forEach(p => {
+    p.style.stroke = m==='roadways'?'var(--blue)':m==='railways'?'var(--purple)':'var(--sky)';
+    p.style.strokeDasharray = m==='airways'? '10,10' : (m==='railways'?'20,5':'none');
+  });
+  updateRoute();
 }
 
-/* ─────────────── RESULTS ─────────────── */
-function setRes(html){
-  $("resultsCol").innerHTML=html;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    document.querySelectorAll("[data-w]").forEach(el=>{ el.style.width=el.dataset.w+"%" });
-  }));
+function setPri(p, el){
+  G.pri = p;
+  document.querySelectorAll('.pri-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
 }
-function showLoading(){ setRes(`<div class="spin-wrap au0"><div class="sp"></div><div class="sp-t">Scoring carriers…</div><div class="sp-s">Gemini scraping live data · OpenAI analysing · ML scoring · LP optimise</div></div>`); }
-function showErr(m){ setRes(`<div class="err-box au0"><div style="font-size:34px;margin-bottom:9px">⚠️</div><div class="err-t">Analysis failed</div><div class="err-m">${es(m)}</div></div>`); }
 
-function buildWinner(best,mkt,ship){
-  if(!best) return "";
-  const risk=best.risk?.level??"—";
-  const rc={LOW:"#4ade80",MEDIUM:"#fbbf24",HIGH:"#f87171"}[risk]||"#aaa";
-  const ot=best.scores?.blended_ontime??"—";
-  const rate=best.cost?.adjusted_eff_rate_inr_kg??best.cost?.eff_rate_inr_kg??"—";
-  const total=best.cost?.estimated_total_cost_inr?inr(best.cost.estimated_total_cost_inr):"—";
-  const mult=Number(mkt?.composite_multiplier||1).toFixed(3);
-  return `<div class="winner au0">
-    <div>
-      <div class="w-ey">🏆 #1 Recommendation · ${es(ship?.priority_profile||"Balanced")}</div>
-      <div class="w-nm">${es(best.carrier_id)}</div>
-      <div class="w-line">Best for <strong>${es(ship?.origin)} → ${es(ship?.destination)}</strong>
-        · ${Number(ship?.weight_kg||0).toLocaleString("en-IN")} kg ${es(ship?.goods_type||"")}.<br>
-        Est. cost <strong>${total}</strong> · On-time <strong>${es(ot)}</strong>
-        · <span style="color:${rc}">${es(risk)} risk</span>.</div>
-      <div class="w-tags">
-        <span class="wtag hi">Score: ${es(best.scores?.composite_score)}</span>
-        <span class="wtag">₹${es(String(rate))}/kg</span>
-        <span class="wtag">Market ×${mult}</span>
-        ${best.recommendation?`<span class="wtag hi">${es(best.recommendation)}</span>`:""}
-      </div>
-    </div>
+async function updateRoute(){
+  if(!G.o || !G.d) return;
+  $("distVal").textContent = "calc...";
+  $("transitVal").textContent = "calc...";
+  
+  try {
+    const res = await fetch("/api/route", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({origin:G.o, destination:G.d, mode:G.mode})
+    });
+    const d = await res.json();
+    if(d.success){
+      G.dist = d.route.distance_km;
+      G.transit = d.route.transit_days;
+      $("distVal").textContent = `${G.dist.toFixed(0)} km`;
+      $("transitVal").textContent = `${G.transit.toFixed(1)} days`;
+      renderSVG(d.route);
+    }
+  } catch(e) { console.error(e); }
+}
+
+function renderSVG(route){
+  const nodes = route.path_nodes || [];
+  if(nodes.length < 2) return;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.style.position = "absolute"; svg.style.top = "50%"; svg.style.left="0"; 
+  svg.style.width="100%"; svg.style.height="4px"; svg.style.transform="translateY(-50%)";
+  
+  let col = G.mode==='roadways'?'var(--blue)':G.mode==='railways'?'var(--purple)':'var(--sky)';
+  let dash = G.mode==='airways'?'8,8':'none';
+  
+  svg.innerHTML = `<line x1="20" y1="2" x2="calc(100% - 20px)" y2="2" stroke="${col}" stroke-width="3" stroke-dasharray="${dash}" class="svg-path" />`;
+  
+  let html = `<div style="width:100%; height:100%; position:relative; min-height:60px;">${svg.outerHTML}`;
+  
+  nodes.forEach((n, i) => {
+    let pct = (i / (nodes.length-1)) * 100;
+    // Adjust edges slightly inward
+    if(i===0) pct = 5; if(i===nodes.length-1) pct = 95;
+    html += `<div style="position:absolute; left:${pct}%; top:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center;">
+       <div class="node" style="border-color:${col}"></div>
+       <div class="node-label" style="top:10px">${n}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  $("svgBox").innerHTML = html;
+}
+
+const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
+
+async function analyze(){
+  if(!G.o || !G.d){ alert("Select Origin and Destination."); return; }
+  const btn = $("btnAnalyze");
+  btn.disabled = true; btn.innerHTML = "⏳ Generating Intelligence...";
+  
+  try {
+    const payload = {
+      origin: G.o, destination: G.d, transport_mode: G.mode,
+      priority_profile: G.pri, goods_type: $("goods").value,
+      weight_kg: Number($("weight").value) || 5000,
+      min_reliability: 0.8
+    };
+    
+    const res = await fetch("/api/shipment/analyze", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const d = await res.json();
+    if(d.success){ renderResults(d); }
+    else { alert("Error: " + d.error); }
+  } catch(e) { alert(e); }
+  
+  btn.disabled = false; btn.innerHTML = "🚀 Analyse & Score Route";
+}
+
+function renderResults(d){
+  const best = d.best_recommendation;
+  const chars = d.carrier_scoring.carriers;
+  const mkt = d.market_intelligence;
+  const opt = d.optimization;
+  
+  let themeCol = G.mode==='roadways'?'var(--blue)':G.mode==='railways'?'var(--purple)':'var(--sky)';
+  
+  let topHtml = `
+  <div class="winner-banner" style="background:${themeCol}">
+    <div class="w-eyebrow">🏆 #1 ML Recommended Carrier • ${G.pri.toUpperCase()}</div>
+    <div class="w-name">${best.carrier_name} <span class="w-badge mono">Score ${best.scores.composite_score.toFixed(3)}</span></div>
+    <div class="w-desc">${best.why[0]||"Optimised blend of rate, precision metrics."} | On-Time Prob: ${best.scores.blended_ontime}%</div>
     <div class="w-kpis">
-      <div class="wkpi"><div class="wkpi-v">${es(best.scores?.composite_score)}</div><div class="wkpi-l">Score</div></div>
-      <div class="wkpi"><div class="wkpi-v">${es(ot)}</div><div class="wkpi-l">On-Time</div></div>
-      <div class="wkpi"><div class="wkpi-v" style="color:${rc}">${es(risk)}</div><div class="wkpi-l">Risk</div></div>
-      <div class="wkpi"><div class="wkpi-v">${total}</div><div class="wkpi-l">Cost</div></div>
+       <div><div class="w-kpi-val mono">${fmt(best.cost.estimated_total_cost_inr)}</div><div class="w-kpi-lbl">Est. Total</div></div>
+       <div><div class="w-kpi-val mono">${fmt(best.cost.adjusted_eff_rate)}/kg</div><div class="w-kpi-lbl">Effective Rate</div></div>
+       <div><div class="w-kpi-val mono">${d.shipment.transit_days_est}d</div><div class="w-kpi-lbl">Est Transit</div></div>
     </div>
   </div>`;
-}
-
-function buildMarket(mkt){
-  if(!mkt) return "";
-  const mult=Number(mkt.composite_multiplier||1).toFixed(3);
-  const pills=(mkt.factors||[]).map(f=>`<div class="mpill"><span>${es(f.icon||"•")}</span><span class="mp-n">${es((f.label||"").split(" ")[0])}</span><span class="mp-m ${f.direction==="STABLE"?"st":""}">${es(f.multiplier||("×"+(+f.multiplier_value||1).toFixed(3)))}</span></div>`).join("");
-  const cards=(mkt.factors||[]).map(f=>{
-    const up=f.direction==="UP";
-    return `<div class="fac ${es(f.style||"yellow")}"><div class="fac-top"><div class="fac-ico">${es(f.icon||"•")}</div><div class="fac-m ${up?"up":"st"}">${es(f.multiplier||("×"+(+f.multiplier_value||1).toFixed(3)))}</div></div><div class="fac-body"><div class="fac-nm">${es(f.label)}</div><div class="fac-sub">${es(f.sub||"")}</div><div class="fac-det">${es(f.detail||"")}</div><div class="fac-pills"><span class="fp ${up?"fp-up":"fp-st"}">${es(f.direction||"STABLE")}</span><span class="fp fp-cf">${es(f.confidence||"MEDIUM")}</span></div></div></div>`;
-  }).join("");
-  return `<div style="margin-bottom:8px"><div class="r-sh au0">Market Intelligence</div><div class="r-ss au0">Gemini · ${es(mkt.scraped_at||"")} · ${mkt.from_cache?"Cached":"Fresh"}</div><div class="mkt-band au0"><div class="mkt-lbl">📡 Live</div><div class="mkt-pills">${pills}</div><div class="mkt-total">×${mult} (${es(mkt.above_base_pct||"")})</div></div><div class="fac-grid">${cards}</div></div>`;
-}
-
-const MEDALS=["🥇","🥈","🥉","4","5","6","7","8"];
-const VERDICTS=["STRONGLY RECOMMENDED","RECOMMENDED","GOOD ALTERNATIVE","CONSIDER","PASS","PASS","PASS","PASS"];
-const VCLS=["vg","vg","vo","vo","vr","vr","vr","vr"];
-
-function buildCarriers(carriers,mkt){
-  if(!carriers?.length) return "";
-  const mult=Number(mkt?.composite_multiplier||1);
-  const cards=carriers.map((c,i)=>{
-    const sc=c.scores?.composite_score??0;
-    const scCol=sc>.66?"var(--green)":sc>.4?"var(--amber)":"var(--red)";
-    const rcls=i<3?`r${i+1}`:"rN";
-    const risk=c.risk?.level??"—";
-    const rCls=risk==="LOW"?"g":risk==="MEDIUM"?"o":"r";
-    const rVt=risk==="LOW"?"cg":risk==="MEDIUM"?"co":"cr";
-    const ot=c.scores?.blended_ontime??"—";
-    const rate=c.cost?.adjusted_eff_rate_inr_kg??c.cost?.eff_rate_inr_kg??"—";
-    const total=c.cost?.estimated_total_cost_inr?inr(c.cost.estimated_total_cost_inr):"—";
-    const p=Math.round(sc*100);
-    const costR=[["Base Rate/kg",`₹${es(c.cost?.base_rate??"—")}`],["Fuel Surcharge",c.cost?.fuel_surcharge?`${es(c.cost.fuel_surcharge)}%`:"—"],["Market ×",`×${mult.toFixed(3)}`],["Eff. Rate/kg",`₹${es(String(rate))}`],["Est. Total",total]].map(([k,v])=>`<div class="krow"><span class="kk">${k}</span><span class="kv">${v}</span></div>`).join("");
-    const mlR=[["XGB Reliability",es(c.scores?.xgb_reliability??"—")],["GB On-Time",es(c.scores?.gb_ontime??"—")],["LR Delay Risk",es(c.scores?.lr_delay_risk??"—")],["Blended OT",es(ot)],["Exp. Delay",c.risk?.expected_delay_days!=null?`${c.risk.expected_delay_days}d`:"—"],["Rev@Risk",c.risk?.revenue_at_risk_inr!=null?inr(c.risk.revenue_at_risk_inr):"—"]].map(([k,v])=>`<div class="krow"><span class="kk">${k}</span><span class="kv">${v}</span></div>`).join("");
-    const why=(c.why||[]).slice(0,4).map(w=>`<div class="why-i">${es(w)}</div>`).join("")||`<div style="font-size:11px;color:var(--g400)">No reasons generated.</div>`;
-    return `<div class="cc ${rcls}"><div class="cc-hd" onclick="toggleCC(${i})"><div class="medal">${MEDALS[i]||i+1}</div><div><div class="cc-nm">${es(c.carrier_id)}</div><div class="cc-sub">Rank #${i+1}</div></div><div class="cc-sc"><div class="cc-sn" style="color:${scCol}">${sc}</div><div class="cc-sl">Score</div><div class="sbar"><div class="sbar-f" data-w="${p}" style="background:${scCol}"></div></div></div><div class="cc-arr" id="ca-${i}">▼</div></div><div class="cc-mets"><div class="met"><div class="met-v">${es(ot)}</div><div class="met-l">On-Time</div></div><div class="met"><div class="met-v ${rCls}">${es(risk)}</div><div class="met-l">Risk</div></div><div class="met"><div class="met-v" style="font-size:12px">₹${es(String(rate))}/kg</div><div class="met-l">Rate</div></div><div class="met"><div class="met-v" style="font-size:12px">${total}</div><div class="met-l">Cost</div></div></div><div class="cc-detail" id="cd-${i}"><div class="det-grid"><div class="dc"><div class="dc-t">💰 Cost</div>${costR}</div><div class="dc"><div class="dc-t">🤖 ML Models</div>${mlR}</div><div class="dc"><div class="dc-t">🧠 Why</div><div class="why-list">${why}</div></div></div></div><div class="cc-verdict"><span class="vl ${VCLS[i]||"vr"}">${VERDICTS[i]||"PASS"}</span><div class="vtags">${c.recommendation?`<span class="vtag cb">${es(c.recommendation)}</span>`:""}<span class="vtag ${rVt}">${es(risk)} Risk</span></div></div></div>`;
-  }).join("");
-  return `<div style="margin-bottom:8px"><div class="r-sh au0">Carrier Rankings</div><div class="r-ss au0">Click to expand ML output, cost &amp; reasoning.</div><div class="c-list">${cards}</div></div>`;
-}
-
-function buildOptim(opt){
-  if(!opt) return "";
-  const active=(opt.allocations||[]).filter(a=>a.allocation_share>0.001);
-  const kpis=`<div class="opt-kpis"><div class="okpi"><div class="okpi-v">${inr(opt.optimized_total_cost_inr)}</div><div class="okpi-l">Optimal Cost</div></div><div class="okpi"><div class="okpi-v">${pct(opt.optimized_avg_reliability)}</div><div class="okpi-l">Avg Reliability</div></div><div class="okpi"><div class="okpi-v">${es(opt.status)}</div><div class="okpi-l">LP Status</div></div></div>`;
-  const rows=active.map(a=>`<tr><td style="font-weight:700">${es(a.carrier_id)}</td><td style="font-family:var(--mono)">${(a.allocation_share*100).toFixed(1)}%</td><td>${Number(a.allocated_weight_kg||0).toLocaleString("en-IN")} kg</td><td style="font-family:var(--mono)">₹${(+a.eff_rate_inr_kg||0).toFixed(2)}/kg</td><td style="font-weight:700;color:var(--blue)">${inr(a.expected_cost_inr)}</td><td style="min-width:65px"><div class="sh-bar"><div class="sh-fill" data-w="${(a.allocation_share*100).toFixed(1)}"></div></div></td></tr>`).join("");
-  return `<div class="opt-box au0"><div class="opt-hd"><h3>LP Optimisation</h3><span class="chip ch-g">min_reliability ≥ ${opt.min_reliability_constraint}</span></div><div class="opt-body">${kpis}${active.length?`<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>Carrier</th><th>Share</th><th>Weight</th><th>Rate</th><th>Cost</th><th>Alloc.</th></tr></thead><tbody>${rows}</tbody></table></div>`:"<p style='font-size:12px;color:var(--g400)'>No feasible allocation — relax reliability constraint.</p>"}</div></div>`;
-}
-
-function buildAIAnalysis(ai){
-  if(!ai || ai.error) return `<div class="ai-skeleton"><div class="ai-skel-line"></div><div class="ai-skel-line"></div><div class="ai-skel-line"></div><div class="ai-skel-line"></div><div class="ai-skel-line"></div></div>`;
-  const conf = es(ai.confidence_level||"MEDIUM");
-  const agentLabel = ai.agent === "openai" ? "OpenAI GPT-4o" : ai.agent === "demo" ? "Demo Analysis" : "AI Agent";
-  const modelLabel = es(ai.model_used || "unknown");
-  const actions = (ai.action_items||[]).map((a,i) =>
-    `<div class="ai-action-item"><div class="ai-action-num">${i+1}</div><span>${es(a)}</span></div>`
-  ).join("");
-
-  return `<div class="ai-panel au0">
-    <div class="ai-panel-hd">
-      <h3>🧠 AI Analysis <span class="ai-badge">${es(agentLabel)}</span></h3>
-      <span class="ai-conf ${conf}">${conf} Confidence</span>
-    </div>
-    <div class="ai-panel-body">
-      <div class="ai-headline">${es(ai.recommendation_headline||"")}</div>
-      <div class="ai-sections">
-        <div class="ai-sect">
-          <div class="ai-sect-ico">📊</div>
-          <div class="ai-sect-t">Market Conditions</div>
-          <div class="ai-sect-body">${es(ai.market_summary||"")}</div>
-        </div>
-        <div class="ai-sect">
-          <div class="ai-sect-ico">🏆</div>
-          <div class="ai-sect-t">Carrier Comparison</div>
-          <div class="ai-sect-body">${es(ai.carrier_analysis||"")}</div>
-        </div>
-        <div class="ai-sect">
-          <div class="ai-sect-ico">⚠️</div>
-          <div class="ai-sect-t">Risk Advisory</div>
-          <div class="ai-sect-body">${es(ai.risk_advisory||"")}</div>
-        </div>
-        <div class="ai-sect">
-          <div class="ai-sect-ico">💰</div>
-          <div class="ai-sect-t">Cost Insight</div>
-          <div class="ai-sect-body">${es(ai.cost_insight||"")}</div>
-        </div>
-      </div>
-      ${actions ? `<div class="ai-actions">
-        <div class="ai-actions-t">🎯 Recommended Actions</div>
-        ${actions}
-      </div>` : ""}
-      <div class="ai-powered">
-        <div class="ai-powered-logo"><div class="ai-powered-dot"></div> Powered by ${es(agentLabel)} · Model: ${modelLabel}</div>
-        <span>${ai.from_cache ? "Cached" : "Fresh"}</span>
-      </div>
+  
+  let mktHtml = `
+  <div class="section-card">
+    <div class="sec-title">📡 Market Intelligence Snapshot</div>
+    <div class="factors-grid">
+      ${(mkt.factors||[]).map(f => {
+        let cls = f.direction === "UP" ? "up" : (f.direction==="STABLE"?"":"down");
+        return `<div class="factor ${cls}">
+          <div class="factor-hd"><span class="factor-nm">${f.icon} ${f.label.split(' ')[0]}</span><span class="factor-val mono">×${Number(f.multiplier_value).toFixed(2)}</span></div>
+          <div class="factor-desc">${f.sub}</div>
+        </div>`;
+      }).join("")}
     </div>
   </div>`;
-}
-
-function toggleCC(i){
-  const d=$(`cd-${i}`),a=$(`ca-${i}`);
-  d.classList.toggle("open"); a.classList.toggle("open",d.classList.contains("open"));
-}
-
-/* ─────────────── ANALYSIS ─────────────── */
-async function runAnalysis(){
-  selO = $("originSelect").value;
-  selD = $("destSelect").value;
-  if(!selO){ alert("Please select an origin city."); return; }
-  if(!selD){ alert("Please select a destination."); return; }
-  const weight=Number($("weight_kg").value);
-  if(!weight||weight<1){ alert("Please enter a valid weight."); return; }
-  const lane=LANES[selO]?.[selD];
-  // Use real Maps data if available, else fall back to lane estimates
-  const distKm = realDirections?.distance_km || lane?.distance_km;
-  const transitDays = realDirections?.transit_days || lane?.transit_days;
-  const payload={
-    lane_id:laneId(selO,selD), origin:selO, destination:selD,
-    distance_km:distKm, transit_days:transitDays,
-    goods_type:$("freight_type").value, mode:selMode,
-    priority_profile:selPri, weight_kg:weight,
-    shipment_value_inr:Number($("shipment_value").value)||100000,
-    min_reliability:0.9,
-    // Pass real Maps metadata for the backend analysis
-    real_distance_km: realDirections?.distance_km || null,
-    real_duration_hours: realDirections?.duration_hours || null,
-    real_transit_days: realDirections?.transit_days || null,
-    maps_source: realDirections?.source || 'estimate',
-  };
-  const btn=$("goBtn"); btn.disabled=true;
-  $("btnIco").textContent="⟳"; $("btnTxt").textContent="Analysing…";
-  showLoading();
-  try{
-    const res=await fetch(`${API}/api/shipment/analyze`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const data=await res.json();
-    if(!data.success) throw new Error(data.error||"API error");
-    const{market_intelligence:mkt,carrier_scoring:sc,optimization:opt,best_recommendation:best,shipment:ship}=data;
-    if(mkt?.composite_multiplier) $("sumMkt").textContent=`×${Number(mkt.composite_multiplier).toFixed(3)} (${mkt.above_base_pct||""})`;
-    const ai = data.ai_analysis || null;
-    setRes(`<div>${buildWinner(best,mkt,ship)}${buildAIAnalysis(ai)}${buildMarket(mkt)}${buildCarriers(sc?.carriers,mkt)}${buildOptim(opt)}</div>`);
-    if(window.innerWidth<1080) $("resultsCol").scrollIntoView({behavior:"smooth",block:"start"});
-  }catch(err){ showErr(err.message); }
-  finally{ btn.disabled=false; $("btnIco").textContent="▶"; $("btnTxt").textContent="Analyse & Score Carriers"; }
+  
+  let cHtml = `
+  <div class="section-card">
+    <div class="sec-title"><span>📊 ${G.mode.charAt(0).toUpperCase() + G.mode.slice(1)} Carrier Options</span> <span style="font-size:13px;color:var(--slate-400);font-weight:400;font-family:'Space Mono'">Sorted by ${G.pri}</span></div>
+    <div class="carrier-list">
+      ${chars.map((c,i) => `
+        <div class="carrier-item">
+          <div class="c-rank">#${i+1}</div>
+          <div class="c-main">
+            <div class="c-nm">${c.carrier_name}</div>
+            <div class="c-why">${(c.why||["Good alternative"]).join(" ")}</div>
+          </div>
+          <div class="c-mets">
+             <div class="c-score"><div class="c-met-v mono">${c.scores.composite_score.toFixed(3)}</div><div class="c-met-l">Score</div></div>
+             <div><div class="c-met-v mono">${fmt(c.cost.estimated_total_cost_inr)}</div><div class="c-met-l">Price</div></div>
+             <div><div class="c-met-v mono" style="color: ${c.risk.level==='LOW'?'var(--green)':'var(--orange)'}">${c.risk.level}</div><div class="c-met-l">Risk</div></div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  </div>`;
+  
+  let optHtml = "";
+  if(opt && opt.allocations && opt.allocations.length){
+    optHtml = `
+    <div class="section-card">
+      <div class="sec-title">🧮 Linear Programming Allocation</div>
+      <table class="lp-table">
+        <tr><th>Carrier</th><th>Allocation</th><th>Weight (kg)</th><th>Exp. Cost</th></tr>
+        ${opt.allocations.filter(a=>a.allocation_share>0.01).map(a => `
+          <tr>
+            <td style="font-weight:600">${a.carrier_id}</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="lp-bar"><div class="lp-fill" style="width:${a.allocation_share*100}%; background:${themeCol}"></div></div><span class="mono">${(a.allocation_share*100).toFixed(1)}%</span></div></td>
+            <td class="mono">${a.allocated_weight_kg.toFixed(0)}</td>
+            <td class="mono font-weight-bold" style="color:${themeCol}">${fmt(a.expected_cost_inr)}</td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>`;
+  }
+  
+  $("resCol").innerHTML = topHtml + mktHtml + cHtml + optHtml;
 }
 </script>
 </body>

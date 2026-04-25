@@ -41,6 +41,7 @@ from backend.optimize import optimize_allocation
 from backend.market_intel_agent import get_market_intelligence_snapshot
 from backend.openai_analysis_agent import run_analysis as run_openai_analysis
 from backend.maps_service import get_directions, get_directions_latlng
+from backend.transportation import generate_transport_options, validate_mode, VALID_MODES
 
 # ── App setup ─────────────────────────────────────────────────────────────────
 from flask import Flask, render_template
@@ -186,6 +187,13 @@ def analyze():
         shipment_value_inr  = safe_float(body.get("shipment_value_inr"), 100000)
         min_reliability     = safe_float(body.get("min_reliability"),    0.9)
 
+        # ── Transport mode (new) ───────────────────────────────────────────
+        transport_mode_raw  = str(body.get("transport_mode", "roadways")).strip().lower()
+        try:
+            transport_mode = validate_mode(transport_mode_raw)
+        except ValueError as ve:
+            return failure(str(ve), 422)
+
         month = datetime.datetime.now().month
         is_monsoon  = safe_int(body.get("is_monsoon"),  1 if month in (6,7,8,9) else 0)
         is_festival = safe_int(body.get("is_festival"), 0)
@@ -234,7 +242,24 @@ def analyze():
         carriers = scoring_result.get("carriers", [])
         best     = carriers[0] if carriers else None
 
-        # 4. OpenAI Analysis — summarise & recommend
+        # 4. Transportation options (new — only for non-roadways)
+        transportation_options = None
+        if transport_mode != "roadways":
+            origin_city = scoring_result.get("origin", body.get("origin", ""))
+            dest_city   = scoring_result.get("destination", body.get("destination", ""))
+            distance    = scoring_result.get("distance_km", safe_float(body.get("distance_km"), 1000))
+            transportation_options = generate_transport_options(
+                origin         = origin_city,
+                destination    = dest_city,
+                distance_km    = distance,
+                weight_kg      = weight_kg,
+                goods_type     = goods_type,
+                transport_mode = transport_mode,
+                is_monsoon     = is_monsoon,
+                is_festival    = is_festival,
+            )
+
+        # 5. OpenAI Analysis — summarise & recommend
         shipment_info = {
             "lane_id":            lane_id,
             "origin":             scoring_result.get("origin"),
@@ -243,6 +268,7 @@ def analyze():
             "transit_days":       scoring_result.get("transit_days"),
             "goods_type":         goods_type,
             "mode":               mode,
+            "transport_mode":     transport_mode,
             "priority_profile":   priority_profile,
             "weight_kg":          weight_kg,
             "shipment_value_inr": shipment_value_inr,
@@ -267,6 +293,7 @@ def analyze():
             "carrier_scoring":      scoring_result,
             "best_recommendation":  best,
             "optimization":         optimization,
+            "transportation_options": transportation_options,
             "ai_analysis":          ai_analysis,
         })
 
