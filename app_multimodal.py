@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -10,8 +10,16 @@ import backend.optimize as opt
 import backend.openai_analysis_agent as ai
 
 load_dotenv()
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, 
+            template_folder=os.path.join(BASE_DIR, 'frontend', 'templates'), 
+            static_folder=os.path.join(BASE_DIR, 'frontend', 'static'))
 CORS(app)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 
 @app.route('/api/health', methods=['GET'])
 def health():
@@ -95,22 +103,21 @@ def analyze_shipment():
     best_carrier = carriers[0] if carriers else None
     
     # 5. LP Optimization
-    # Create fake carriers for LP if needed, here we just pass our carriers list
-    lp_carriers = []
-    for c in carriers:
-        lp_carriers.append({
-            "carrier_id": c["carrier_id"],
-            "base_rate": c["cost"]["base_rate"],
-            "reliability_score": c["scores"]["gb_ontime"],
-            "transit_days": transit_days
-        })
-    optimization = opt.optimize_allocation(weight_kg, distance_km, lp_carriers, goods_type, min_reliability)
+    scoring_output = {
+        "lane_id": f"{origin}|{dest}",
+        "carriers": carriers
+    }
+    optimization = opt.optimize_allocation(scoring_output, weight_kg, min_reliability)
+
     
-    # 6. AI Agent Analysis (Optional but helpful)
-    ai_analysis = ai.generate_shipment_insights({
-        "lane_id": f"{origin}|{dest}", "distance_km": distance_km, "transit_days": transit_days,
-        "weight_kg": weight_kg, "goods_type": goods_type, "priority_profile": priority_profile
-    }, market_snapshot, {"carriers": carriers}, best_carrier)
+    # 6. AI Agent Analysis
+    ai_analysis = ai.run_analysis(
+        shipment={"lane_id": f"{origin}|{dest}", "distance_km": distance_km, "transit_days": transit_days, "weight_kg": weight_kg, "goods_type": goods_type, "priority_profile": priority_profile},
+        market=market_snapshot,
+        carriers=carriers,
+        best=best_carrier,
+        optimization=optimization
+    )
     
     return jsonify({
         "success": True,
