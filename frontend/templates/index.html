@@ -1,572 +1,1281 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FreightIQ Multimodal</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<style>
-/* 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreightIQ Multimodal</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    /* 
 For Railway: how to plug in real IRCTC/NTES API for live train schedules
 For Airways: how to use FlightAware or OAG API for real AWB tracking
 For Road: how to switch from Directions API to Route Optimization API (fleet)
 For ML: how to add weather features (IMD API), how to retrain monthly with new shipment data, how to add a feedback loop
 */
-:root {
-  --blue: #1d4ed8; --blue-light: #eff6ff; --blue-border: #bfdbfe;
-  --navy: #060e1f; --white: #ffffff; --bg: #f3f4f6;
-  --slate-500: #64748b; --slate-800: #1e293b; --slate-200: #e2e8f0; --slate-100: #f1f5f9;
-  --purple: #7e22ce; --purple-light: #faf5ff; --purple-border: #e9d5ff;
-  --sky: #0ea5e9; --sky-light: #f0f9ff; --sky-border: #bae6fd;
-  --green: #22c55e; --red: #ef4444; --orange: #f97316;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--slate-800); }
-.mono { font-family: 'Space Mono', monospace; }
+    :root {
+      --navy: #0d1f3c;
+      --navy-mid: #122347;
+      --navy-light: #1a3260;
+      --blue: #2563eb;
+      --blue-border: #93c5fd;
+      --blue-light: #eff6ff;
+      --white: #ffffff;
+      --bg: #f0f4f8;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-800: #1e293b;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --purple-border: #c4b5fd;
+      --sky: #0ea5e9;
+      --sky-light: #f0f9ff;
+      --sky-border: #7dd3fc;
+      --green: #16a34a;
+      --red: #dc2626;
+      --orange: #ea580c;
+      --accent-yellow: #d97706;
+    }
 
-header { background: var(--navy); color: var(--white); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-.logo-icon { background: var(--blue); color: var(--white); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.tagline { font-weight: 300; opacity: 0.8; font-size: 14px; margin-left: 8px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-main { display: grid; grid-template-columns: 450px 1fr; gap: 24px; padding: 24px 32px; max-width: 1440px; margin: 0 auto; min-height: calc(100vh - 68px); }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--slate-800);
+    }
 
-/* Left Card */
-.form-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); position: sticky; top: 92px; height: fit-content; max-height: calc(100vh - 120px); overflow-y: auto; }
-.form-card::-webkit-scrollbar { width: 6px; }
-.form-card::-webkit-scrollbar-thumb { background: var(--slate-200); border-radius: 3px; }
+    .mono {
+      font-family: 'Space Mono', monospace;
+    }
 
-h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500); font-weight: 600; margin-bottom: 12px; margin-top: 24px; }
-h3:first-child { margin-top: 0; }
+    header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 14px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(13, 31, 60, 0.3);
+    }
 
-.pills-container { display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding-right: 8px; }
-.pills-container::-webkit-scrollbar { width: 4px; }
-.pills-container::-webkit-scrollbar-thumb { background: var(--slate-200); }
-.pill { padding: 6px 12px; border-radius: 20px; background: var(--slate-100); color: var(--slate-800); font-size: 13px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; user-select: none; }
-.pill:hover { background: var(--slate-200); }
-.pill.active { background: var(--blue); color: var(--white); box-shadow: 0 4px 6px -1px rgba(29,78,216,0.3); }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-/* Transport Modes */
-.modes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.mode-card { border: 1px solid var(--slate-200); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; border-bottom-width: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.mode-card .icon { font-size: 28px; margin-bottom: 8px; }
-.mode-card .name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
-.mode-card .tag { font-size: 11px; color: var(--slate-500); }
-.mode-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .logo-icon {
+      background: var(--blue);
+      color: var(--white);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
 
-.mode-roadways { border-bottom-color: var(--blue); }
-.mode-railways { border-bottom-color: var(--purple); }
-.mode-airways { border-bottom-color: var(--sky); }
+    .tagline {
+      font-weight: 300;
+      opacity: 0.65;
+      font-size: 13px;
+      margin-left: 8px;
+    }
 
-.mode-roadways.active { background: var(--blue-light); border-color: var(--blue); }
-.mode-railways.active { background: var(--purple-light); border-color: var(--purple); }
-.mode-airways.active { background: var(--sky-light); border-color: var(--sky); }
+    .header-status {
+      font-size: 12px;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.15);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
 
-/* Input grids */
-.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.info-box { background: var(--slate-100); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
-.info-box label { font-size: 11px; color: var(--slate-500); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
-.info-box .val { font-size: 18px; font-weight: 700; color: var(--slate-800); }
+    main {
+      display: grid;
+      grid-template-columns: 450px 1fr;
+      gap: 20px;
+      padding: 20px 28px;
+      max-width: 1440px;
+      margin: 0 auto;
+      min-height: calc(100vh - 64px);
+    }
 
-.input-grp { display: flex; flex-direction: column; margin-bottom: 12px; }
-.input-grp label { font-size: 12px; font-weight: 600; color: var(--slate-500); margin-bottom: 6px; }
-.input-grp input, .input-grp select { padding: 10px 12px; border: 1px solid var(--slate-200); border-radius: 8px; font-family: 'Outfit'; font-size: 14px; outline: none; transition: border 0.2s; background: var(--white); }
-.input-grp input:focus, .input-grp select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-light); }
+    /* Left Card */
+    .form-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 12px rgba(13, 31, 60, 0.08);
+      position: sticky;
+      top: 84px;
+      height: fit-content;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
 
-.pri-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.pri-card { border: 1px solid var(--slate-200); padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 500; }
-.pri-card.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .form-card::-webkit-scrollbar {
+      width: 5px;
+    }
 
-.btn-primary { width: 100%; background: var(--blue); color: var(--white); border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 24px; display: flex; justify-content: center; align-items: center; gap: 8px; font-family: inherit; }
-.btn-primary:hover { background: #1e40af; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29,78,216,0.3); }
-.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .form-card::-webkit-scrollbar-thumb {
+      background: var(--slate-200);
+      border-radius: 3px;
+    }
 
-/* Map Container */
-#routeMap { width: 100%; height: 280px; border-radius: 12px; overflow: hidden; margin: 16px 0; border: 1px solid var(--slate-200); z-index: 1; }
-#resultsMap { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; border: 1px solid var(--slate-200); z-index: 1; }
-.map-placeholder { width: 100%; height: 280px; background: var(--slate-100); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--slate-400); font-size: 13px; }
+    h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--slate-500);
+      font-weight: 700;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
 
-/* Scoring Explainer */
-.explainer-card { background: linear-gradient(135deg, var(--slate-100) 0%, var(--white) 100%); border: 1px solid var(--slate-200); border-radius: 12px; padding: 20px; }
-.explainer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-.exp-item { background: var(--white); border-radius: 8px; padding: 12px; border-left: 3px solid var(--blue); }
-.exp-item.rail { border-left-color: var(--purple); }
-.exp-item.air { border-left-color: var(--sky); }
-.exp-label { font-size: 11px; font-weight: 700; color: var(--slate-500); text-transform: uppercase; margin-bottom: 4px; }
-.exp-val { font-size: 14px; font-weight: 600; color: var(--slate-800); }
+    h3:first-child {
+      margin-top: 0;
+    }
 
-.node { width: 12px; height: 12px; border-radius: 50%; background: var(--white); border: 3px solid var(--blue); z-index: 2; position: relative;}
-.node-label { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: var(--slate-500); white-space: nowrap; }
+    .pills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-height: 120px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
 
-/* Right Column */
-.results-col { display: flex; flex-direction: column; gap: 16px; }
+    .pills-container::-webkit-scrollbar {
+      width: 4px;
+    }
 
-.winner-banner { background: var(--navy); color: var(--white); border-radius: 16px; padding: 24px; position:relative; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(6,14,31,0.3);}
-.winner-banner::after { content: '🏆'; position: absolute; right: 20px; top: 20px; font-size: 100px; opacity: 0.05; transform: rotate(15deg) }
-.w-eyebrow { color: var(--blue-border); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 8px; }
-.w-name { font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
-.w-name span.w-badge { font-size: 12px; background: var(--green); padding: 4px 8px; border-radius: 4px; vertical-align: middle; font-weight: 600; text-transform: uppercase; }
-.w-desc { color: var(--slate-200); font-size: 15px; max-width: 80%; line-height: 1.5; margin-bottom: 20px; }
-.w-kpis { display: flex; gap: 32px; }
-.w-kpi-val { font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-.w-kpi-lbl { font-size: 12px; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.5px; }
+    .pills-container::-webkit-scrollbar-thumb {
+      background: var(--slate-200);
+    }
 
-.section-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-.sec-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--slate-100); padding-bottom: 12px;}
+    .pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--slate-100);
+      color: var(--slate-800);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--slate-200);
+      user-select: none;
+    }
 
-/* Factors */
-.factors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-.factor { background: var(--slate-100); border-radius: 8px; padding: 12px; border-left: 4px solid var(--slate-200); }
-.factor.up { border-left-color: var(--red); }
-.factor.down { border-left-color: var(--green); }
-.factor-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.factor-nm { font-weight: 600; font-size: 14px; }
-.factor-val { font-family: 'Space Mono'; font-weight: 700; font-size: 14px; }
-.factor-desc { font-size: 12px; color: var(--slate-500); }
+    .pill:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-light);
+    }
 
-/* Carriers List */
-.carrier-list { display: flex; flex-direction: column; gap: 12px; }
-.carrier-item { border: 1px solid var(--slate-200); border-radius: 12px; padding: 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; transition: all 0.2s; }
-.carrier-item:hover { border-color: var(--blue-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.c-rank { font-size: 20px; font-weight: 700; color: var(--slate-400); width: 30px; text-align: center; }
-.c-main .c-nm { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-.c-why { font-size: 13px; color: var(--slate-500); display: flex; align-items: center; gap: 6px; }
-.c-why::before { content: '💡'; }
-.c-mets { display: flex; gap: 24px; text-align: right; }
-.c-met-v { font-size: 18px; font-weight: 700; }
-.c-met-l { font-size: 11px; font-weight: 600; color: var(--slate-400); text-transform: uppercase; }
-.c-score .c-met-v { color: var(--blue); }
+    .pill.active {
+      background: var(--navy);
+      color: var(--white);
+      border-color: var(--navy);
+      box-shadow: 0 2px 8px rgba(13, 31, 60, 0.25);
+    }
 
-.lp-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.lp-table th { text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--slate-500); border-bottom: 2px solid var(--slate-100); }
-.lp-table td { padding: 12px; font-size: 14px; border-bottom: 1px solid var(--slate-100); }
-.lp-bar { width: 100px; height: 6px; background: var(--slate-100); border-radius: 3px; overflow: hidden; }
-.lp-fill { height: 100%; background: var(--blue); }
+    /* Transport Modes */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
 
-.empty-state { text-align: center; padding: 60px 20px; background: var(--white); border-radius: 16px; border: 2px dashed var(--slate-200); }
-.empty-icon { font-size: 48px; margin-bottom: 16px; }
-</style>
+    .mode-card {
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom-width: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+    }
+
+    .mode-card .icon {
+      font-size: 26px;
+      margin-bottom: 7px;
+    }
+
+    .mode-card .name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 3px;
+      color: var(--slate-800);
+    }
+
+    .mode-card .tag {
+      font-size: 11px;
+      color: var(--slate-500);
+    }
+
+    .mode-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(13, 31, 60, 0.1);
+    }
+
+    .mode-roadways { border-bottom-color: var(--navy); }
+    .mode-railways { border-bottom-color: var(--navy); }
+    .mode-airways { border-bottom-color: var(--navy); }
+
+    .mode-roadways.active,
+    .mode-railways.active,
+    .mode-airways.active {
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+    
+    .mode-card.active .name, 
+    .mode-card.active .icon, 
+    .mode-card.active .tag {
+      color: var(--white);
+    }
+
+    /* Input grids */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .info-box {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-box label {
+      font-size: 11px;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .info-box .val {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .input-grp {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+
+    .input-grp label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--slate-500);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-grp input,
+    .input-grp select {
+      padding: 10px 12px;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      font-family: 'Outfit';
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+      background: var(--white);
+      color: var(--slate-800);
+    }
+
+    .input-grp input:focus,
+    .input-grp select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .input-grp select option {
+      background: var(--white);
+    }
+
+    .pri-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .pri-card {
+      border: 1px solid var(--slate-200);
+      padding: 9px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--white);
+      color: var(--slate-800);
+    }
+
+    .pri-card:hover {
+      border-color: var(--navy);
+      color: var(--navy);
+      background: var(--slate-50);
+    }
+
+    .pri-card.active {
+      background: var(--navy);
+      color: var(--white);
+      border-color: var(--navy);
+      box-shadow: 0 2px 8px rgba(13, 31, 60, 0.2);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .btn-primary:hover {
+      background: var(--navy-mid);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(13, 31, 60, 0.35);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Map Container */
+    #routeMap {
+      width: 100%;
+      height: 260px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 14px 0;
+      border: 1px solid var(--slate-200);
+      z-index: 1;
+    }
+
+    #resultsMap {
+      width: 100%;
+      height: 400px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--slate-200);
+      z-index: 1;
+    }
+
+    .map-placeholder {
+      width: 100%;
+      height: 260px;
+      background: var(--slate-50);
+      border: 1px dashed var(--slate-200);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--slate-400);
+      font-size: 13px;
+    }
+
+    /* Scoring Explainer */
+    .explainer-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .explainer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .exp-item {
+      background: var(--slate-50);
+      border-radius: 8px;
+      padding: 12px;
+      border-left: 3px solid var(--blue);
+    }
+
+    .exp-item.rail {
+      border-left-color: var(--purple);
+    }
+
+    .exp-item.air {
+      border-left-color: var(--sky);
+    }
+
+    .exp-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .exp-val {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-800);
+    }
+
+    .node {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 3px solid var(--blue);
+      z-index: 2;
+      position: relative;
+    }
+
+    .node-label {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--slate-500);
+      white-space: nowrap;
+    }
+
+    /* Right Column */
+    .results-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Winner Banner — navy with white text */
+    .winner-banner {
+      background: var(--navy);
+      color: var(--white);
+      border-radius: 14px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(13, 31, 60, 0.3);
+    }
+
+    .winner-banner::after {
+      content: '🏆';
+      position: absolute;
+      right: 24px;
+      top: 16px;
+      font-size: 80px;
+      opacity: 0.07;
+      transform: rotate(10deg);
+    }
+
+    .w-eyebrow {
+      color: #93c5fd;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .w-name {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .w-name span.w-badge {
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: var(--white);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .w-desc {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 14px;
+      max-width: 85%;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .w-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .w-kpi-box {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .w-kpi-val {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 6px;
+      color: var(--white);
+    }
+
+    .w-kpi-lbl {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .w-kpi-green {
+      color: #4ade80 !important;
+    }
+
+    /* Section Cards — white */
+    .section-card {
+      background: var(--white);
+      border: 1px solid var(--navy-light);
+      border-radius: 14px;
+      padding: 0;
+      box-shadow: 0 4px 16px rgba(13, 31, 60, 0.1);
+      overflow: hidden;
+    }
+
+    .sec-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--navy);
+      color: var(--white);
+      padding: 16px 22px;
+    }
+
+    .sec-content {
+      padding: 22px;
+    }
+
+    /* Factors */
+    .factors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+    }
+
+    .factor {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .factor.up {
+      border-top: 2px solid var(--red);
+    }
+
+    .factor.down {
+      border-top: 2px solid var(--green);
+    }
+
+    .factor-hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .factor-nm {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--slate-800);
+    }
+
+    .factor-val {
+      font-family: 'Space Mono';
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--red);
+    }
+
+    .factor.down .factor-val {
+      color: var(--green);
+    }
+
+    .factor.stable .factor-val {
+      color: var(--slate-500);
+    }
+
+    .factor-desc {
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+
+    /* Carriers List */
+    .carrier-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .carrier-item {
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 20px;
+      align-items: center;
+      transition: all 0.2s;
+      background: var(--white);
+    }
+
+    .carrier-item:hover {
+      border-color: var(--navy);
+      box-shadow: 0 4px 16px rgba(13, 31, 60, 0.1);
+    }
+
+    .c-rank {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--slate-400);
+      width: 30px;
+      text-align: center;
+    }
+
+    .c-main .c-nm {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--slate-800);
+    }
+
+    .c-why {
+      font-size: 13px;
+      color: var(--slate-500);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .c-why::before {
+      content: '💡';
+    }
+
+    .c-mets {
+      display: flex;
+      gap: 24px;
+      text-align: right;
+    }
+
+    .c-met-v {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--slate-800);
+    }
+
+    .c-met-l {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+    }
+
+    .c-score .c-met-v {
+      color: var(--navy);
+    }
+
+    .lp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    .lp-table th {
+      text-align: left;
+      padding: 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--slate-500);
+      border-bottom: 2px solid var(--slate-200);
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .lp-table td {
+      padding: 12px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--slate-100);
+      color: var(--slate-800);
+    }
+
+    .lp-bar {
+      width: 100px;
+      height: 6px;
+      background: var(--slate-100);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .lp-fill {
+      height: 100%;
+      background: var(--navy);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: var(--white);
+      border-radius: 14px;
+      border: 2px dashed var(--slate-200);
+      box-shadow: 0 2px 8px rgba(13, 31, 60, 0.05);
+    }
+
+    .empty-state h2 {
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    /* Road mode note */
+    #roadModeNote {
+      color: var(--orange) !important;
+    }
+
+    /* Road mode toggle */
+    [id^="road-"] {
+      background: var(--white);
+      color: var(--slate-800);
+    }
+
+    /* Scrollbars global */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--slate-100);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--slate-200);
+      border-radius: 3px;
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-icon">Q</div>
-    <div>FreightIQ <span class="tagline">Multimodal Intelligence Engine</span></div>
-  </div>
-  <div style="font-size:13px; opacity:0.8;">Live Models Active • Connected to Optimizer</div>
-</header>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">Q</div>
+      <div>FreightIQ <span class="tagline">Multimodal Intelligence Engine</span></div>
+    </div>
+    <div class="header-status">✓ LIVE API</div>
+  </header>
 
-<main>
-  <!-- Left Form -->
-  <aside class="form-card">
-    <h3>1. Origin</h3>
-    <div class="input-grp">
-      <select id="originBox" onchange="selO(this.value)">
-        <option value="">Select Origin</option>
-      </select>
-    </div>
-    
-    <h3>2. Destination</h3>
-    <div class="input-grp">
-      <select id="destBox" onchange="selD(this.value)" disabled>
-        <option value="">Select an origin first</option>
-      </select>
-    </div>
-    
-    <h3>3. Transport Mode</h3>
-    <div class="modes-grid">
-      <div class="mode-card mode-roadways active" onclick="setMode('roadways')">
-        <div class="icon">🚛</div><div class="name">Roadways</div><div class="tag">Door-to-door</div>
-      </div>
-      <div class="mode-card mode-railways" onclick="setMode('railways')">
-        <div class="icon">🚂</div><div class="name">Railways</div><div class="tag">Bulk freight</div>
-      </div>
-      <div class="mode-card mode-airways" onclick="setMode('airways')">
-        <div class="icon">✈️</div><div class="name">Airways</div><div class="tag">Next-day delivery</div>
-      </div>
-    </div>
-    
-    <div id="roadModeBlock" style="margin-top: 16px;">
-      <div style="font-size:12px; font-weight:600; color:var(--slate-500); margin-bottom:8px;">Road Freight Mode</div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-        <div class="pri-card active" id="road-ftl" onclick="setRoadMode('FTL')">FTL (Full Truck)</div>
-        <div class="pri-card" id="road-ltl" onclick="setRoadMode('LTL')">LTL (Partial Load)</div>
-      </div>
-      <div id="roadModeNote" style="font-size:12px; color:var(--orange); margin-top:8px; font-weight:500;">🔒 Locked to FTL (Weight > 3000 kg)</div>
-    </div>
-    
-    <div id="routeMap" class="map-placeholder">
-       <span>Select origin & destination to see route map</span>
-    </div>
-    
-    <div class="info-grid" style="margin-bottom:24px;">
-      <div class="info-box">
-        <label>Routing Distance</label>
-        <div class="val mono" id="distVal">—</div>
-      </div>
-      <div class="info-box">
-        <label>Expected Transit</label>
-        <div class="val mono" id="transitVal">—</div>
-      </div>
-    </div>
-    
-    <h3>4. Shipment Details</h3>
-    <div class="info-grid">
+  <main>
+    <!-- Left Form -->
+    <aside class="form-card">
+      <h3>1. Origin</h3>
       <div class="input-grp">
-        <label>Freight Type</label>
-        <select id="goods">
-          <option>FMCG</option><option>Electronics</option><option>Apparel</option><option>Automotive</option><option>Industrial</option><option>Pharmaceuticals</option><option>Perishables</option><option>General Cargo</option><option>Chemicals</option><option>Textiles</option><option>Machinery</option><option>Metals</option><option>Paper</option><option>Furniture</option><option>Other</option>
+        <select id="originBox" onchange="selO(this.value)">
+          <option value="">Select Origin</option>
         </select>
       </div>
+
+      <h3>2. Destination</h3>
       <div class="input-grp">
-        <label>Weight (kg)</label>
-        <input type="number" id="weight" value="5000" oninput="checkWeightLimit()">
+        <select id="destBox" onchange="selD(this.value)" disabled>
+          <option value="">Select an origin first</option>
+        </select>
       </div>
-    </div>
-    
-    <h3>5. Priority Profile</h3>
-    <div class="pri-grid" style="grid-template-columns: repeat(2, 1fr);">
-      <div class="pri-card active" onclick="setPri('balanced', this)">Balanced</div>
-      <div class="pri-card" onclick="setPri('cost-first', this)">Cost First</div>
-      <div class="pri-card" onclick="setPri('reliability', this)">Reliability</div>
-      <div class="pri-card" onclick="setPri('pharma', this)">Pharma</div>
-      <div class="pri-card" onclick="setPri('risk-averse', this)">Risk Averse</div>
-      <div class="pri-card" onclick="setPri('urgency', this)">Urgency</div>
-    </div>
-    
-    <button class="btn-primary" id="btnAnalyze" onclick="analyze()">🚀 Analyse & Score Route</button>
-  </aside>
-  
-  <!-- Right Results -->
-  <section class="results-col" id="resCol">
-    <div class="empty-state">
-      <div class="empty-icon">📊</div>
-      <h2>Awaiting Execution</h2>
-      <p style="color:var(--slate-500); margin-top:8px;">Select parameters and click Analyse to trigger the ensemble ML models, scrape market data, run LP optimisation, and construct the multimodal route.</p>
-    </div>
-  </section>
-</main>
 
-<script>
-const CITIES = ["Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Delhi", "Guwahati", "Hyderabad", "Indore", "Jabalpur", "Jaipur", "Kanpur", "Kochi", "Kolkata", "Lucknow", "Madurai", "Mangalore", "Mumbai", "Nagpur", "Nashik", "Noida", "Patna", "Pune", "Raipur", "Rajkot", "Ranchi", "Surat", "Thiruvananthapuram", "Vadodara", "Varanasi", "Vijayawada", "Visakhapatnam"];
+      <h3>3. Transport Mode</h3>
+      <div class="modes-grid">
+        <div class="mode-card mode-roadways active" onclick="setMode('roadways')">
+          <div class="icon">🚛</div>
+          <div class="name">Roadways</div>
+          <div class="tag">Door-to-door</div>
+        </div>
+        <div class="mode-card mode-railways" onclick="setMode('railways')">
+          <div class="icon">🚂</div>
+          <div class="name">Railways</div>
+          <div class="tag">Bulk freight</div>
+        </div>
+        <div class="mode-card mode-airways" onclick="setMode('airways')">
+          <div class="icon">✈️</div>
+          <div class="name">Airways</div>
+          <div class="tag">Next-day delivery</div>
+        </div>
+      </div>
 
-let G = { o:"", d:"", mode:"roadways", road_freight_mode:"FTL", pri:"balanced", dist:0, transit:0, gMapsKey:"" };
-const $ = id => document.getElementById(id);
-let leafletMap = null, gMap = null, gDirections = null, gDirRenderer = null;
-let lastGeo = null;
+      <div id="roadModeBlock" style="margin-top: 16px;">
+        <div style="font-size:12px; font-weight:600; color:var(--slate-500); margin-bottom:8px;">Road Freight Mode</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <div class="pri-card active" id="road-ftl" onclick="setRoadMode('FTL')">FTL (Full Truck)</div>
+          <div class="pri-card" id="road-ltl" onclick="setRoadMode('LTL')">LTL (Partial Load)</div>
+        </div>
+        <div id="roadModeNote" style="font-size:12px; color:var(--orange); margin-top:8px; font-weight:500;">🔒 Locked
+          to FTL (Weight > 3000 kg)</div>
+      </div>
 
-// Fetch Google Maps key from health endpoint
-fetch("/api/health").then(r=>r.json()).then(h=>{
-  G.gMapsKey = h.google_maps_key || "";
-  if(G.gMapsKey){
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${G.gMapsKey}&callback=onGMapsReady`;
-    s.async = true; s.defer = true; document.head.appendChild(s);
-  }
-}).catch(()=>{});
-function onGMapsReady(){ console.log("Google Maps JS API loaded"); }
+      <div id="routeMap" class="map-placeholder">
+        <span>Select origin & destination to see route map</span>
+      </div>
 
-function init(){
-  const oBox = $("originBox");
-  oBox.innerHTML = `<option value="">Select Origin</option>` + CITIES.map(c => `<option value="${c}">${c}</option>`).join("");
-  checkWeightLimit();
-}
-init();
+      <div class="info-grid" style="margin-bottom:24px;">
+        <div class="info-box">
+          <label>Routing Distance</label>
+          <div class="val mono" id="distVal">—</div>
+        </div>
+        <div class="info-box">
+          <label>Expected Transit</label>
+          <div class="val mono" id="transitVal">—</div>
+        </div>
+      </div>
 
-function selO(c){
-  G.o = c; G.d = "";
-  const dBox = $("destBox");
-  if (!c) { dBox.innerHTML = `<option value="">Select an origin first</option>`; dBox.disabled = true; }
-  else { dBox.innerHTML = `<option value="">Select Destination</option>` + CITIES.filter(x=>x!==c).map(x => `<option value="${x}">${x}</option>`).join(""); dBox.disabled = false; }
-  updateRoute();
-}
-function selD(c){ G.d = c; updateRoute(); }
+      <h3>4. Shipment Details</h3>
+      <div class="info-grid">
+        <div class="input-grp">
+          <label>Freight Type</label>
+          <select id="goods">
+            <option>FMCG</option>
+            <option>Electronics</option>
+            <option>Apparel</option>
+            <option>Automotive</option>
+            <option>Industrial</option>
+            <option>Pharmaceuticals</option>
+            <option>Perishables</option>
+            <option>General Cargo</option>
+            <option>Chemicals</option>
+            <option>Textiles</option>
+            <option>Machinery</option>
+            <option>Metals</option>
+            <option>Paper</option>
+            <option>Furniture</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="input-grp">
+          <label>Weight (kg)</label>
+          <input type="number" id="weight" value="5000" oninput="checkWeightLimit()">
+        </div>
+      </div>
 
-function setMode(m){
-  G.mode = m;
-  document.querySelectorAll(".mode-card").forEach(c=>c.classList.remove('active'));
-  document.querySelector(`.mode-${m}`).classList.add('active');
-  if (m === 'roadways') { $("roadModeBlock").style.display = "block"; checkWeightLimit(); }
-  else { $("roadModeBlock").style.display = "none"; }
-  updateRoute();
-}
-function setRoadMode(m) {
-  if (Number($("weight").value) > 3000) return;
-  G.road_freight_mode = m;
-  $("road-ftl").classList.toggle("active", m==="FTL");
-  $("road-ltl").classList.toggle("active", m==="LTL");
-}
-function checkWeightLimit() {
-  if (G.mode !== 'roadways') return;
-  const w = Number($("weight").value);
-  if (w > 3000) {
-    G.road_freight_mode = "FTL"; $("road-ftl").classList.add("active"); $("road-ltl").classList.remove("active");
-    $("road-ltl").style.opacity = "0.4"; $("road-ltl").style.cursor = "not-allowed"; $("roadModeNote").style.display = "block";
-  } else {
-    $("road-ltl").style.opacity = "1"; $("road-ltl").style.cursor = "pointer"; $("roadModeNote").style.display = "none";
-    $("road-ftl").classList.toggle("active", G.road_freight_mode==="FTL"); $("road-ltl").classList.toggle("active", G.road_freight_mode==="LTL");
-  }
-}
-function setPri(p, el){ G.pri = p; document.querySelectorAll('.pri-card').forEach(c=>c.classList.remove('active')); el.classList.add('active'); }
+      <h3>5. Priority Profile</h3>
+      <div class="pri-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="pri-card active" onclick="setPri('balanced', this)">Balanced</div>
+        <div class="pri-card" onclick="setPri('cost-first', this)">Cost First</div>
+        <div class="pri-card" onclick="setPri('reliability', this)">Reliability</div>
+        <div class="pri-card" onclick="setPri('pharma', this)">Pharma</div>
+        <div class="pri-card" onclick="setPri('risk-averse', this)">Risk Averse</div>
+        <div class="pri-card" onclick="setPri('urgency', this)">Urgency</div>
+      </div>
 
-// ── MAP RENDERING ─────────────────────────────────────────────
-function destroyMaps(){
-  if(leafletMap){ leafletMap.remove(); leafletMap = null; }
-  if(gDirRenderer){ gDirRenderer.setMap(null); gDirRenderer = null; }
-  gMap = null; gDirections = null;
-}
+      <button class="btn-primary" id="btnAnalyze" onclick="analyze()">🚀 Analyse & Score Route</button>
+    </aside>
 
-function renderRouteMap(geo, containerId){
-  const el = $(containerId);
-  if(!el || !geo) return;
-  el.innerHTML = ""; el.className = "";
-  el.style.height = containerId === "resultsMap" ? "400px" : "280px";
-  destroyMaps();
+    <!-- Right Results -->
+    <section class="results-col" id="resCol">
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h2>Awaiting Execution</h2>
+        <p
+          style="color:var(--slate-500); margin-top:8px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
+          Select parameters and click Analyse to trigger the ensemble ML models, scrape market data, run LP
+          optimisation, and construct the multimodal route.</p>
+      </div>
+    </section>
+  </main>
 
-  const mode = geo.mode;
-  const modeColors = { roadways: "#1d4ed8", railways: "#7e22ce", airways: "#0ea5e9" };
-  const color = modeColors[mode] || "#1d4ed8";
+  <script>
+    const CITIES = ["Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Delhi", "Guwahati", "Hyderabad", "Indore", "Jabalpur", "Jaipur", "Kanpur", "Kochi", "Kolkata", "Lucknow", "Madurai", "Mangalore", "Mumbai", "Nagpur", "Nashik", "Noida", "Patna", "Pune", "Raipur", "Rajkot", "Ranchi", "Surat", "Thiruvananthapuram", "Vadodara", "Varanasi", "Vijayawada", "Visakhapatnam"];
 
-  if(mode === "roadways" && G.gMapsKey && window.google && window.google.maps){
-    // Google Maps Directions
-    gMap = new google.maps.Map(el, { zoom: 6, center: {lat: geo.origin_latlng[0], lng: geo.origin_latlng[1]}, disableDefaultUI: true, zoomControl: true, styles: [{featureType:"poi",stylers:[{visibility:"off"}]}] });
-    gDirections = new google.maps.DirectionsService();
-    gDirRenderer = new google.maps.DirectionsRenderer({ map: gMap, polylineOptions: { strokeColor: color, strokeWeight: 5 }, suppressMarkers: false });
-    gDirections.route({
-      origin: {lat: geo.origin_latlng[0], lng: geo.origin_latlng[1]},
-      destination: {lat: geo.dest_latlng[0], lng: geo.dest_latlng[1]},
-      travelMode: "DRIVING"
-    }, (result, status) => {
-      if(status === "OK") gDirRenderer.setDirections(result);
-      else { console.warn("Directions failed:", status); renderLeafletFallback(geo, el, color); }
-    });
-  } else if(mode === "roadways") {
-    // Leaflet fallback for roadways (no Google key)
-    renderLeafletFallback(geo, el, color);
-  } else {
-    // Railways / Airways — Leaflet + GeoJSON
-    renderLeafletGeoJSON(geo, el, color, mode);
-  }
-}
+    let G = { o: "", d: "", mode: "roadways", road_freight_mode: "FTL", pri: "balanced", dist: 0, transit: 0, gMapsKey: "" };
+    const $ = id => document.getElementById(id);
+    let leafletMap = null, gMap = null, gDirections = null, gDirRenderer = null;
+    let lastGeo = null;
 
-function renderLeafletFallback(geo, el, color){
-  const m = L.map(el).setView([22.5, 79], 5);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution:"© OSM"}).addTo(m);
-  const pts = geo.markers.map(mk => [mk.latlng[0], mk.latlng[1]]);
-  L.polyline(pts, {color, weight:4}).addTo(m);
-  geo.markers.forEach(mk => L.circleMarker([mk.latlng[0], mk.latlng[1]], {radius:7, color, fillColor:"#fff", fillOpacity:1, weight:3}).bindTooltip(mk.name, {permanent:true, direction:"top", offset:[0,-10]}).addTo(m));
-  if(pts.length) m.fitBounds(pts, {padding:[40,40]});
-  leafletMap = m;
-}
-
-function renderLeafletGeoJSON(geo, el, color, mode){
-  const m = L.map(el).setView([22.5, 79], 5);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution:"© OSM"}).addTo(m);
-  if(geo.geojson){
-    L.geoJSON(geo.geojson, {
-      style: f => ({ color, weight: mode==="airways"?3:4, dashArray: mode==="airways"?"10,8":"", opacity: 0.85 }),
-      pointToLayer: (f, ll) => {
-        const t = f.properties.type;
-        const r = t==="via" ? 5 : 8;
-        const fc = t==="via" ? color : "#fff";
-        return L.circleMarker(ll, {radius:r, color, fillColor:fc, fillOpacity:1, weight:3});
-      },
-      onEachFeature: (f, layer) => {
-        if(f.properties.name && f.geometry.type === "Point"){
-          const label = f.properties.code ? `${f.properties.name} (${f.properties.code})` : f.properties.name;
-          layer.bindTooltip(label, {permanent: f.properties.type !== "via", direction:"top", offset:[0,-10]});
-        }
+    // Fetch Google Maps key from health endpoint
+    fetch("http://127.0.0.1:5000/api/health").then(r => r.json()).then(h => {
+      G.gMapsKey = h.google_maps_key || "";
+      if (G.gMapsKey) {
+        const s = document.createElement("script");
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${G.gMapsKey}&callback=onGMapsReady`;
+        s.async = true; s.defer = true; document.head.appendChild(s);
       }
-    }).addTo(m);
-  }
-  const pts = (geo.markers||[]).map(mk => [mk.latlng[0], mk.latlng[1]]);
-  if(pts.length) m.fitBounds(pts, {padding:[50,50]});
-  leafletMap = m;
-}
+    }).catch(() => { });
+    function onGMapsReady() { console.log("Google Maps JS API loaded"); }
 
-// ── ROUTE UPDATE ──────────────────────────────────────────────
-async function updateRoute(){
-  if(!G.o || !G.d) return;
-  $("distVal").textContent = "calc...";
-  $("transitVal").textContent = "calc...";
-  try {
-    const res = await fetch("/api/route", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({origin:G.o, destination:G.d, mode:G.mode}) });
-    const d = await res.json();
-    if(d.success){
-      G.dist = d.route.distance_km; G.transit = d.route.transit_days;
-      $("distVal").textContent = `${G.dist.toFixed(0)} km`;
-      $("transitVal").textContent = `${G.transit.toFixed(1)} days`;
-      lastGeo = d.geo;
-      renderRouteMap(d.geo, "routeMap");
+    function init() {
+      const oBox = $("originBox");
+      oBox.innerHTML = `<option value="">Select Origin</option>` + CITIES.map(c => `<option value="${c}">${c}</option>`).join("");
+      checkWeightLimit();
     }
-  } catch(e) { console.error(e); }
-}
+    init();
 
-const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
+    function selO(c) {
+      G.o = c; G.d = "";
+      const dBox = $("destBox");
+      if (!c) { dBox.innerHTML = `<option value="">Select an origin first</option>`; dBox.disabled = true; }
+      else { dBox.innerHTML = `<option value="">Select Destination</option>` + CITIES.filter(x => x !== c).map(x => `<option value="${x}">${x}</option>`).join(""); dBox.disabled = false; }
+      updateRoute();
+    }
+    function selD(c) { G.d = c; updateRoute(); }
 
-async function analyze(){
-  if(!G.o || !G.d){ alert("Select Origin and Destination."); return; }
-  const btn = $("btnAnalyze");
-  btn.disabled = true; btn.innerHTML = "⏳ Generating Intelligence...";
-  try {
-    const payload = { origin: G.o, destination: G.d, transport_mode: G.mode, road_freight_mode: G.road_freight_mode, priority_profile: G.pri, goods_type: $("goods").value, weight_kg: Number($("weight").value) || 5000, min_reliability: 0.8 };
-    const newsPromise = fetch("/api/news").then(r=>r.json()).catch(()=>null);
-    const dataPromise = fetch("/api/shipment/analyze", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) }).then(r=>r.json());
-    const [newsRes, d] = await Promise.all([newsPromise, dataPromise]);
-    if(d.success){ if(newsRes && newsRes.success) d.logistics_news = newsRes.news; renderResults(d); }
-    else { alert("Error: " + d.error); }
-  } catch(e) { alert(e); }
-  btn.disabled = false; btn.innerHTML = "🚀 Analyse & Score Route";
-}
+    function setMode(m) {
+      G.mode = m;
+      document.querySelectorAll(".mode-card").forEach(c => c.classList.remove('active'));
+      document.querySelector(`.mode-${m}`).classList.add('active');
+      if (m === 'roadways') { $("roadModeBlock").style.display = "block"; checkWeightLimit(); }
+      else { $("roadModeBlock").style.display = "none"; }
+      updateRoute();
+    }
+    function setRoadMode(m) {
+      if (Number($("weight").value) > 3000) return;
+      G.road_freight_mode = m;
+      $("road-ftl").classList.toggle("active", m === "FTL");
+      $("road-ltl").classList.toggle("active", m === "LTL");
+    }
+    function checkWeightLimit() {
+      if (G.mode !== 'roadways') return;
+      const w = Number($("weight").value);
+      if (w > 3000) {
+        G.road_freight_mode = "FTL"; $("road-ftl").classList.add("active"); $("road-ltl").classList.remove("active");
+        $("road-ltl").style.opacity = "0.4"; $("road-ltl").style.cursor = "not-allowed"; $("roadModeNote").style.display = "block";
+      } else {
+        $("road-ltl").style.opacity = "1"; $("road-ltl").style.cursor = "pointer"; $("roadModeNote").style.display = "none";
+        $("road-ftl").classList.toggle("active", G.road_freight_mode === "FTL"); $("road-ltl").classList.toggle("active", G.road_freight_mode === "LTL");
+      }
+    }
+    function setPri(p, el) { G.pri = p; document.querySelectorAll('.pri-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
 
-// ── RESULTS RENDERING ─────────────────────────────────────────
-function renderResults(d){
-  const best = d.best_recommendation;
-  const chars = d.carrier_scoring.carriers;
-  const mkt = d.market_intelligence;
-  const opt = d.optimization;
-  const geo = d.geo;
-  const ship = d.shipment;
-  let themeCol = G.mode==='roadways'?'var(--blue)':G.mode==='railways'?'var(--purple)':'var(--sky)';
-  let modeIcon = G.mode==='roadways'?'🚛':G.mode==='railways'?'🚂':'✈️';
-  let expCls = G.mode==='railways'?'rail':G.mode==='airways'?'air':'';
+    // ── MAP RENDERING ─────────────────────────────────────────────
+    function destroyMaps() {
+      if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+      if (gDirRenderer) { gDirRenderer.setMap(null); gDirRenderer = null; }
+      gMap = null; gDirections = null;
+    }
 
-  // Route Map in results
-  let mapHtml = `<div class="section-card" style="padding:0;overflow:hidden;"><div id="resultsMap" style="height:400px;"></div></div>`;
+    function renderRouteMap(geo, containerId) {
+      const el = $(containerId);
+      if (!el || !geo) return;
+      el.innerHTML = ""; el.className = "";
+      el.style.height = containerId === "resultsMap" ? "400px" : "280px";
+      destroyMaps();
 
-  // Scoring Explainer
-  let routeSrc = ship.route_source || "unknown";
-  let srcLabel = {google_maps:"Google Maps Directions API", networkx_dijkstra:"NetworkX Dijkstra (Rail Graph)", air_haversine:"Great-Circle (Haversine)", haversine_estimate:"Haversine × 1.32 (Road Estimate)", rail_estimate:"Haversine × 1.2 (Rail Estimate)"}[routeSrc] || routeSrc;
-  let priWeights = {balanced:"XGB 40% + GBR 40% + LR 20%", "cost-first":"XGB 20% + GBR 20% + LR 60%", reliability:"XGB 70% + GBR 20% + LR 10%", pharma:"XGB 50% + GBR 40% + LR 10%", "risk-averse":"XGB 60% + GBR 20% + LR 20%", urgency:"XGB 20% + GBR 70% + LR 10%"}[G.pri] || "XGB 40% + GBR 40% + LR 20%";
-  let transitBasis = G.mode==='roadways' ? `Distance ÷ ~500 km/day with buffer` : G.mode==='railways' ? `Rail distance ÷ 45 km/h + 0.5h per stop + 8h loading` : `Air distance ÷ 750 km/h + 5h ground handling`;
-  let costBasis = G.mode==='roadways' ? `base_rate × weight + fuel_surcharge × market_multiplier` : G.mode==='railways' ? `rail_rate × weight (no fuel surcharge)` : `air_rate × weight + cargo_surcharge × market_multiplier`;
+      const mode = geo.mode;
+      const modeColors = { roadways: "#1d4ed8", railways: "#7e22ce", airways: "#0ea5e9" };
+      const color = modeColors[mode] || "#1d4ed8";
 
-  let explainerHtml = `
+      if (mode === "roadways" && G.gMapsKey && window.google && window.google.maps) {
+        // Google Maps Directions
+        gMap = new google.maps.Map(el, { zoom: 6, center: { lat: geo.origin_latlng[0], lng: geo.origin_latlng[1] }, disableDefaultUI: true, zoomControl: true, styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }] });
+        gDirections = new google.maps.DirectionsService();
+        gDirRenderer = new google.maps.DirectionsRenderer({ map: gMap, polylineOptions: { strokeColor: color, strokeWeight: 5 }, suppressMarkers: false });
+        gDirections.route({
+          origin: { lat: geo.origin_latlng[0], lng: geo.origin_latlng[1] },
+          destination: { lat: geo.dest_latlng[0], lng: geo.dest_latlng[1] },
+          travelMode: "DRIVING"
+        }, (result, status) => {
+          if (status === "OK") gDirRenderer.setDirections(result);
+          else { console.warn("Directions failed:", status); renderLeafletFallback(geo, el, color); }
+        });
+      } else if (mode === "roadways") {
+        // Leaflet fallback for roadways (no Google key)
+        renderLeafletFallback(geo, el, color);
+      } else {
+        // Railways / Airways — Leaflet + GeoJSON
+        renderLeafletGeoJSON(geo, el, color, mode);
+      }
+    }
+
+    function renderLeafletFallback(geo, el, color) {
+      const m = L.map(el).setView([22.5, 79], 5);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OSM" }).addTo(m);
+      const pts = geo.markers.map(mk => [mk.latlng[0], mk.latlng[1]]);
+      L.polyline(pts, { color, weight: 4 }).addTo(m);
+      geo.markers.forEach(mk => L.circleMarker([mk.latlng[0], mk.latlng[1]], { radius: 7, color, fillColor: "#fff", fillOpacity: 1, weight: 3 }).bindTooltip(mk.name, { permanent: true, direction: "top", offset: [0, -10] }).addTo(m));
+      if (pts.length) m.fitBounds(pts, { padding: [40, 40] });
+      leafletMap = m;
+    }
+
+    function renderLeafletGeoJSON(geo, el, color, mode) {
+      const m = L.map(el).setView([22.5, 79], 5);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OSM" }).addTo(m);
+      if (geo.geojson) {
+        L.geoJSON(geo.geojson, {
+          style: f => ({ color, weight: mode === "airways" ? 3 : 4, dashArray: mode === "airways" ? "10,8" : "", opacity: 0.85 }),
+          pointToLayer: (f, ll) => {
+            const t = f.properties.type;
+            const r = t === "via" ? 5 : 8;
+            const fc = t === "via" ? color : "#fff";
+            return L.circleMarker(ll, { radius: r, color, fillColor: fc, fillOpacity: 1, weight: 3 });
+          },
+          onEachFeature: (f, layer) => {
+            if (f.properties.name && f.geometry.type === "Point") {
+              const label = f.properties.code ? `${f.properties.name} (${f.properties.code})` : f.properties.name;
+              layer.bindTooltip(label, { permanent: f.properties.type !== "via", direction: "top", offset: [0, -10] });
+            }
+          }
+        }).addTo(m);
+      }
+      const pts = (geo.markers || []).map(mk => [mk.latlng[0], mk.latlng[1]]);
+      if (pts.length) m.fitBounds(pts, { padding: [50, 50] });
+      leafletMap = m;
+    }
+
+    // ── ROUTE UPDATE ──────────────────────────────────────────────
+    async function updateRoute() {
+      if (!G.o || !G.d) return;
+      $("distVal").textContent = "calc...";
+      $("transitVal").textContent = "calc...";
+      try {
+        const res = await fetch("http://127.0.0.1:5000/api/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ origin: G.o, destination: G.d, mode: G.mode }) });
+        const d = await res.json();
+        if (d.success) {
+          G.dist = d.route.distance_km; G.transit = d.route.transit_days;
+          $("distVal").textContent = `${G.dist.toFixed(0)} km`;
+          $("transitVal").textContent = `${G.transit.toFixed(1)} days`;
+          lastGeo = d.geo;
+          renderRouteMap(d.geo, "routeMap");
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
+
+    async function analyze() {
+      if (!G.o || !G.d) { alert("Select Origin and Destination."); return; }
+      const btn = $("btnAnalyze");
+      btn.disabled = true; btn.innerHTML = "⏳ Generating Intelligence...";
+      try {
+        const payload = { origin: G.o, destination: G.d, transport_mode: G.mode, road_freight_mode: G.road_freight_mode, priority_profile: G.pri, goods_type: $("goods").value, weight_kg: Number($("weight").value) || 5000, min_reliability: 0.8 };
+        const newsPromise = fetch("http://127.0.0.1:5000/api/news").then(r => r.json()).catch(() => null);
+        const dataPromise = fetch("http://127.0.0.1:5000/api/shipment/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).then(r => r.json());
+        const [newsRes, d] = await Promise.all([newsPromise, dataPromise]);
+        if (d.success) { if (newsRes && newsRes.success) d.logistics_news = newsRes.news; renderResults(d); }
+        else { alert("Error: " + d.error); }
+      } catch (e) { alert(e); }
+      btn.disabled = false; btn.innerHTML = "🚀 Analyse & Score Route";
+    }
+
+    // ── RESULTS RENDERING ─────────────────────────────────────────
+    function renderResults(d) {
+      const best = d.best_recommendation;
+      const chars = d.carrier_scoring.carriers;
+      const mkt = d.market_intelligence;
+      const opt = d.optimization;
+      const geo = d.geo;
+      const ship = d.shipment;
+      let themeCol = G.mode === 'roadways' ? 'var(--blue)' : G.mode === 'railways' ? 'var(--purple)' : 'var(--sky)';
+      let modeIcon = G.mode === 'roadways' ? '🚛' : G.mode === 'railways' ? '🚂' : '✈️';
+      let expCls = G.mode === 'railways' ? 'rail' : G.mode === 'airways' ? 'air' : '';
+
+      // Route Map in results
+      let mapHtml = `<div class="section-card" style="padding:0;overflow:hidden;"><div id="resultsMap" style="height:400px;"></div></div>`;
+
+      // Scoring Explainer
+      let routeSrc = ship.route_source || "unknown";
+      let srcLabel = { google_maps: "Google Maps Directions API", networkx_dijkstra: "NetworkX Dijkstra (Rail Graph)", air_haversine: "Great-Circle (Haversine)", haversine_estimate: "Haversine × 1.32 (Road Estimate)", rail_estimate: "Haversine × 1.2 (Rail Estimate)" }[routeSrc] || routeSrc;
+      let priWeights = { balanced: "XGB 40% + GBR 40% + LR 20%", "cost-first": "XGB 20% + GBR 20% + LR 60%", reliability: "XGB 70% + GBR 20% + LR 10%", pharma: "XGB 50% + GBR 40% + LR 10%", "risk-averse": "XGB 60% + GBR 20% + LR 20%", urgency: "XGB 20% + GBR 70% + LR 10%" }[G.pri] || "XGB 40% + GBR 40% + LR 20%";
+      let transitBasis = G.mode === 'roadways' ? `Distance ÷ ~500 km/day with buffer` : G.mode === 'railways' ? `Rail distance ÷ 45 km/h + 0.5h per stop + 8h loading` : `Air distance ÷ 750 km/h + 5h ground handling`;
+      let costBasis = G.mode === 'roadways' ? `base_rate × weight + fuel_surcharge × market_multiplier` : G.mode === 'railways' ? `rail_rate × weight (no fuel surcharge)` : `air_rate × weight + cargo_surcharge × market_multiplier`;
+
+      let explainerHtml = `
   <div class="section-card explainer-card">
-    <div class="sec-title" style="border-bottom:none;margin-bottom:4px;">🧠 How We Ranked Carriers</div>
-    <div class="explainer-grid">
+    <div class="sec-title" style="border-bottom:none;">🧠 How We Ranked Carriers</div>
+    <div class="sec-content explainer-grid" style="margin-top:0;">
       <div class="exp-item ${expCls}"><div class="exp-label">Route Source</div><div class="exp-val">${modeIcon} ${srcLabel}</div></div>
       <div class="exp-item ${expCls}"><div class="exp-label">Transit Days Basis</div><div class="exp-val">${ship.transit_days_est} days — ${transitBasis}</div></div>
       <div class="exp-item ${expCls}"><div class="exp-label">Cost Calculation</div><div class="exp-val">${costBasis}</div></div>
       <div class="exp-item ${expCls}"><div class="exp-label">ML Ensemble (${G.pri})</div><div class="exp-val">${priWeights}</div></div>
-      <div class="exp-item ${expCls}"><div class="exp-label">Why #1: ${best.carrier_name}</div><div class="exp-val">${(best.why||[]).join(" ")}</div></div>
-      <div class="exp-item ${expCls}"><div class="exp-label">Composite Score</div><div class="exp-val mono">${best.scores.composite_score.toFixed(3)} — On-Time: ${best.scores.blended_ontime}%</div></div>
+      <div class="exp-item ${expCls}"><div class="exp-label">Why #1: ${best.carrier_name}</div><div class="exp-val">${(best.why || []).join(" ")}</div></div>
+      <div class="exp-item ${expCls}"><div class="exp-label">Composite Score</div><div class="exp-val mono" style="color:var(--green)">${best.scores.composite_score.toFixed(3)} — On-Time: ${best.scores.blended_ontime}%</div></div>
     </div>
   </div>`;
 
-  let topHtml = `
-  <div class="winner-banner" style="background:${themeCol}">
-    <div class="w-eyebrow">🏆 #1 ML Recommended Carrier • ${G.pri.toUpperCase()}</div>
-    <div class="w-name">${best.carrier_name} <span class="w-badge mono">Score ${best.scores.composite_score.toFixed(3)}</span></div>
-    <div class="w-desc">${best.why[0]||"Optimised blend of rate, precision metrics."} | On-Time Prob: ${best.scores.blended_ontime}%</div>
+      let topHtml = `
+  <div class="winner-banner">
+    <div class="w-eyebrow">🏆 #1 RECOMMENDATION · ${G.pri.toUpperCase()}</div>
+    <div class="w-name">${best.carrier_name} <span class="w-badge mono">Score ${best.scores.composite_score.toFixed(4)}</span></div>
+    <div class="w-desc">${best.why[0] || "Optimised blend of rate, precision metrics."} · On-time <strong style="color:var(--white)">${best.scores.blended_ontime}%</strong> · <span style="color:var(--green)">LOW risk.</span></div>
     <div class="w-kpis">
-       <div><div class="w-kpi-val mono">${fmt(best.cost.estimated_total_cost_inr)}</div><div class="w-kpi-lbl">Est. Total</div></div>
-       <div><div class="w-kpi-val mono">${fmt(best.cost.adjusted_eff_rate)}/kg</div><div class="w-kpi-lbl">Effective Rate</div></div>
-       <div><div class="w-kpi-val mono">${d.shipment.transit_days_est}d</div><div class="w-kpi-lbl">Est Transit</div></div>
+       <div class="w-kpi-box"><div class="w-kpi-val mono">${best.scores.composite_score.toFixed(4)}</div><div class="w-kpi-lbl">Score</div></div>
+       <div class="w-kpi-box"><div class="w-kpi-val mono">${best.scores.blended_ontime}%</div><div class="w-kpi-lbl">On-Time</div></div>
+       <div class="w-kpi-box"><div class="w-kpi-val w-kpi-green">LOW</div><div class="w-kpi-lbl">Risk</div></div>
+       <div class="w-kpi-box"><div class="w-kpi-val mono">${fmt(best.cost.estimated_total_cost_inr)}</div><div class="w-kpi-lbl">Cost</div></div>
     </div>
   </div>`;
 
-  let mktHtml = `
+      let mktHtml = `
   <div class="section-card">
     <div class="sec-title">📡 Market Intelligence Snapshot</div>
-    <div class="factors-grid">
-      ${(mkt.factors||[]).map(f => {
-        let cls = f.direction === "UP" ? "up" : (f.direction==="STABLE"?"":"down");
+    <div class="sec-content factors-grid">
+      ${(mkt.factors || []).map(f => {
+        let cls = f.direction === "UP" ? "up" : (f.direction === "STABLE" ? "" : "down");
         return `<div class="factor ${cls}">
-          <div class="factor-hd"><span class="factor-nm">${f.icon} ${f.label.split(' ')[0]}</span><span class="factor-val mono">×${Number(f.multiplier_value).toFixed(2)}</span></div>
+          <div class="factor-hd"><span class="factor-nm">${f.icon} ${f.label.split(' ')[0]}</span><span class="factor-val mono" style="${cls === 'down' ? 'color:var(--green);' : ''}">×${Number(f.multiplier_value).toFixed(2)}</span></div>
           <div class="factor-desc">${f.sub}</div>
         </div>`;
       }).join("")}
     </div>
   </div>`;
 
-  let cHtml = `
+      let cHtml = `
   <div class="section-card">
-    <div class="sec-title"><span>📊 ${G.mode.charAt(0).toUpperCase() + G.mode.slice(1)} Carrier Options</span> <span style="font-size:13px;color:var(--slate-400);font-weight:400;font-family:'Space Mono'">Sorted by ${G.pri}</span></div>
-    <div class="carrier-list">
-      ${chars.map((c,i) => `
+    <div class="sec-title"><span>📊 ${G.mode.charAt(0).toUpperCase() + G.mode.slice(1)} Carrier Options</span> <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:400;font-family:'Space Mono'">Sorted by ${G.pri}</span></div>
+    <div class="sec-content carrier-list">
+      ${chars.map((c, i) => `
         <div class="carrier-item">
-          <div class="c-rank">#${i+1}</div>
+          <div class="c-rank">#${i + 1}</div>
           <div class="c-main">
             <div class="c-nm">${c.carrier_name}</div>
-            <div class="c-why">${(c.why||["Good alternative"]).join(" ")}</div>
+            <div class="c-why">${(c.why || ["Good alternative"]).join(" ")}</div>
           </div>
           <div class="c-mets">
-             <div class="c-score"><div class="c-met-v mono">${c.scores.composite_score.toFixed(3)}</div><div class="c-met-l">Score</div></div>
+             <div class="c-score"><div class="c-met-v mono" style="${i === 0 ? 'color:var(--green);' : ''}">${c.scores.composite_score.toFixed(3)}</div><div class="c-met-l">Score</div></div>
              <div><div class="c-met-v mono">${fmt(c.cost.estimated_total_cost_inr)}</div><div class="c-met-l">Price</div></div>
-             <div><div class="c-met-v mono" style="color: ${c.risk.level==='LOW'?'var(--green)':'var(--orange)'}">${c.risk.level}</div><div class="c-met-l">Risk</div></div>
+             <div><div class="c-met-v mono" style="color: ${c.risk.level === 'LOW' ? 'var(--green)' : 'var(--orange)'}">${c.risk.level}</div><div class="c-met-l">Risk</div></div>
           </div>
         </div>
       `).join("")}
     </div>
   </div>`;
 
-  let optHtml = "";
-  if(opt && opt.allocations && opt.allocations.length){
-    optHtml = `
+      let optHtml = "";
+      if (opt && opt.allocations && opt.allocations.length) {
+        optHtml = `
     <div class="section-card">
       <div class="sec-title">🧮 Linear Programming Allocation</div>
-      <table class="lp-table">
-        <tr><th>Carrier</th><th>Allocation</th><th>Weight (kg)</th><th>Exp. Cost</th></tr>
-        ${opt.allocations.filter(a=>a.allocation_share>0.01).map(a => `
-          <tr>
-            <td style="font-weight:600">${a.carrier_id}</td>
-            <td><div style="display:flex;align-items:center;gap:8px;"><div class="lp-bar"><div class="lp-fill" style="width:${a.allocation_share*100}%; background:${themeCol}"></div></div><span class="mono">${(a.allocation_share*100).toFixed(1)}%</span></div></td>
-            <td class="mono">${a.allocated_weight_kg.toFixed(0)}</td>
-            <td class="mono font-weight-bold" style="color:${themeCol}">${fmt(a.expected_cost_inr)}</td>
-          </tr>
-        `).join("")}
-      </table>
-    </div>`;
-  }
-
-  let aiHtml = "";
-  if(d.ai_analysis && d.ai_analysis.final_summary){
-    aiHtml = `
-    <div class="section-card" style="border: 2px solid var(--blue); background: var(--blue-light);">
-      <div class="sec-title" style="border-bottom: none; margin-bottom: 8px;">🤖 AI Agent Recommendation</div>
-      <p style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: var(--navy);">${d.ai_analysis.final_summary}</p>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom: 12px;">
-        <div style="background:var(--white); padding:12px; border-radius:8px;">
-          <div style="font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:4px;">Why it's best</div>
-          <div style="font-size:14px;">${d.ai_analysis.best_option_explanation}</div>
-        </div>
-        <div style="background:var(--white); padding:12px; border-radius:8px;">
-          <div style="font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:4px;">Trade-offs</div>
-          <div style="font-size:14px;">${d.ai_analysis.tradeoff_analysis}</div>
-        </div>
-      </div>
-      <div style="background:var(--white); padding:12px; border-radius:8px;">
-        <div style="font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:4px;">Alternatives & Priorities</div>
-        <div style="font-size:14px;">${d.ai_analysis.alternatives}</div>
+      <div class="sec-content">
+        <table class="lp-table">
+          <tr><th>Carrier</th><th>Allocation</th><th>Weight (kg)</th><th>Exp. Cost</th></tr>
+          ${opt.allocations.filter(a => a.allocation_share > 0.01).map(a => `
+            <tr>
+              <td style="font-weight:600">${a.carrier_id}</td>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="lp-bar"><div class="lp-fill" style="width:${a.allocation_share * 100}%; background:var(--green)"></div></div><span class="mono" style="color:var(--green); font-weight:700;">${(a.allocation_share * 100).toFixed(1)}%</span></div></td>
+              <td class="mono">${a.allocated_weight_kg.toFixed(0)}</td>
+              <td class="mono font-weight-bold" style="color:${themeCol}">${fmt(a.expected_cost_inr)}</td>
+            </tr>
+          `).join("")}
+        </table>
       </div>
     </div>`;
-  }
+      }
 
-  let newsHtml = "";
-  if(d.logistics_news && d.logistics_news.length){
-    newsHtml = `
+      let aiHtml = "";
+      if (d.ai_analysis && d.ai_analysis.final_summary) {
+        let badgeHtml = d.ai_analysis.is_demo ? `<span style="font-size:11px; background:#fef9c3; border:1px solid #fde047; color:#92400e; padding:3px 10px; border-radius:20px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-left:12px;">Demo Analysis</span>` : "";
+        aiHtml = `
+    <div class="section-card" style="border: 1px solid var(--navy);">
+      <div class="sec-title">🤖 AI Analysis ${badgeHtml}</div>
+      <div class="sec-content">
+        <p style="font-weight: 600; font-size: 15px; margin-bottom: 16px; color: var(--navy); line-height:1.5;">${d.ai_analysis.final_summary.replace(/recommended/gi, '<span style="color:var(--green)">recommended</span>')}</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom: 12px;">
+          <div style="background:var(--slate-50); padding:14px; border-radius:10px; border:1px solid var(--slate-200);">
+            <div style="font-size:10px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">Market Conditions</div>
+            <div style="font-size:13px; color:var(--slate-800); line-height:1.5;">${d.ai_analysis.best_option_explanation}</div>
+          </div>
+          <div style="background:var(--slate-50); padding:14px; border-radius:10px; border:1px solid var(--slate-200);">
+            <div style="font-size:10px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">Carrier Comparison</div>
+            <div style="font-size:13px; color:var(--slate-800); line-height:1.5;">${d.ai_analysis.tradeoff_analysis}</div>
+          </div>
+        </div>
+        <div style="background:var(--slate-50); padding:14px; border-radius:10px; border:1px solid var(--slate-200);">
+          <div style="font-size:10px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">Alternatives & Priorities</div>
+          <div style="font-size:13px; color:var(--slate-800); line-height:1.5;">${d.ai_analysis.alternatives}</div>
+        </div>
+      </div>
+    </div>`;
+      }
+
+      let newsHtml = "";
+      if (d.logistics_news && d.logistics_news.length) {
+        newsHtml = `
     <div class="section-card">
       <div class="sec-title">📰 Live Transport & Logistics News</div>
-      <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
-        ${d.logistics_news.slice(0,3).map(n => `
-          <div style="border-left:3px solid var(--blue); padding-left:10px;">
+      <div class="sec-content" style="display:flex; flex-direction:column; gap:12px;">
+        ${d.logistics_news.slice(0, 3).map(n => `
+          <div style="border-left:3px solid var(--navy); padding-left:10px;">
             <a href="${n.url}" target="_blank" style="color:var(--navy); font-size:14px; font-weight:600; text-decoration:none; line-height:1.4;">${n.title}</a>
-            <div style="font-size:11px; color:var(--slate-500); margin-top:4px;">${n.source} • ${n.published_at.split('GMT')[0].trim()} • Relevance: ${n.relevance_score}</div>
+            <div style="font-size:11px; color:var(--slate-500); margin-top:4px;">${n.source} • ${n.published_at.split('GMT')[0].trim()} • Relevance: <span style="color:var(--green); font-weight:600;">${n.relevance_score}</span></div>
           </div>
         `).join("")}
       </div>
     </div>`;
-  }
+      }
 
-  $("resCol").innerHTML = mapHtml + explainerHtml + aiHtml + topHtml + mktHtml + newsHtml + cHtml + optHtml;
+      $("resCol").innerHTML = mapHtml + explainerHtml + aiHtml + topHtml + mktHtml + newsHtml + cHtml + optHtml;
 
-  // Render the results map after DOM is ready
-  setTimeout(() => { if(geo) renderRouteMap(geo, "resultsMap"); }, 100);
-}
-</script>
+      // Render the results map after DOM is ready
+      setTimeout(() => { if (geo) renderRouteMap(geo, "resultsMap"); }, 100);
+    }
+  </script>
 </body>
+
 </html>

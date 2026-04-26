@@ -5,6 +5,8 @@ Fetches live news related to road freight, rail, air cargo, supply chain,
 and infrastructure. Excludes generic news using strict keyword filtering.
 """
 
+import backend.supabase_client as supa
+
 import xml.etree.ElementTree as ET
 import requests
 import re
@@ -93,4 +95,9 @@ def fetch_logistics_news(limit=5):
 
     # Sort by relevance score descending, then return the requested limit
     news_list.sort(key=lambda x: x["relevance_score"], reverse=True)
-    return news_list[:limit]
+    result = news_list[:limit]
+
+    # Persist to Supabase (fire-and-forget)
+    supa.save_news_items(result)
+
+    return result

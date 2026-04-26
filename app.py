@@ -9,6 +9,7 @@ import backend.market_intel_agent as mkt
 import backend.optimize as opt
 import backend.openai_analysis_agent as ai
 import backend.news as news_api
+import backend.supabase_client as supa
 load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, 
@@ -92,6 +93,20 @@ def analyze_shipment():
     is_monsoon = False  # Derived ideally from market_snapshot
     mult = market_snapshot.get("composite_multiplier", 1.0)
     
+    # Extract specific intelligence factors for the ML engine
+    weather_mult = 1.0
+    event_mult = 1.0
+    carrier_mult = 1.0
+    fuel_mult = 1.0
+    
+    for factor in market_snapshot.get("factors", []):
+        key = factor.get("key", "")
+        val = float(factor.get("multiplier_value", 1.0))
+        if key == "weather": weather_mult = val
+        elif key == "festivals" or key == "festival": event_mult = val
+        elif key == "carrier": carrier_mult = val
+        elif key == "fuel": fuel_mult = val
+
     # 3. Carrier Scoring
     carriers = ml.predict_all_carriers(
         distance_km=distance_km,
@@ -101,6 +116,10 @@ def analyze_shipment():
         transport_mode=ml_transport_mode,
         priority_profile=priority_profile,
         is_monsoon=is_monsoon,
+        weather_risk_index=weather_mult,
+        event_disruption_index=event_mult,
+        carrier_health_index=carrier_mult,
+        fuel_cost_index=fuel_mult,
         shipment_value=shipment_value
     )
     
@@ -131,6 +150,27 @@ def analyze_shipment():
     )
     
     geo = tn.get_route_geodata(origin, dest, route_mode, route)
+
+    # 7. Persist to Supabase (fire-and-forget)
+    supa.save_shipment_analysis(
+        input_data={
+            "origin": origin,
+            "destination": dest,
+            "transport_mode": transport_mode,
+            "weight_kg": weight_kg,
+            "goods_type": goods_type,
+            "priority_profile": priority_profile,
+            "shipment_value_inr": shipment_value,
+            "min_reliability": min_reliability,
+        },
+        carrier_scoring=carriers,
+        best_carrier=best_carrier,
+        optimization=optimization,
+        market_intelligence=market_snapshot,
+        ai_analysis=ai_analysis,
+        route_info=route,
+    )
+
     return jsonify({
         "success": True,
         "shipment": {

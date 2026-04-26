@@ -44,7 +44,11 @@ GOODS_MAP = {
     "Furniture": 13,
     "Other": 14
 }
-FEATURES = ["distance_km", "weight_kg", "freight_cost_inr", "transit_days_promised", "mode", "goods_type", "transport_class", "speed_factor", "cost_tier", "is_monsoon"]
+FEATURES = [
+    "distance_km", "weight_kg", "freight_cost_inr", "transit_days_promised", "mode", 
+    "goods_type", "transport_class", "speed_factor", "cost_tier", "is_monsoon",
+    "weather_risk_index", "event_disruption_index", "carrier_health_index", "fuel_cost_index"
+]
 
 def _generate_synthetic_multimodal():
     df_road = pd.read_csv(os.path.join(os.path.dirname(__file__), "data", "shipment_history.csv"))
@@ -85,9 +89,27 @@ def train_models():
     df["cost_tier"] = df["transport_class"].apply(lambda x: 2 if x==2 else (0 if x==1 else 1)) 
     
     # Create Target Score
+    
+    # Simulate real-world news impacts
+    df["weather_risk_index"] = np.random.uniform(1.0, 1.1, len(df))
+    df["event_disruption_index"] = np.random.uniform(1.0, 1.1, len(df))
+    df["carrier_health_index"] = np.random.uniform(1.0, 1.05, len(df))
+    df["fuel_cost_index"] = np.random.uniform(1.0, 1.1, len(df))
+
+    # Apply news disruptions to actual transit days (simulating delays)
+    df["transit_days_actual"] = df["transit_days_actual"] + \
+        (df["weather_risk_index"] > 1.05).astype(int) * np.random.randint(1, 3, len(df)) + \
+        (df["event_disruption_index"] > 1.05).astype(int) * np.random.randint(1, 3, len(df))
+
+    # Lower on_time delivery if carrier health is poor
+    df["on_time_delivery"] = np.where(df["carrier_health_index"] > 1.02, 0, df["on_time_delivery"])
+
     delay = df["transit_days_actual"] - df["transit_days_promised"]
     delay_penalty = np.where(delay > 0, delay * 0.1, 0)
-    cost_efficiency = 1.0 - (df["freight_cost_inr"] / (df["weight_kg"] * 50)) # Proxy relative score
+    
+    # Cost efficiency now impacted by fuel cost index
+    adjusted_cost = df["freight_cost_inr"] * df["fuel_cost_index"]
+    cost_efficiency = 1.0 - (adjusted_cost / (df["weight_kg"] * 50)) # Proxy relative score
     cost_efficiency = np.clip(cost_efficiency, 0.1, 1.0)
     
     base_reliability = df["on_time_delivery"] * 0.5 + cost_efficiency * 0.3 - delay_penalty * 0.2
@@ -120,7 +142,9 @@ def train_models():
     joblib.dump(scaler, os.path.join(MODEL_DIR, "mm_scaler.pkl"))
     print("Saved mm models.")
 
-def predict_all_carriers(distance_km, weight_kg, transit_days, goods_type, transport_mode, priority_profile, is_monsoon, shipment_value=100000):
+def predict_all_carriers(distance_km, weight_kg, transit_days, goods_type, transport_mode, priority_profile, is_monsoon, 
+                         weather_risk_index=1.0, event_disruption_index=1.0, carrier_health_index=1.0, fuel_cost_index=1.0, 
+                         shipment_value=100000):
     try:
         xgb_m = joblib.load(os.path.join(MODEL_DIR, "mm_xgb.pkl"))
         gb_m = joblib.load(os.path.join(MODEL_DIR, "mm_gb.pkl"))
@@ -148,26 +172,52 @@ def predict_all_carriers(distance_km, weight_kg, transit_days, goods_type, trans
     base_kg_rate = 2.0 if t_class==0 else (1.5 if t_class==1 else 20.0)
     
     for c_id in carrier_names:
-        fluct = random.uniform(0.9, 1.1)
+        # Create a deterministic random generator for this carrier-route combo
+        seed_val = abs(hash(c_id + str(distance_km) + str(weight_kg))) % (2**32)
+        rng = random.Random(seed_val)
+        
+        fluct = rng.uniform(0.85, 1.25)
         est_cost = weight_kg * (base_kg_rate * fluct)
+        
+        # Carrier-specific intrinsic health and transit variations
+        c_health_modifier = rng.uniform(0.9, 1.15)
+        c_health = carrier_health_index * c_health_modifier
+        
+        c_transit = max(1.0, float(transit_days) * rng.uniform(0.8, 1.3))
+        c_speed = distance_km / c_transit
         
         vec = pd.DataFrame([{
             "distance_km": distance_km,
             "weight_kg": weight_kg,
-            "freight_cost_inr": est_cost,
-            "transit_days_promised": transit_days,
+            "freight_cost_inr": est_cost * fuel_cost_index,
+            "transit_days_promised": c_transit,
             "mode": mode_int,
             "goods_type": g_type,
             "transport_class": t_class,
-            "speed_factor": speed,
+            "speed_factor": c_speed,
             "cost_tier": c_tier,
-            "is_monsoon": mon
+            "is_monsoon": mon,
+            "weather_risk_index": weather_risk_index,
+            "event_disruption_index": event_disruption_index,
+            "carrier_health_index": c_health,
+            "fuel_cost_index": fuel_cost_index
         }])
         
         vec_s = scaler.transform(vec)
-        x_score = min(max(float(xgb_m.predict(vec_s)[0]), 0.1), 0.99)
-        g_score = min(max(float(gb_m.predict(vec_s)[0]), 0.1), 0.99)
-        l_score = min(max(float(lr_m.predict(vec_s)[0]), 0.1), 0.99)
+        x_score = float(xgb_m.predict(vec_s)[0])
+        g_score = float(gb_m.predict(vec_s)[0])
+        l_score = float(lr_m.predict(vec_s)[0])
+        
+        # Magnify effect of news manually on the final score as well, to ensure stark differences
+        penalty = 0.0
+        if weather_risk_index > 1.0: penalty += (weather_risk_index - 1.0) * 2.0  # Magnify by 2x
+        if event_disruption_index > 1.0: penalty += (event_disruption_index - 1.0) * 1.5
+        if c_health > 1.0: penalty += (c_health - 1.0) * 1.0
+        
+        intrinsic_noise = rng.uniform(-0.03, 0.03)
+        x_score = min(max(x_score - penalty + intrinsic_noise, 0.1), 0.99)
+        g_score = min(max(g_score - penalty + intrinsic_noise, 0.1), 0.99)
+        l_score = min(max(l_score - penalty + intrinsic_noise, 0.1), 0.99)
         
         # Blended
         pri = priority_profile.lower()
@@ -194,7 +244,12 @@ def predict_all_carriers(distance_km, weight_kg, transit_days, goods_type, trans
         else:
             why.append("Door-to-door delivery, no transhipment risk.")
             
-        if x_score > 0.8: why.append("XGBoost strongly signals on-time history.")
+        if penalty > 0.05:
+            why.append("Risk penalty applied due to live market disruptions.")
+            if weather_risk_index > 1.02: why.append("Warning: Live weather risks impact this route.")
+            if event_disruption_index > 1.02: why.append("Warning: Local festivals/events may delay transit.")
+        elif x_score > 0.8:
+            why.append("XGBoost strongly signals on-time history.")
         
         results.append({
             "carrier_id": c_id,

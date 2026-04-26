@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+_client = OpenAI(api_key=OPENAI_API_KEY, max_retries=0) if OPENAI_API_KEY else None
 
 # ── Cache for analysis results (avoid repeated API calls) ─────
 _analysis_cache: dict = {}
@@ -155,16 +155,14 @@ def run_analysis(
 
         raw = json.loads(response.choices[0].message.content)
         result = {
-            "market_summary": str(raw.get("market_summary", "")),
-            "recommendation_headline": str(raw.get("recommendation_headline", "")),
-            "carrier_analysis": str(raw.get("carrier_analysis", "")),
-            "risk_advisory": str(raw.get("risk_advisory", "")),
-            "cost_insight": str(raw.get("cost_insight", "")),
-            "action_items": raw.get("action_items", []),
-            "confidence_level": str(raw.get("confidence_level", "MEDIUM")).upper(),
+            "final_summary": str(raw.get("final_summary", "Recommended option selected.")),
+            "best_option_explanation": str(raw.get("best_option_explanation", "")),
+            "tradeoff_analysis": str(raw.get("tradeoff_analysis", "")),
+            "alternatives": str(raw.get("alternatives", "")),
             "model_used": OPENAI_MODEL,
             "from_cache": False,
             "agent": "openai",
+            "is_demo": False,
         }
         _set_cache(cache_k, result)
         log.info("OpenAI analysis complete ✓")
@@ -204,5 +202,6 @@ def _demo_analysis(shipment: dict, market: dict, carriers: list, best: dict) -> 
         "best_option_explanation": f"It perfectly balances your priority profile with an expected cost of ₹{best.get('cost', {}).get('estimated_total_cost_inr', 0)} and strong reliability.",
         "tradeoff_analysis": "You are trading a slightly higher cost for guaranteed capacity in a tight market.",
         "alternatives": "A lower cost alternative exists, but it carries a higher risk of delay due to current weather patterns.",
-        "from_fallback": True
+        "from_fallback": True,
+        "is_demo": True
     }

@@ -95,9 +95,19 @@ def optimize_allocation(scoring_output: Dict[str, Any],
     total_cost = 0.0
     avg_reliability = 0.0
 
+    status_str = pulp.LpStatus[prob.status]
+    is_optimal = status_str == 'Optimal'
+    
+    if not is_optimal:
+        best_idx = df['reliability'].idxmax()
+        best_cid = df.loc[best_idx, 'carrier_id']
+
     for _, row in df.iterrows():
         cid = row["carrier_id"]
-        share = x[cid].value() or 0.0
+        if is_optimal:
+            share = x[cid].value() or 0.0
+        else:
+            share = 1.0 if cid == best_cid else 0.0
         weight_alloc = share * total_weight_kg
         rate = float(row["eff_rate_inr_kg"])
         reliability = float(row["reliability"])
