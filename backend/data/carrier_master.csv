@@ -1,9 +1,0 @@
-carrier_id,name,gstin,contact_person,email,phone,fleet_size,owned_vehicles,attached_vehicles,iso_certified,annual_turnover_cr,years_in_business,hq_city,hq_state
-C001,BlueDart Logistics Pvt Ltd,27AABCB1234A1Z5,Raj Sharma,raj.sharma@bluedart.com,+91-9820011234,205,120,85,1,850,22,Mumbai,Maharashtra
-C002,GATI Express Pvt Ltd,36AABCG5678B1Z3,Suresh Reddy,suresh.reddy@gati.com,+91-9848022345,155,95,60,1,420,25,Hyderabad,Telangana
-C003,Delhivery Ltd,07AABCD9876C1Z1,Amit Agarwal,amit.agarwal@delhivery.com,+91-9910033456,350,200,150,1,1950,13,Gurugram,Haryana
-C004,VRL Logistics Ltd,29AABCV4321D1Z8,Vijay Sankeshwar,vijay.s@vrlgroup.in,+91-9900044567,470,350,120,1,2800,41,Hubballi,Karnataka
-C005,TCI Freight Ltd,36AABCT2345E1Z6,Pradeep Singh,pradeep.singh@tcil.com,+91-9810055678,380,180,200,1,3100,66,Gurugram,Haryana
-C006,Safexpress Pvt Ltd,07AABCS6789F1Z4,Rubal Jain,rubal.jain@safexpress.com,+91-9871066789,180,100,80,1,680,24,Gurugram,Haryana
-C007,Ekart Logistics Pvt Ltd,29AABCE3456G1Z2,Neeraj Bhatia,neeraj.bhatia@ekartlogistics.com,+91-9900077890,550,250,300,1,4200,9,Bengaluru,Karnataka
-C008,XpressBees Logistics Pvt Ltd,27AABCX7890H1Z9,Amitava Saha,amitava.saha@xpressbees.com,+91-9850088901,200,80,120,1,1100,9,Pune,Maharashtra

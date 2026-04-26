@@ -11,8 +11,6 @@ FreightIQ replaces manual spreadsheet‑based freight procurement with an orches
 
 > High‑level architecture:
 
-![Advanced Procurement Optimization Architecture](docs/architecture.png)
-
 **Key capabilities:**
 
 - Data‑driven scoring of carriers on cost, reliability, and risk.
@@ -26,7 +24,6 @@ FreightIQ replaces manual spreadsheet‑based freight procurement with an orches
 
 The user interacts with FreightIQ via a browser‑based dashboard.
 
-![End‑to‑End User Flow](docs/userflow.png)
 1. **Dashboard**
    - Open the procurement dashboard and select “New Shipment”.
 

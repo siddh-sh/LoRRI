@@ -1,314 +1,162 @@
-
-
-
-"""
-FreightIQ — Flask Backend
-Wires: scoring.py → optimize.py → market_intel_agent.py
-
-Endpoints
-─────────
-GET  /api/lanes                  → lane catalog (origin, destination, distance, transit)
-POST /api/shipment/analyze       → full pipeline: score + optimize + market intel
-GET  /api/market/intelligence    → market factors only (Gemini or demo)
-GET  /api/health                 → health check
-
-Run:
-    pip install flask flask-cors pulp google-genai pandas scikit-learn xgboost
-    DEMO_MODE=true python app.py
-    # or for live Gemini:
-    GEMINI_API_KEY=your_key DEMO_MODE=false python app.py
-"""
-
 import os
-import sys
-import traceback
-import datetime
-from pathlib import Path
-
+from flask import Flask, jsonify, request, render_template
+from flask_cors import CORS
 from dotenv import load_dotenv
 
-# Load .env from project root
-load_dotenv(Path(__file__).resolve().parent / ".env")
+import backend.transport_network as tn
+import backend.ml_engine as ml
+import backend.market_intel_agent as mkt
+import backend.optimize as opt
+import backend.openai_analysis_agent as ai
+import backend.news as news_api
+load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, 
+            template_folder=os.path.join(BASE_DIR, 'frontend', 'templates'), 
+            static_folder=os.path.join(BASE_DIR, 'frontend', 'static'))
+CORS(app)
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-
-from backend.scoring import get_lane_catalog, run_scoring
-from backend.ml_engine import predict_all_carriers, train_model  # trains 3-model ensemble on startup
-from backend.optimize import optimize_allocation
-from backend.market_intel_agent import get_market_intelligence_snapshot
-from backend.openai_analysis_agent import run_analysis as run_openai_analysis
-from backend.maps_service import get_directions, get_directions_latlng
-from backend.transportation import generate_transport_options, validate_mode, VALID_MODES
-
-# ── App setup ─────────────────────────────────────────────────────────────────
-from flask import Flask, render_template
-
-app = Flask(__name__,
-            template_folder="frontend/templates",
-            static_folder="frontend/static")
-CORS(app, resources={r"/api/*": {"origins": "*"}})
-@app.route("/")
+@app.route('/')
 def home():
-    return render_template("index.html")
-
-# ── Train models on startup ────────────────────────────────────────────────────
-print("=" * 56)
-print(">>  FreightIQ backend starting ...")
-print("=" * 56)
-try:
-    metrics = train_model()
-    print(f"   [OK]  XGBoost            : {metrics['xgb_accuracy']:.2%}")
-    print(f"   [OK]  Gradient Boosting  : {metrics['gb_accuracy']:.2%}")
-    print(f"   [OK]  Logistic Regression: {metrics['lr_accuracy']:.2%}")
-except Exception as exc:
-    print(f"   [!!]  Model training failed: {exc}")
-    print("         Continuing -- models will train on first request.")
-print("=" * 56)
+    return render_template('index.html')
 
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
-def success(data):
-    return jsonify({"success": True, "data": data})
-
-
-def failure(msg, code=400):
-    return jsonify({"success": False, "error": str(msg)}), code
-
-
-def safe_int(v, default=0):
-    try:
-        return int(v)
-    except (TypeError, ValueError):
-        return default
-
-
-def safe_float(v, default=0.0):
-    try:
-        return float(v)
-    except (TypeError, ValueError):
-        return default
-
-
-# ── Health ─────────────────────────────────────────────────────────────────────
-@app.get("/api/health")
+@app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({
-        "success": True,
-        "status": "ok",
-        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "demo_mode": os.getenv("DEMO_MODE", "true").lower() == "true",
-        "google_maps_key": os.getenv("GOOGLE_MAPS_API_KEY", ""),
+        "status": "online",
+        "demo_mode": os.getenv("DEMO_MODE", "false").lower() == "true",
+        "google_maps_key": os.getenv("GOOGLE_MAPS_API_KEY", "")
     })
 
-
-# ── Lanes ──────────────────────────────────────────────────────────────────────
-@app.get("/api/lanes")
-def lanes():
-    """Return lane catalog used to populate origin/destination dropdowns."""
-    try:
-        catalog = get_lane_catalog()
-        return jsonify({"success": True, "lanes": catalog})
-    except Exception as exc:
-        return failure(traceback.format_exc())
-
-
-# ── Google Maps Directions ─────────────────────────────────────────────────────
-@app.post("/api/maps/directions")
-def maps_directions():
-    """Get real driving distance and transit time between two points."""
-    try:
-        body = request.get_json(force=True) or {}
-        # Support both city names and exact lat/lng
-        if body.get("origin_lat") and body.get("dest_lat"):
-            result = get_directions_latlng(
-                origin_lat=float(body["origin_lat"]),
-                origin_lng=float(body["origin_lng"]),
-                dest_lat=float(body["dest_lat"]),
-                dest_lng=float(body["dest_lng"]),
-                origin_label=body.get("origin", ""),
-                dest_label=body.get("destination", ""),
-            )
-        else:
-            origin = body.get("origin", "").strip()
-            destination = body.get("destination", "").strip()
-            if not origin or not destination:
-                return failure("origin and destination are required", 422)
-            result = get_directions(origin, destination)
-        return jsonify({"success": True, "directions": result})
-    except Exception as exc:
-        return failure(str(exc))
-
-
-# ── Market intelligence only ───────────────────────────────────────────────────
-@app.get("/api/market/intelligence")
-def market_intelligence():
-    try:
-        bust = request.args.get("bust", "0") == "1"
-        origin = request.args.get("origin", "Delhi")
-        destination = request.args.get("destination", "Mumbai")
-        data = get_market_intelligence_snapshot(bust_cache=bust, origin=origin, destination=destination)
-        return jsonify({"success": True, "data": data})
-    except Exception as exc:
-        return failure(str(exc))
-
-
-# ── Full shipment analysis (scoring + optimization + market intel) ─────────────
-@app.post("/api/shipment/analyze")
-def analyze():
-    """
-    POST body (JSON):
-        lane_id             str   required  e.g. "L001"
-        goods_type          str   optional  default "General Cargo"
-        mode                str   optional  "FTL" | "LTL"
-        priority_profile    str   optional  "balanced"|"cost"|"reliability"|"risk"|"pharma"|"sales"
-        weight_kg           float required
-        shipment_value_inr  float optional  default 100000
-        min_reliability     float optional  default 0.9
-        is_monsoon          int   optional  0|1  (auto-detected if omitted)
-        is_festival         int   optional  0|1  (auto-detected if omitted)
-    """
-    try:
-        body = request.get_json(force=True) or {}
-
-        lane_id    = body.get("lane_id", "").strip()
-        weight_kg  = safe_float(body.get("weight_kg"), 0)
-
-        if not lane_id:
-            return failure("lane_id is required", 422)
-        if weight_kg <= 0:
-            return failure("weight_kg must be positive", 422)
-
-        goods_type          = str(body.get("goods_type",  "General Cargo"))
-        mode                = str(body.get("mode",        "FTL"))
-        priority_profile    = str(body.get("priority_profile", "balanced"))
-        shipment_value_inr  = safe_float(body.get("shipment_value_inr"), 100000)
-        min_reliability     = safe_float(body.get("min_reliability"),    0.9)
-
-        # ── Transport mode (new) ───────────────────────────────────────────
-        transport_mode_raw  = str(body.get("transport_mode", "roadways")).strip().lower()
-        try:
-            transport_mode = validate_mode(transport_mode_raw)
-        except ValueError as ve:
-            return failure(str(ve), 422)
-
-        month = datetime.datetime.now().month
-        is_monsoon  = safe_int(body.get("is_monsoon"),  1 if month in (6,7,8,9) else 0)
-        is_festival = safe_int(body.get("is_festival"), 0)
-
-        # Extract origin/destination for route-aware market intel
-        origin_city = str(body.get("origin", "Delhi"))
-        dest_city   = str(body.get("destination", "Mumbai"))
-
-        # 1. Market intelligence (route-aware: state-specific festivals & weather)
-        market = get_market_intelligence_snapshot(origin=origin_city, destination=dest_city)
-
-        # 2. Carrier scoring
-        scoring_result = run_scoring(
-            lane_id            = lane_id,
-            weight_kg          = weight_kg,
-            goods_type         = goods_type,
-            mode               = mode,
-            priority_profile   = priority_profile,
-            shipment_value_inr = shipment_value_inr,
-            is_monsoon         = is_monsoon,
-            is_festival        = is_festival,
-        )
-
-        # Inject market multiplier into each carrier cost
-        composite_mult = float(market.get("composite_multiplier", 1.0))
-        for carrier in scoring_result.get("carriers", []):
-            cost = carrier.get("cost", {})
-            base_rate = float(cost.get("eff_rate_inr_kg", cost.get("base_rate", 4.0)))
-            adjusted  = round(base_rate * composite_mult, 4)
-            cost["adjusted_eff_rate_inr_kg"]  = adjusted
-            cost["market_multiplier"]         = composite_mult
-            cost["estimated_total_cost_inr"]  = round(adjusted * weight_kg, 2)
-            cost["weight_kg"]                 = weight_kg
-            carrier["cost"] = cost
-
-        # 3. LP optimisation
-        try:
-            optimization = optimize_allocation(
-                scoring_output  = scoring_result,
-                total_weight_kg = weight_kg,
-                min_reliability = min_reliability,
-            )
-        except Exception as opt_exc:
-            optimization = {"status": "error", "error": str(opt_exc)}
-
-        carriers = scoring_result.get("carriers", [])
-        best     = carriers[0] if carriers else None
-
-        # 4. Transportation options (new — only for non-roadways)
-        transportation_options = None
-        if transport_mode != "roadways":
-            origin_city = scoring_result.get("origin", body.get("origin", ""))
-            dest_city   = scoring_result.get("destination", body.get("destination", ""))
-            distance    = scoring_result.get("distance_km", safe_float(body.get("distance_km"), 1000))
-            transportation_options = generate_transport_options(
-                origin         = origin_city,
-                destination    = dest_city,
-                distance_km    = distance,
-                weight_kg      = weight_kg,
-                goods_type     = goods_type,
-                transport_mode = transport_mode,
-                is_monsoon     = is_monsoon,
-                is_festival    = is_festival,
-            )
-
-        # 5. OpenAI Analysis — summarise & recommend
-        shipment_info = {
-            "lane_id":            lane_id,
-            "origin":             scoring_result.get("origin"),
-            "destination":        scoring_result.get("destination"),
-            "distance_km":        scoring_result.get("distance_km"),
-            "transit_days":       scoring_result.get("transit_days"),
-            "goods_type":         goods_type,
-            "mode":               mode,
-            "transport_mode":     transport_mode,
-            "priority_profile":   priority_profile,
-            "weight_kg":          weight_kg,
-            "shipment_value_inr": shipment_value_inr,
-            "is_monsoon":         is_monsoon,
-            "is_festival":        is_festival,
-        }
-        try:
-            ai_analysis = run_openai_analysis(
-                shipment=shipment_info,
-                market=market,
-                carriers=carriers,
-                best=best,
-                optimization=optimization,
-            )
-        except Exception as ai_exc:
-            ai_analysis = {"error": str(ai_exc), "agent": "error"}
-
-        return jsonify({
-            "success": True,
-            "shipment":             shipment_info,
-            "market_intelligence":  market,
-            "carrier_scoring":      scoring_result,
-            "best_recommendation":  best,
-            "optimization":         optimization,
-            "transportation_options": transportation_options,
-            "ai_analysis":          ai_analysis,
+@app.route('/api/cities', methods=['GET'])
+def get_cities():
+    cities = []
+    for city, coords in tn.CITY_COORDS.items():
+        cities.append({
+            "name": city,
+            "has_railway": city in tn.CITY_RAIL_CODE,
+            "has_airport": city in tn.CITY_IATA,
+            "coords": {"lat": coords[0], "lng": coords[1]}
         })
+    return jsonify({"success": True, "cities": cities})
 
-    except ValueError as ve:
-        return failure(str(ve), 422)
-    except Exception:
-        return failure(traceback.format_exc(), 500)
-
-
-if __name__ == "__main__":
-    port  = int(os.getenv("PORT", 5000))
-    debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
-    print(f"\n[*]  http://0.0.0.0:{port}")
-    print(f"     DEMO_MODE   = {os.getenv('DEMO_MODE','true')}")
-    print(f"     GEMINI_KEY  = {'set' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}")
-    print(f"     OPENAI_KEY  = {'set' if os.getenv('OPENAI_API_KEY') else 'NOT SET'}\n")
-    app.run(host="0.0.0.0", port=port, debug=debug)
+@app.route('/api/route', methods=['POST'])
+def fetch_route():
+    data = request.json
+    origin = data.get("origin")
+    dest = data.get("destination")
+    mode = data.get("mode", "roadways")
     
+    route = tn.get_route(origin, dest, mode)
+    if not route:
+        return jsonify({"success": False, "error": "Route could not be calculated"}), 400
+        
+    return jsonify({"success": True, "route": route})
+
+@app.route('/api/shipment/analyze', methods=['POST'])
+def analyze_shipment():
+    data = request.json
+    origin = data.get("origin")
+    dest = data.get("destination")
+    weight_kg = float(data.get("weight_kg", 0))
+    transport_mode = data.get("transport_mode", "roadways")
+    route_mode = transport_mode
+    
+    if transport_mode == "roadways":
+        road_freight_mode = data.get("road_freight_mode", "FTL").upper()
+        if weight_kg > 3000:
+            road_freight_mode = "FTL"
+        ml_transport_mode = road_freight_mode
+    else:
+        ml_transport_mode = transport_mode
+        
+    priority_profile = data.get("priority_profile", "balanced")
+    goods_type = data.get("goods_type", "FMCG")
+    shipment_value = float(data.get("shipment_value_inr", 0))
+    min_reliability = float(data.get("min_reliability", 0.8))
+    
+    # 1. Route Calculation
+    route = tn.get_route(origin, dest, route_mode)
+    if not route:
+        return jsonify({"success": False, "error": f"Invalid route pair {origin} -> {dest}"}), 400
+        
+    distance_km = route["distance_km"]
+    transit_days = route["transit_days"]
+    
+    # 2. Market Intelligence
+    market_snapshot = mkt.get_market_intelligence_snapshot()
+    # In live scenario, extract route-specific from global snapshot
+    
+    is_monsoon = False  # Derived ideally from market_snapshot
+    mult = market_snapshot.get("composite_multiplier", 1.0)
+    
+    # 3. Carrier Scoring
+    carriers = ml.predict_all_carriers(
+        distance_km=distance_km,
+        weight_kg=weight_kg,
+        transit_days=transit_days,
+        goods_type=goods_type,
+        transport_mode=ml_transport_mode,
+        priority_profile=priority_profile,
+        is_monsoon=is_monsoon,
+        shipment_value=shipment_value
+    )
+    
+    # 4. Inject Market Multiplier
+    # Costs are usually adjusted upward when market is constrained
+    for c in carriers:
+        base_est = c["cost"]["estimated_total_cost_inr"]
+        c["cost"]["market_adjusted_cost"] = round(base_est * mult, 2)
+        c["cost"]["adjusted_eff_rate"] = round((base_est * mult) / weight_kg, 2)
+    
+    best_carrier = carriers[0] if carriers else None
+    
+    # 5. LP Optimization
+    scoring_output = {
+        "lane_id": f"{origin}|{dest}",
+        "carriers": carriers
+    }
+    optimization = opt.optimize_allocation(scoring_output, weight_kg, min_reliability)
+
+    
+    # 6. AI Agent Analysis
+    ai_analysis = ai.run_analysis(
+        shipment={"lane_id": f"{origin}|{dest}", "distance_km": distance_km, "transit_days": transit_days, "weight_kg": weight_kg, "goods_type": goods_type, "priority_profile": priority_profile},
+        market=market_snapshot,
+        carriers=carriers,
+        best=best_carrier,
+        optimization=optimization
+    )
+    
+    return jsonify({
+        "success": True,
+        "shipment": {
+            "origin": origin,
+            "destination": dest,
+            "transport_mode": transport_mode,
+            "weight_kg": weight_kg,
+            "distance_km": distance_km,
+            "transit_days_est": transit_days,
+            "path_nodes": route["path_nodes"],
+            "via_hubs": route["via_hubs"]
+        },
+        "market_intelligence": market_snapshot,
+        "carrier_scoring": {"carriers": carriers},
+        "best_recommendation": best_carrier,
+        "optimization": optimization,
+        "ai_analysis": ai_analysis
+    })
+
+@app.route('/api/market/intelligence', methods=['GET'])
+def get_market_intelligence():
+    intel = mkt.get_market_intelligence_snapshot()
+    return jsonify({"success": True, "data": intel})
+
+@app.route('/api/news', methods=['GET'])
+def get_logistics_news():
+    news_items = news_api.fetch_logistics_news(limit=5)
+    return jsonify({"success": True, "news": news_items})
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

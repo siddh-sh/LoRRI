@@ -53,20 +53,24 @@ def _set_cache(key: str, data: dict):
     _analysis_cache[key] = {"ts": time.time(), "data": data}
 
 
-ANALYSIS_PROMPT = """You are an expert freight logistics analyst for Indian road freight.
-You have been given LIVE market intelligence data (scraped in real-time by our Gemini agent)
-and carrier scoring results from our ML pipeline.
+ANALYSIS_PROMPT = """You are an expert freight logistics analyst.
+You have been given LIVE market intelligence data and carrier scoring results from our ML pipeline.
 
 Your job is to produce a clear, professional analysis that helps a logistics manager
-understand the current market and make the best carrier decision.
+understand the current market and make the best carrier decision. You must explicitly answer:
+1. Which option is best?
+2. Why is it best for this shipment?
+3. What tradeoff is being made (e.g. cost vs reliability vs urgency)?
+4. Are there any viable alternatives (e.g. faster or cheaper)?
+5. How does this align with the user's selected priority profile?
 
 ## SHIPMENT DETAILS
 {shipment_json}
 
-## LIVE MARKET INTELLIGENCE (Gemini Agent)
+## LIVE MARKET INTELLIGENCE
 {market_json}
 
-## CARRIER RANKINGS (ML Pipeline)
+## CARRIER RANKINGS
 {carriers_json}
 
 ## BEST RECOMMENDATION
@@ -79,23 +83,15 @@ understand the current market and make the best carrier decision.
 
 Produce a JSON response with this exact structure:
 {{
-  "market_summary": "2-3 sentence summary of current market conditions — fuel, tolls, festivals, weather, carrier health. Reference actual numbers from the data.",
-  "recommendation_headline": "One bold sentence: who to ship with and why.",
-  "carrier_analysis": "3-4 sentences comparing the top 3 carriers: trade-offs between cost, on-time reliability, and risk. Use specific numbers.",
-  "risk_advisory": "1-2 sentences about key risks the user should watch for (weather, festivals, capacity).",
-  "cost_insight": "1-2 sentences about the market multiplier impact on cost and whether now is a good time to ship.",
-  "action_items": [
-    "Specific action 1 the user should take",
-    "Specific action 2",
-    "Specific action 3"
-  ],
-  "confidence_level": "HIGH or MEDIUM or LOW — your confidence in this recommendation"
+  "final_summary": "1-2 clear sentences stating which option is best and a brief explanation of the market conditions affecting it.",
+  "best_option_explanation": "2-3 sentences explaining exactly why this carrier/mode was chosen based on the user's priority profile and specific shipment parameters.",
+  "tradeoff_analysis": "1-2 sentences explaining what trade-offs are being made (e.g., 'By choosing X for reliability, you are paying a 5% premium over Y').",
+  "alternatives": "1-2 sentences highlighting a faster or cheaper alternative if one exists."
 }}
 
 IMPORTANT:
 - Use REAL data from the inputs — do not fabricate numbers.
-- Be specific: mention carrier names, actual costs, actual percentages.
-- Keep language professional but accessible.
+- Be specific: mention carrier names, actual costs, and percentages.
 - Return ONLY valid JSON, no markdown, no commentary outside JSON.
 """
 
@@ -204,38 +200,9 @@ def _demo_analysis(shipment: dict, market: dict, carriers: list, best: dict) -> 
         top3.append(c.get("carrier_id", "Unknown"))
 
     return {
-        "market_summary": (
-            f"The current Indian freight market shows a composite multiplier of "
-            f"×{composite:.3f} ({above_pct} above base). Fuel prices remain a key "
-            f"upward driver, while NHAI toll revisions continue the annual adjustment cycle. "
-            f"No major weather disruptions are affecting corridors."
-        ),
-        "recommendation_headline": (
-            f"Ship with {best_name} — best overall score balancing cost, "
-            f"reliability, and risk for your shipment profile."
-        ),
-        "carrier_analysis": (
-            f"Among the top carriers ({', '.join(top3) if top3 else 'N/A'}), "
-            f"{best_name} leads in composite scoring. Cost differences between "
-            f"top carriers are marginal, but on-time performance and risk profiles "
-            f"show meaningful variation. Review detailed ML scores for nuances."
-        ),
-        "risk_advisory": (
-            "Monitor festival-related demand surges that may tighten capacity. "
-            "Check weather forecasts for monsoon-affected corridors closer to shipment date."
-        ),
-        "cost_insight": (
-            f"The market multiplier of ×{composite:.3f} indicates rates are "
-            f"{'elevated' if composite > 1.05 else 'near baseline'}. "
-            f"{'Consider booking soon before seasonal demand increases.' if composite > 1.03 else 'Current rates are stable — no urgency to pre-book.'}"
-        ),
-        "action_items": [
-            f"Confirm booking with {best_name} for best available rate",
-            "Request insurance coverage for high-value cargo if applicable",
-            "Track shipment in real-time once dispatched for proactive issue resolution",
-        ],
-        "confidence_level": "MEDIUM",
-        "model_used": "demo-fallback",
-        "from_cache": False,
-        "agent": "demo",
+        "final_summary": f"Based on current market conditions, {best_name} is the best option for this {shipment.get('priority_profile', 'balanced')} shipment.",
+        "best_option_explanation": f"It perfectly balances your priority profile with an expected cost of ₹{best.get('cost', {}).get('estimated_total_cost_inr', 0)} and strong reliability.",
+        "tradeoff_analysis": "You are trading a slightly higher cost for guaranteed capacity in a tight market.",
+        "alternatives": "A lower cost alternative exists, but it carries a higher risk of delay due to current weather patterns.",
+        "from_fallback": True
     }
