@@ -17,10 +17,7 @@ from google import genai
 from google.genai import types
 import requests
 
-try:
-    from backend.ml_engine import _get_dynamic_festivals
-except ImportError:
-    def _get_dynamic_festivals(): return ["Upcoming Events"]
+# No hardcoded imports needed — all data is scraped live
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,7 +27,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "true"
+# DEMO_MODE removed — always use live data
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL", "300"))
 MODEL = "gemini-2.0-flash"
 
@@ -219,7 +216,8 @@ def _call_gemini_agent(bust_cache: bool = False, origin: str = "Delhi", destinat
             return cached
 
     if not client:
-        raise RuntimeError("GEMINI_API_KEY not set and DEMO_MODE is false")
+        log.info("No Gemini key — falling back to live scraper")
+        return _scrape_live_intelligence(origin, destination)
 
     date_str = ist_now()
     prompt = INTELLIGENCE_PROMPT.format(
@@ -255,98 +253,132 @@ def _call_gemini_agent(bust_cache: bool = False, origin: str = "Delhi", destinat
         data = recompute_composite(data)
         cache_set(cache_key, data)
         return data
-    except Exception:
-        return _demo_data(origin, destination)
+    except Exception as exc:
+        log.warning("Gemini call failed (%s), falling back to live scraper", exc)
+        return _scrape_live_intelligence(origin, destination)
 
 
-def _demo_data(origin: str = "Delhi", destination: str = "Mumbai") -> dict:
-    """Live scraper fallback when Gemini API is unavailable (avoids hardcoded data)."""
+def fetch_live_news(query: str, default_text: str) -> str:
+    """Fetch live news snippet using Google News RSS."""
+    try:
+        import urllib.parse
+        import xml.etree.ElementTree as ET
+        safe_query = urllib.parse.quote(query)
+        url = f"https://news.google.com/rss/search?q={safe_query}&hl=en-IN&gl=IN&ceid=IN:en"
+        r = requests.get(url, headers={'User-agent': 'Mozilla/5.0'}, timeout=5)
+        if r.status_code == 200:
+            root = ET.fromstring(r.content)
+            items = root.findall(".//item")
+            for item in items:
+                title = item.findtext("title", "")
+                if title:
+                    return title.rsplit(" - ", 1)[0]
+    except Exception as e:
+        log.warning("Live news fetch failed for %s: %s", query, e)
+    return default_text
+
+def fetch_live_city_event(city: str) -> str:
+    return fetch_live_news(f"{city} festival OR event", f"Standard local conditions in {city}")
+
+
+def _scrape_live_intelligence(origin: str = "Delhi", destination: str = "Mumbai") -> dict:
+    """Scrape REAL live market intelligence from the internet for the given route."""
     date_str = ist_now()
-    
-    # 1. Fetch live crude oil prices (Yahoo Finance)
-    oil_price, oil_trend = "85.00", "STABLE"
-    try:
-        r = requests.get('https://query1.finance.yahoo.com/v8/finance/chart/BZ=F', headers={'User-agent': 'Mozilla/5.0'}, timeout=5)
-        if r.status_code == 200:
-            price = r.json()['chart']['result'][0]['meta']['regularMarketPrice']
-            oil_price = f"${price:.2f}/bbl"
-            oil_trend = "UP" if price > 80 else "DOWN"
-    except Exception as e:
-        log.warning("Live oil price fetch failed: %s", e)
-        
-    # 2. Fetch live weather warnings (wttr.in)
-    weather_desc, weather_trend = "Clear", "STABLE"
-    try:
-        r = requests.get(f'https://wttr.in/{destination.split(",")[0].strip()}?format=j1', headers={'User-agent': 'Mozilla/5.0'}, timeout=5)
-        if r.status_code == 200:
-            weather_desc = r.json()['current_condition'][0]['weatherDesc'][0]['value']
-            temp = int(r.json()['current_condition'][0]['temp_C'])
-            if "Rain" in weather_desc or "Storm" in weather_desc:
-                weather_trend = "UP"
-            weather_desc = f"{temp}°C, {weather_desc}"
-    except Exception as e:
-        log.warning("Live weather fetch failed: %s", e)
-        
-    # 3. Dynamic festival check
-    festivals = _get_dynamic_festivals()
-    festival_text = f"Upcoming: {', '.join(festivals[:2])}" if festivals else "No major events in next 10 days"
+    origin_state = CITY_STATE_MAP.get(origin, "India")
+    dest_state = CITY_STATE_MAP.get(destination, "India")
+
+    # 1. Live fuel / crude oil news
+    fuel_news = fetch_live_news(
+        f"India diesel petrol price today {origin}",
+        "Fuel prices steady across major Indian metros.")
+    fuel_headline = fetch_live_news(
+        "Brent crude oil price today",
+        "Global crude markets stable.")
+    fuel_detail = f"{fuel_news}. Global: {fuel_headline}"
+    fuel_dir = "UP" if any(w in fuel_detail.lower() for w in ["hike", "rise", "surge", "increase"]) else "STABLE"
+    fuel_mult = 1.03 if fuel_dir == "UP" else 1.00
+
+    # 2. Live toll / highway news
+    toll_news = fetch_live_news(
+        f"NHAI toll revision highway {origin} {destination}",
+        "No major toll revisions reported on this corridor.")
+    toll_dir = "UP" if any(w in toll_news.lower() for w in ["hike", "revision", "increase"]) else "STABLE"
+    toll_mult = 1.02 if toll_dir == "UP" else 1.00
+
+    # 3. Live weather for BOTH origin and destination
+    o_weather = _fetch_weather(origin)
+    d_weather = _fetch_weather(destination)
+    weather_detail = f"{origin}: {o_weather['desc']} | {destination}: {d_weather['desc']}"
+    weather_dir = "UP" if o_weather["risky"] or d_weather["risky"] else "STABLE"
+    weather_mult = 1.04 if weather_dir == "UP" else 1.00
+
+    # 4. Live events / festivals at origin AND destination
+    origin_event = fetch_live_news(
+        f"{origin} {origin_state} festival OR holiday OR event OR strike transport",
+        f"No major disruptions reported in {origin}.")
+    dest_event = fetch_live_news(
+        f"{destination} {dest_state} festival OR holiday OR event OR strike transport",
+        f"No major disruptions reported in {destination}.")
+    event_detail = f"Origin ({origin}): {origin_event} | Dest ({destination}): {dest_event}"
+    event_dir = "UP" if any(w in event_detail.lower() for w in ["strike", "bandh", "festival", "holiday", "blockade"]) else "STABLE"
+    event_mult = 1.05 if event_dir == "UP" else 1.00
+
+    # 5. Live carrier / logistics corridor news
+    carrier_news = fetch_live_news(
+        f"India freight logistics carrier {origin} {destination} road rail air cargo",
+        "Carrier operations normal across major corridors.")
+    carrier_dir = "UP" if any(w in carrier_news.lower() for w in ["delay", "disruption", "strike", "shortage"]) else "STABLE"
+    carrier_mult = 1.02 if carrier_dir == "UP" else 1.00
 
     data = {
         "date": date_str,
         "scraped_at": date_str,
         "origin": origin,
         "destination": destination,
+        "origin_state": origin_state,
+        "destination_state": dest_state,
         "from_cache": False,
-        "demo_mode": True,
-        "model_used": "live-api-fallback",
+        "demo_mode": False,
+        "model_used": "live-scraper",
         "factors": [
-            {
-                "key": "fuel",
-                "icon": "⛽",
-                "label": "Global Crude Index",
-                "sub": "Live from Brent Crude",
-                "multiplier_value": 1.025 if oil_trend == "UP" else 0.99,
-                "detail": f"Current market price: {oil_price}. Indian domestic fuel adjustments may follow.",
-                "direction": oil_trend,
-                "confidence": "HIGH",
-                "style": "pink",
-            },
-            {
-                "key": "tolls",
-                "icon": "🛣️",
-                "label": "NHAI Toll Rates",
-                "sub": "4-5% annual revision",
-                "multiplier_value": 1.015,
-                "detail": "Standard annual highway toll indexing integrated into base carrier costs.",
-                "direction": "UP",
-                "confidence": "HIGH",
-                "style": "yellow",
-            },
-            {
-                "key": "festivals",
-                "icon": "🎉",
-                "label": "Festival Demand",
-                "sub": "Dynamic local events",
-                "multiplier_value": 1.04 if festivals else 1.00,
-                "detail": festival_text,
-                "direction": "UP" if festivals else "STABLE",
-                "confidence": "HIGH",
-                "style": "yellow",
-            },
-            {
-                "key": "weather",
-                "icon": "⛅",
-                "label": "Weather Risk",
-                "sub": f"Live at {destination.split(',')[0]}",
-                "multiplier_value": 1.03 if weather_trend == "UP" else 1.00,
-                "detail": f"Current condition: {weather_desc}.",
-                "direction": weather_trend,
-                "confidence": "HIGH",
-                "style": "teal",
-            },
+            {"key": "fuel", "icon": "⛽", "label": "Fuel Price Index",
+             "sub": fuel_news[:60], "multiplier_value": fuel_mult,
+             "detail": fuel_detail, "direction": fuel_dir,
+             "confidence": "HIGH", "style": "pink"},
+            {"key": "tolls", "icon": "🛣️", "label": "NHAI Toll Rates",
+             "sub": toll_news[:60], "multiplier_value": toll_mult,
+             "detail": toll_news, "direction": toll_dir,
+             "confidence": "HIGH", "style": "yellow"},
+            {"key": "festivals", "icon": "🎉", "label": "Events & Disruptions",
+             "sub": f"Live from {origin} & {destination}",
+             "multiplier_value": event_mult, "detail": event_detail,
+             "direction": event_dir, "confidence": "HIGH", "style": "yellow"},
+            {"key": "weather", "icon": "⛅", "label": "Weather & Route Risk",
+             "sub": f"Live: {origin} & {destination}",
+             "multiplier_value": weather_mult, "detail": weather_detail,
+             "direction": weather_dir, "confidence": "HIGH", "style": "teal"},
+            {"key": "carrier", "icon": "🚚", "label": "Carrier & Corridor Intel",
+             "sub": carrier_news[:60], "multiplier_value": carrier_mult,
+             "detail": carrier_news, "direction": carrier_dir,
+             "confidence": "MEDIUM", "style": "teal"},
         ],
     }
     return recompute_composite(data)
+
+
+def _fetch_weather(city: str) -> dict:
+    """Fetch live weather for a city from wttr.in."""
+    try:
+        r = requests.get(f'https://wttr.in/{city}?format=j1',
+                         headers={'User-agent': 'Mozilla/5.0'}, timeout=5)
+        if r.status_code == 200:
+            cond = r.json()['current_condition'][0]
+            desc = f"{cond['temp_C']}°C, {cond['weatherDesc'][0]['value']}"
+            risky = any(w in desc.lower() for w in ["rain", "storm", "thunder", "flood", "cyclone"])
+            return {"desc": desc, "risky": risky}
+    except Exception as e:
+        log.warning("Weather fetch failed for %s: %s", city, e)
+    return {"desc": "Data unavailable", "risky": False}
 
 
 def get_market_intelligence_snapshot(
@@ -354,8 +386,6 @@ def get_market_intelligence_snapshot(
     origin: str = "Delhi",
     destination: str = "Mumbai",
 ) -> dict:
-    if DEMO_MODE:
-        return _demo_data(origin, destination)
     return _call_gemini_agent(bust_cache=bust_cache, origin=origin, destination=destination)
 
 

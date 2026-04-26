@@ -85,7 +85,7 @@ def analyze_shipment():
     transit_days = route["transit_days"]
     
     # 2. Market Intelligence
-    market_snapshot = mkt.get_market_intelligence_snapshot()
+    market_snapshot = mkt.get_market_intelligence_snapshot(bust_cache=False, origin=origin, destination=dest)
     # In live scenario, extract route-specific from global snapshot
     
     is_monsoon = False  # Derived ideally from market_snapshot
