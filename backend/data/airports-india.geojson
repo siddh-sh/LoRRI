@@ -1,0 +1,3805 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.10309,
+          28.5665
+        ]
+      },
+      "properties": {
+        "name": "Indira Gandhi International Airport",
+        "country": "India",
+        "region": "Delhi",
+        "elevation_m": 236,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301872
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.86792,
+          19.08869
+        ]
+      },
+      "properties": {
+        "name": "Bombay Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": 11,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301032
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.58594,
+          26.10609
+        ]
+      },
+      "properties": {
+        "name": "Lokpriya Gopinath Bordoloi International Airport",
+        "country": "India",
+        "region": "Assam",
+        "elevation_m": 49,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 1271477
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.63465,
+          23.07724
+        ]
+      },
+      "properties": {
+        "name": "Sardar Vallabhbhai Patel International Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": 57,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301029
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.79726,
+          31.70959
+        ]
+      },
+      "properties": {
+        "name": "Sri Guru Ram Dass Jee International Airport",
+        "country": "India",
+        "region": "Punjab",
+        "elevation_m": 230,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301092
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.16578,
+          12.98833
+        ]
+      },
+      "properties": {
+        "name": "Chennai International Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": 15,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301127
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.92011,
+          8.48212
+        ]
+      },
+      "properties": {
+        "name": "Trivandrum International Airport",
+        "country": "India",
+        "region": "Kerala",
+        "elevation_m": 4,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301129
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.70879,
+          13.20071
+        ]
+      },
+      "properties": {
+        "name": "Kempegowda International Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": 915,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7303386
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.2245,
+          17.7212
+        ]
+      },
+      "properties": {
+        "name": "Visakhapatnam Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668597
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5465,
+          34.1359
+        ]
+      },
+      "properties": {
+        "name": "Kushok Bakula Rimpochee Airport",
+        "country": "India",
+        "region": "Ladakh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668606
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.7742,
+          33.9871
+        ]
+      },
+      "properties": {
+        "name": "Srinagar International Airport",
+        "country": "India",
+        "region": "Jammu and Kashmir",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668609
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.9553,
+          11.1368
+        ]
+      },
+      "properties": {
+        "name": "Calicut International Airport",
+        "country": "India",
+        "region": "Kerala",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668634
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.39139,
+          10.15556
+        ]
+      },
+      "properties": {
+        "name": "Cochin International Airport",
+        "country": "India",
+        "region": "Kerala",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7626292
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.18518,
+          21.75221
+        ]
+      },
+      "properties": {
+        "name": "Bhavnagar Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": 13,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301869
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.88934,
+          26.76059
+        ]
+      },
+      "properties": {
+        "name": "Chaudhary Charan Singh Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 124,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301873
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.05863,
+          20.69901
+        ]
+      },
+      "properties": {
+        "name": "Shivani Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": 304,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301030
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.39811,
+          19.86273
+        ]
+      },
+      "properties": {
+        "name": "Aurangabad Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": 582,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301031
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.11098,
+          21.9884
+        ]
+      },
+      "properties": {
+        "name": "Bilaspur Airport",
+        "country": "India",
+        "region": "Chhattisgarh",
+        "elevation_m": 274,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301033
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          69.67015,
+          23.28783
+        ]
+      },
+      "properties": {
+        "name": "Bhuj Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": 81,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301034
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.61829,
+          15.85929
+        ]
+      },
+      "properties": {
+        "name": "Belgaum Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": 758,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301035
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.33737,
+          23.28747
+        ]
+      },
+      "properties": {
+        "name": "Bhopal Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": 523,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301036
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.83142,
+          15.38083
+        ]
+      },
+      "properties": {
+        "name": "Goa International Airport",
+        "country": "India",
+        "region": "Goa",
+        "elevation_m": 56,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301037
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.80109,
+          22.72179
+        ]
+      },
+      "properties": {
+        "name": "Devi Ahilyabai Holkar International Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": 563,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301038
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.05205,
+          23.17782
+        ]
+      },
+      "properties": {
+        "name": "Jabalpur Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": 494,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301039
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.28935,
+          16.66466
+        ]
+      },
+      "properties": {
+        "name": "Kolhapur Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": 608,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301041
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.04718,
+          21.09219
+        ]
+      },
+      "properties": {
+        "name": "Nagpur Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": 314,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301042
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          70.77953,
+          22.30918
+        ]
+      },
+      "properties": {
+        "name": "Rajkot Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": 134,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301043
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.93484,
+          17.62796
+        ]
+      },
+      "properties": {
+        "name": "Sholapur",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": 482,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301044
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.24045,
+          23.88698
+        ]
+      },
+      "properties": {
+        "name": "Agartala Airport",
+        "country": "India",
+        "region": "Tripura",
+        "elevation_m": 14,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301066
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.32857,
+          26.68121
+        ]
+      },
+      "properties": {
+        "name": "Bagdogra Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": 125,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301067
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.81778,
+          20.24436
+        ]
+      },
+      "properties": {
+        "name": "Biju Patnaik International Airport",
+        "country": "India",
+        "region": "Odisha",
+        "elevation_m": 42,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301068
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.44672,
+          22.65474
+        ]
+      },
+      "properties": {
+        "name": "Kolkata Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": 4,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301069
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.44971,
+          26.73971
+        ]
+      },
+      "properties": {
+        "name": "Gorakhpur Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 78,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301071
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          84.95118,
+          24.74431
+        ]
+      },
+      "properties": {
+        "name": "Gaya Airport",
+        "country": "India",
+        "region": "Bihar",
+        "elevation_m": 115,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301072
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.8967,
+          24.75995
+        ]
+      },
+      "properties": {
+        "name": "Imphal International Airport",
+        "country": "India",
+        "region": "Manipur",
+        "elevation_m": 774,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301073
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          84.05038,
+          21.91354
+        ]
+      },
+      "properties": {
+        "name": "Jharsuguda Airport",
+        "country": "India",
+        "region": "Odisha",
+        "elevation_m": 228,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301074
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          86.16884,
+          22.81321
+        ]
+      },
+      "properties": {
+        "name": "Jamshedpur",
+        "country": "India",
+        "region": "Jharkhand",
+        "elevation_m": 153,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301075
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          94.09765,
+          27.29549
+        ]
+      },
+      "properties": {
+        "name": "Lilabari Airport",
+        "country": "India",
+        "region": "Assam",
+        "elevation_m": 100,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301076
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          95.01667,
+          27.48333
+        ]
+      },
+      "properties": {
+        "name": "Dibrugarh Airport",
+        "country": "India",
+        "region": "Assam",
+        "elevation_m": 110,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301077
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.08799,
+          25.59132
+        ]
+      },
+      "properties": {
+        "name": "Lok Nayak Jayaprakash Airport",
+        "country": "India",
+        "region": "Bihar",
+        "elevation_m": 51,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301079
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.32167,
+          23.31425
+        ]
+      },
+      "properties": {
+        "name": "Birsa Munda Airport",
+        "country": "India",
+        "region": "Jharkhand",
+        "elevation_m": 654,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301080
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.96089,
+          27.15583
+        ]
+      },
+      "properties": {
+        "name": "Agra Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 167,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301090
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.73387,
+          25.44006
+        ]
+      },
+      "properties": {
+        "name": "Allahabad Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 98,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301091
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.85934,
+          25.45236
+        ]
+      },
+      "properties": {
+        "name": "Varanasi Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 81,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301093
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.45084,
+          28.42206
+        ]
+      },
+      "properties": {
+        "name": "Bareilly Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 176,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301094
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.41012,
+          26.4043
+        ]
+      },
+      "properties": {
+        "name": "Kanpur Civil Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 123,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301095
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.22775,
+          26.29334
+        ]
+      },
+      "properties": {
+        "name": "Gwalior Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": 188,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301097
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.75534,
+          29.17944
+        ]
+      },
+      "properties": {
+        "name": "Hisar Airport",
+        "country": "India",
+        "region": "Haryana",
+        "elevation_m": 213,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301098
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.04887,
+          26.25109
+        ]
+      },
+      "properties": {
+        "name": "Jodhpur Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": 218,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.81216,
+          26.82419
+        ]
+      },
+      "properties": {
+        "name": "Jaipur International Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": 384,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301101
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.84563,
+          25.16022
+        ]
+      },
+      "properties": {
+        "name": "Kota Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": 273,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301102
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.85493,
+          24.56232
+        ]
+      },
+      "properties": {
+        "name": "Satna Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": 323,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301103
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.89662,
+          24.61784
+        ]
+      },
+      "properties": {
+        "name": "Maharana Pratap international Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": 509,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301104
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.88277,
+          15.16278
+        ]
+      },
+      "properties": {
+        "name": "Bellary Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": 9,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301119
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.79685,
+          16.53043
+        ]
+      },
+      "properties": {
+        "name": "Vijayawada Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": 24,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.04338,
+          11.03003
+        ]
+      },
+      "properties": {
+        "name": "Coimbatore International Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": 403,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301121
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.77283,
+          14.50996
+        ]
+      },
+      "properties": {
+        "name": "Kadapa Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": 131,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301123
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.46759,
+          17.45312
+        ]
+      },
+      "properties": {
+        "name": "Begumpet Airport",
+        "country": "India",
+        "region": "Telangana",
+        "elevation_m": 530,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301124
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.09338,
+          9.83451
+        ]
+      },
+      "properties": {
+        "name": "Madurai Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": 139,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301125
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.89007,
+          12.96127
+        ]
+      },
+      "properties": {
+        "name": "Bajpe Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": 102,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301126
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.70972,
+          10.76536
+        ]
+      },
+      "properties": {
+        "name": "Trichy International Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": 87,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301128
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.79097,
+          14.14864
+        ]
+      },
+      "properties": {
+        "name": "Sri Sathya Sai Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7729986
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.42986,
+          17.23132
+        ]
+      },
+      "properties": {
+        "name": "Rajiv Gandhi International Airport",
+        "country": "India",
+        "region": "Telangana",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7729997
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          86.4253,
+          23.834
+        ]
+      },
+      "properties": {
+        "name": "Dhanbad Airport",
+        "country": "India",
+        "region": "Jharkhand",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730214
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          84.8146,
+          22.2567
+        ]
+      },
+      "properties": {
+        "name": "Rourkela Airport",
+        "country": "India",
+        "region": "Odisha",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730215
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.2072,
+          28.0706
+        ]
+      },
+      "properties": {
+        "name": "Nal Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730216
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          70.865,
+          26.8887
+        ]
+      },
+      "properties": {
+        "name": "Jaisalmer Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730217
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.4737,
+          29.0334
+        ]
+      },
+      "properties": {
+        "name": "Pantnagar Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730218
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.8101,
+          11.9687
+        ]
+      },
+      "properties": {
+        "name": "Pondicherry Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730221
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.62024,
+          23.83788
+        ]
+      },
+      "properties": {
+        "name": "Aizawl Lengpui Airport",
+        "country": "India",
+        "region": "Mizoram",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730812
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.7558,
+          30.2701
+        ]
+      },
+      "properties": {
+        "name": "Bathinda Airport",
+        "country": "India",
+        "region": "Punjab",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730886
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.4672,
+          26.3305
+        ]
+      },
+      "properties": {
+        "name": "Cooch Behar Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730933
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.6039,
+          24.0619
+        ]
+      },
+      "properties": {
+        "name": "Khowai Airport",
+        "country": "India",
+        "region": "Tripura",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731127
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.8142,
+          24.1317
+        ]
+      },
+      "properties": {
+        "name": "Kamalpur Airport",
+        "country": "India",
+        "region": "Tripura",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731128
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          95.3356,
+          28.0661
+        ]
+      },
+      "properties": {
+        "name": "Pasighat Airport",
+        "country": "India",
+        "region": "Arunachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731129
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.127,
+          25.01
+        ]
+      },
+      "properties": {
+        "name": "Malda Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731215
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.6497,
+          12.3072
+        ]
+      },
+      "properties": {
+        "name": "Mysore Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731318
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.52738,
+          11.61296
+        ]
+      },
+      "properties": {
+        "name": "Neyveli Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731354
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.552,
+          18.88
+        ]
+      },
+      "properties": {
+        "name": "Jeypore Airport",
+        "country": "India",
+        "region": "Odisha",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731420
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.90687,
+          26.14118
+        ]
+      },
+      "properties": {
+        "name": "Rupsi Airport",
+        "country": "India",
+        "region": "Assam",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731476
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.1016,
+          10.7224
+        ]
+      },
+      "properties": {
+        "name": "Thanjavur Air Force Station",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731547
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          70.9211,
+          20.7131
+        ]
+      },
+      "properties": {
+        "name": "Diu Airport",
+        "country": "India",
+        "region": "Dadra and Nagar Haveli and Daman and Diu",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668568
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.2263,
+          22.3362
+        ]
+      },
+      "properties": {
+        "name": "Civil Airport Harni",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668569
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.8432,
+          20.4344
+        ]
+      },
+      "properties": {
+        "name": "Daman Airport",
+        "country": "India",
+        "region": "Dadra and Nagar Haveli and Daman and Diu",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668570
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.0849,
+          15.3617
+        ]
+      },
+      "properties": {
+        "name": "Hubli Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668571
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          70.0126,
+          22.4655
+        ]
+      },
+      "properties": {
+        "name": "Govardhanpur Airport Jamnagar",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668572
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          70.1003,
+          23.1127
+        ]
+      },
+      "properties": {
+        "name": "Kandla Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668573
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.9186,
+          24.8172
+        ]
+      },
+      "properties": {
+        "name": "Khajuraho Civil Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668574
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          70.2704,
+          21.3171
+        ]
+      },
+      "properties": {
+        "name": "Keshod Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668575
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.32251,
+          19.18173
+        ]
+      },
+      "properties": {
+        "name": "Nanded Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668576
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          69.6572,
+          21.6487
+        ]
+      },
+      "properties": {
+        "name": "Porbandar Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668578
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.3278,
+          17.0136
+        ]
+      },
+      "properties": {
+        "name": "Ratnagiri Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668579
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.7388,
+          21.1804
+        ]
+      },
+      "properties": {
+        "name": "Mana Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668580
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.7418,
+          21.1141
+        ]
+      },
+      "properties": {
+        "name": "Surat Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668581
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          94.80199,
+          28.17465
+        ]
+      },
+      "properties": {
+        "name": "Along Airport",
+        "country": "India",
+        "region": "Arunachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668586
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.7956,
+          25.2617
+        ]
+      },
+      "properties": {
+        "name": "Balurghat Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668587
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9787,
+          25.7036
+        ]
+      },
+      "properties": {
+        "name": "Shillong Barapani  Airport",
+        "country": "India",
+        "region": "Meghalaya",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668588
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          94.2228,
+          27.9855
+        ]
+      },
+      "properties": {
+        "name": "Daporijo Airport",
+        "country": "India",
+        "region": "Arunachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668589
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          94.1755,
+          26.7315
+        ]
+      },
+      "properties": {
+        "name": "Jorhat Airport",
+        "country": "India",
+        "region": "Assam",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668590
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.9787,
+          24.9129
+        ]
+      },
+      "properties": {
+        "name": "Silchar Airport",
+        "country": "India",
+        "region": "Assam",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668592
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.7711,
+          25.8839
+        ]
+      },
+      "properties": {
+        "name": "Dimapur Airport",
+        "country": "India",
+        "region": "Nagaland",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668593
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.3137,
+          26.1191
+        ]
+      },
+      "properties": {
+        "name": "Muzaffarpur Airport",
+        "country": "India",
+        "region": "Bihar",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668594
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96.1344,
+          27.9412
+        ]
+      },
+      "properties": {
+        "name": "Tezu Airport",
+        "country": "India",
+        "region": "Arunachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668595
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.7847,
+          26.7091
+        ]
+      },
+      "properties": {
+        "name": "Tezpur Airport",
+        "country": "India",
+        "region": "Assam",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668596
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.8281,
+          27.5883
+        ]
+      },
+      "properties": {
+        "name": "Zero Airport",
+        "country": "India",
+        "region": "Arunachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668598
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.1544,
+          31.8767
+        ]
+      },
+      "properties": {
+        "name": "Kullu Manali Airport",
+        "country": "India",
+        "region": "Himachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668601
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7885,
+          30.6735
+        ]
+      },
+      "properties": {
+        "name": "Chandigarh International Airport",
+        "country": "India",
+        "region": "Chandigarh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668602
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.1803,
+          30.1897
+        ]
+      },
+      "properties": {
+        "name": "Dehradun Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668603
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.8374,
+          32.6891
+        ]
+      },
+      "properties": {
+        "name": "Jammu Airport",
+        "country": "India",
+        "region": "Jammu and Kashmir",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668604
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.9526,
+          30.8547
+        ]
+      },
+      "properties": {
+        "name": "Ludhiana Airport",
+        "country": "India",
+        "region": "Punjab",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668605
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.6346,
+          32.2338
+        ]
+      },
+      "properties": {
+        "name": "Pathankot Air Force Station",
+        "country": "India",
+        "region": "Punjab",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668607
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.068,
+          31.0818
+        ]
+      },
+      "properties": {
+        "name": "Shimla Airport",
+        "country": "India",
+        "region": "Himachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668608
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.176,
+          10.8237
+        ]
+      },
+      "properties": {
+        "name": "Agatti Airport",
+        "country": "India",
+        "region": "Lakshadweep",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668633
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.8182,
+          17.1104
+        ]
+      },
+      "properties": {
+        "name": "Rajahmundry Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668635
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.0656,
+          11.7833
+        ]
+      },
+      "properties": {
+        "name": "Salem Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668636
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.5433,
+          13.6325
+        ]
+      },
+      "properties": {
+        "name": "Tirupati Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668637
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.6022,
+          17.9144
+        ]
+      },
+      "properties": {
+        "name": "Warangal Airport",
+        "country": "India",
+        "region": "Telangana",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668638
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.72997,
+          11.64101
+        ]
+      },
+      "properties": {
+        "name": "Port Blair",
+        "country": "India",
+        "region": "Andaman and Nicobar",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7910160
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.02731,
+          8.72308
+        ]
+      },
+      "properties": {
+        "name": "Tuticorin Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": 39,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7910377
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.26293,
+          32.1649
+        ]
+      },
+      "properties": {
+        "name": "Kangra Airport",
+        "country": "India",
+        "region": "Himachal Pradesh",
+        "elevation_m": 770,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6453418
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.91988,
+          18.58223
+        ]
+      },
+      "properties": {
+        "name": "Pune Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": 592,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6452628
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          87.2414,
+          23.62534
+        ]
+      },
+      "properties": {
+        "name": "Durgapur Kazi Nazrul Islam Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 10942839
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.54663,
+          11.91665
+        ]
+      },
+      "properties": {
+        "name": "Kannur International Airport",
+        "country": "India",
+        "region": "Kerala",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 11669736
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.81329,
+          26.59114
+        ]
+      },
+      "properties": {
+        "name": "Ajmer Kishangarh Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 11669749
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.62792,
+          20.96257
+        ]
+      },
+      "properties": {
+        "name": "Jalgaon Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8477328
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.91368,
+          20.11944
+        ]
+      },
+      "properties": {
+        "name": "Ozar Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8477355
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.48322,
+          17.90309
+        ]
+      },
+      "properties": {
+        "name": "Bidar Airbase",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8441899
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.37766,
+          19.68876
+        ]
+      },
+      "properties": {
+        "name": "Shirdi Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8532031
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.28843,
+          21.52483
+        ]
+      },
+      "properties": {
+        "name": "Gondia Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533127
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.58596,
+          27.22756
+        ]
+      },
+      "properties": {
+        "name": "Gangtok Pakyong Airport",
+        "country": "India",
+        "region": "Sikkim",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 11928000
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.63406,
+          15.17483
+        ]
+      },
+      "properties": {
+        "name": "Jindal Vijaynagar Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8299089
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.4644,
+          18.4117
+        ]
+      },
+      "properties": {
+        "name": "Latur Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8260967
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.39184,
+          18.70081
+        ]
+      },
+      "properties": {
+        "name": "Ramagundam Basantnagar Airport",
+        "country": "India",
+        "region": "Telangana",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8261050
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.95524,
+          17.3076
+        ]
+      },
+      "properties": {
+        "name": "Gulbarga Kalaburagi Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12110496
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.64253,
+          26.97117
+        ]
+      },
+      "properties": {
+        "name": "Itanagar Airport",
+        "country": "India",
+        "region": "Arunachal Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12519121
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.60715,
+          13.85779
+        ]
+      },
+      "properties": {
+        "name": "Shivamogga Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12541309
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          71.03529,
+          22.37433
+        ]
+      },
+      "properties": {
+        "name": "Rajkot International Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12541312
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.18103,
+          20.09456
+        ]
+      },
+      "properties": {
+        "name": "Utkela Airport",
+        "country": "India",
+        "region": "Odisha",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12558101
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.17821,
+          15.71468
+        ]
+      },
+      "properties": {
+        "name": "Kurnool Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12402356
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.5347,
+          15.99894
+        ]
+      },
+      "properties": {
+        "name": "Sindhudurg Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12402378
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.89575,
+          26.7712
+        ]
+      },
+      "properties": {
+        "name": "Kushinagar International Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12382009
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.91587,
+          26.19426
+        ]
+      },
+      "properties": {
+        "name": "Darbhanga Airport",
+        "country": "India",
+        "region": "Bihar",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12217912
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.60306,
+          28.16688
+        ]
+      },
+      "properties": {
+        "name": "Noida International Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12547695
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.73832,
+          20.92637
+        ]
+      },
+      "properties": {
+        "name": "Dhule Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8477307
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.78863,
+          14.53503
+        ]
+      },
+      "properties": {
+        "name": "Harihar Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8555630
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.36017,
+          16.28006
+        ]
+      },
+      "properties": {
+        "name": "Raichur Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8555656
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.93551,
+          25.16766
+        ]
+      },
+      "properties": {
+        "name": "Chitrakoot Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8555683
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          86.97584,
+          23.63123
+        ]
+      },
+      "properties": {
+        "name": "Burnpur Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8555769
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          84.81982,
+          26.99639
+        ]
+      },
+      "properties": {
+        "name": "Raxaul Airport",
+        "country": "India",
+        "region": "Bihar",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8555771
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.2192,
+          15.35931
+        ]
+      },
+      "properties": {
+        "name": "Koppal Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8555776
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.83121,
+          19.09647
+        ]
+      },
+      "properties": {
+        "name": "Juhu Aerodrome",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8442467
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.15482,
+          26.75144
+        ]
+      },
+      "properties": {
+        "name": "Ayodhya Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8531967
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          86.71081,
+          22.46664
+        ]
+      },
+      "properties": {
+        "name": "Chakulia Airport",
+        "country": "India",
+        "region": "Jharkhand",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8531973
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.05633,
+          18.27993
+        ]
+      },
+      "properties": {
+        "name": "Osmanabad Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8531979
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.37925,
+          26.24816
+        ]
+      },
+      "properties": {
+        "name": "Fursatganj Airfield",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8531985
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.20389,
+          24.26813
+        ]
+      },
+      "properties": {
+        "name": "Deesa Airport",
+        "country": "India",
+        "region": "Gujarat",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8532046
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.67748,
+          28.90484
+        ]
+      },
+      "properties": {
+        "name": "Meerut Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533128
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.03771,
+          24.12498
+        ]
+      },
+      "properties": {
+        "name": "Muirpur Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533156
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.29354,
+          22.50383
+        ]
+      },
+      "properties": {
+        "name": "Behala Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533707
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.85503,
+          30.31369
+        ]
+      },
+      "properties": {
+        "name": "Patiala Airport",
+        "country": "India",
+        "region": "Haryana",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533713
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.49913,
+          15.83307
+        ]
+      },
+      "properties": {
+        "name": "Donakonda Airport",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533774
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.22252,
+          19.99438
+        ]
+      },
+      "properties": {
+        "name": "Chandrapur Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533850
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          87.40954,
+          25.76225
+        ]
+      },
+      "properties": {
+        "name": "Purnea Airport",
+        "country": "India",
+        "region": "Bihar",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8520887
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.2207,
+          24.5036
+        ]
+      },
+      "properties": {
+        "name": "Rewa Chorhata Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8298861
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.36667,
+          21.83333
+        ]
+      },
+      "properties": {
+        "name": "Khandwa Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": 317,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301040
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.20578,
+          28.58451
+        ]
+      },
+      "properties": {
+        "name": "Safdarjung Airport",
+        "country": "India",
+        "region": "Delhi",
+        "elevation_m": 214,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301096
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.55842,
+          25.49117
+        ]
+      },
+      "properties": {
+        "name": "Jhansi",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": 244,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301099
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.66821,
+          12.94999
+        ]
+      },
+      "properties": {
+        "name": "HAL Bangalore Airport",
+        "country": "India",
+        "region": "Karnataka",
+        "elevation_m": 887,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301118
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.27308,
+          9.94739
+        ]
+      },
+      "properties": {
+        "name": "INS Garuda",
+        "country": "India",
+        "region": "Kerala",
+        "elevation_m": 2,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301122
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.06551,
+          12.90824
+        ]
+      },
+      "properties": {
+        "name": "Vellore Airport",
+        "country": "India",
+        "region": "Tamil Nadu",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 6301130
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.3473,
+          24.6547
+        ]
+      },
+      "properties": {
+        "name": "Guna Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7730208
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.3152,
+          33.3779
+        ]
+      },
+      "properties": {
+        "name": "Rajouri Airport",
+        "country": "India",
+        "region": "Jammu and Kashmir",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7731463
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.0368,
+          19.0743
+        ]
+      },
+      "properties": {
+        "name": "Jagdalpur Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 7668585
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.86817,
+          15.7313
+        ]
+      },
+      "properties": {
+        "name": "Mopa International Airport",
+        "country": "India",
+        "region": "Goa",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12420963
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          86.7062,
+          24.44444
+        ]
+      },
+      "properties": {
+        "name": "Deoghar Airport",
+        "country": "India",
+        "region": "Jharkhand",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12440519
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.42039,
+          23.44563
+        ]
+      },
+      "properties": {
+        "name": "Birlagram",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8458409
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.05642,
+          26.92995
+        ]
+      },
+      "properties": {
+        "name": "Safai Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8555685
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.8283,
+          24.56883
+        ]
+      },
+      "properties": {
+        "name": "Satna Railway Station",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8556381
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          71.48305,
+          25.81183
+        ]
+      },
+      "properties": {
+        "name": "Utterlai",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8441021
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.45175,
+          27.31596
+        ]
+      },
+      "properties": {
+        "name": "Farrukhabad Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533138
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.57794,
+          28.46737
+        ]
+      },
+      "properties": {
+        "name": "Paliya Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8533895
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.7564,
+          31.43569
+        ]
+      },
+      "properties": {
+        "name": "Adampur Airport",
+        "country": "India",
+        "region": "Punjab",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 11776669
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.02484,
+          23.38206
+        ]
+      },
+      "properties": {
+        "name": "Ratlam",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8458490
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2667,
+          27.0333
+        ]
+      },
+      "properties": {
+        "name": "Darjeeling",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8298983
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          87.342,
+          23.58177
+        ]
+      },
+      "properties": {
+        "name": "Durgapur Steel Plant Airport",
+        "country": "India",
+        "region": "West Bengal",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 10942840
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.56813,
+          25.61861
+        ]
+      },
+      "properties": {
+        "name": "Andhau Air Port",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 11703501
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.56099,
+          22.78059
+        ]
+      },
+      "properties": {
+        "name": "Jhabua",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8462148
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.8811,
+          17.10093
+        ]
+      },
+      "properties": {
+        "name": "Rajahmundry",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8439080
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.54553,
+          18.8602
+        ]
+      },
+      "properties": {
+        "name": "Jeypore Airport",
+        "country": "India",
+        "region": "Odisha",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8439966
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.02935,
+          19.05182
+        ]
+      },
+      "properties": {
+        "name": "Jagdalpur",
+        "country": "India",
+        "region": "Andhra Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8440132
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.36208,
+          28.70698
+        ]
+      },
+      "properties": {
+        "name": "Hindon Airport",
+        "country": "India",
+        "region": "Rajasthan",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 8440755
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.11181,
+          26.16159
+        ]
+      },
+      "properties": {
+        "name": "Azamgarh Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12747951
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.14901,
+          27.8583
+        ]
+      },
+      "properties": {
+        "name": "Aligarh Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12747953
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.92203,
+          28.81761
+        ]
+      },
+      "properties": {
+        "name": "Moradabad Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12747955
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.02675,
+          27.50198
+        ]
+      },
+      "properties": {
+        "name": "Shravasti Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12747956
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.08002,
+          18.98824
+        ]
+      },
+      "properties": {
+        "name": "Navi Mumbai International Airport",
+        "country": "India",
+        "region": "Maharashtra",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 12808986
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.50348,
+          25.64979
+        ]
+      },
+      "properties": {
+        "name": "Datia Airport",
+        "country": "India",
+        "region": "Madhya Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 13118779
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.63051,
+          30.74775
+        ]
+      },
+      "properties": {
+        "name": "Halwara International Airport",
+        "country": "India",
+        "region": "Punjab",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 13192617
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.195,
+          22.99039
+        ]
+      },
+      "properties": {
+        "name": "Maa Mahamaya Airport",
+        "country": "India",
+        "region": "Chhattisgarh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 13157414
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.40797,
+          29.99139
+        ]
+      },
+      "properties": {
+        "name": "Sarsawa Airport",
+        "country": "India",
+        "region": "Uttar Pradesh",
+        "elevation_m": null,
+        "population": 0,
+        "feature_type": "airport",
+        "geoname_id": 13562568
+      }
+    }
+  ]
+}
