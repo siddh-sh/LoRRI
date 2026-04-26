@@ -51,8 +51,9 @@ def fetch_route():
     route = tn.get_route(origin, dest, mode)
     if not route:
         return jsonify({"success": False, "error": "Route could not be calculated"}), 400
-        
-    return jsonify({"success": True, "route": route})
+    
+    geo = tn.get_route_geodata(origin, dest, mode, route)
+    return jsonify({"success": True, "route": route, "geo": geo})
 
 @app.route('/api/shipment/analyze', methods=['POST'])
 def analyze_shipment():
@@ -129,6 +130,7 @@ def analyze_shipment():
         optimization=optimization
     )
     
+    geo = tn.get_route_geodata(origin, dest, route_mode, route)
     return jsonify({
         "success": True,
         "shipment": {
@@ -139,8 +141,10 @@ def analyze_shipment():
             "distance_km": distance_km,
             "transit_days_est": transit_days,
             "path_nodes": route["path_nodes"],
-            "via_hubs": route["via_hubs"]
+            "via_hubs": route["via_hubs"],
+            "route_source": route.get("source", "unknown")
         },
+        "geo": geo,
         "market_intelligence": market_snapshot,
         "carrier_scoring": {"carriers": carriers},
         "best_recommendation": best_carrier,

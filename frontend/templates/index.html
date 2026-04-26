@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FreightIQ Multimodal</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 /* 
@@ -81,11 +83,19 @@ h3:first-child { margin-top: 0; }
 .btn-primary:hover { background: #1e40af; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29,78,216,0.3); }
 .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
-/* SVG Visualizer */
-.svg-container { width: 100%; margin: 16px 0; background: var(--slate-100); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; overflow: hidden; position: relative; min-height: 80px;}
+/* Map Container */
+#routeMap { width: 100%; height: 280px; border-radius: 12px; overflow: hidden; margin: 16px 0; border: 1px solid var(--slate-200); z-index: 1; }
+#resultsMap { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; border: 1px solid var(--slate-200); z-index: 1; }
+.map-placeholder { width: 100%; height: 280px; background: var(--slate-100); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--slate-400); font-size: 13px; }
 
-.svg-path { stroke: var(--blue); stroke-width: 3; fill: none; stroke-dasharray: 10; animation: dash 20s linear infinite; }
-@keyframes dash { to { stroke-dashoffset: -1000; } }
+/* Scoring Explainer */
+.explainer-card { background: linear-gradient(135deg, var(--slate-100) 0%, var(--white) 100%); border: 1px solid var(--slate-200); border-radius: 12px; padding: 20px; }
+.explainer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.exp-item { background: var(--white); border-radius: 8px; padding: 12px; border-left: 3px solid var(--blue); }
+.exp-item.rail { border-left-color: var(--purple); }
+.exp-item.air { border-left-color: var(--sky); }
+.exp-label { font-size: 11px; font-weight: 700; color: var(--slate-500); text-transform: uppercase; margin-bottom: 4px; }
+.exp-val { font-size: 14px; font-weight: 600; color: var(--slate-800); }
 
 .node { width: 12px; height: 12px; border-radius: 50%; background: var(--white); border: 3px solid var(--blue); z-index: 2; position: relative;}
 .node-label { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: var(--slate-500); white-space: nowrap; }
@@ -188,8 +198,8 @@ h3:first-child { margin-top: 0; }
       <div id="roadModeNote" style="font-size:12px; color:var(--orange); margin-top:8px; font-weight:500;">🔒 Locked to FTL (Weight > 3000 kg)</div>
     </div>
     
-    <div class="svg-container" id="svgBox">
-       <span style="font-size:12px; color:var(--slate-400)">Select route to visualize path</span>
+    <div id="routeMap" class="map-placeholder">
+       <span>Select origin & destination to see route map</span>
     </div>
     
     <div class="info-grid" style="margin-bottom:24px;">
@@ -243,10 +253,22 @@ h3:first-child { margin-top: 0; }
 <script>
 const CITIES = ["Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Delhi", "Guwahati", "Hyderabad", "Indore", "Jabalpur", "Jaipur", "Kanpur", "Kochi", "Kolkata", "Lucknow", "Madurai", "Mangalore", "Mumbai", "Nagpur", "Nashik", "Noida", "Patna", "Pune", "Raipur", "Rajkot", "Ranchi", "Surat", "Thiruvananthapuram", "Vadodara", "Varanasi", "Vijayawada", "Visakhapatnam"];
 
-let G = { o:"", d:"", mode:"roadways", road_freight_mode:"FTL", pri:"balanced", dist:0, transit:0 };
+let G = { o:"", d:"", mode:"roadways", road_freight_mode:"FTL", pri:"balanced", dist:0, transit:0, gMapsKey:"" };
 const $ = id => document.getElementById(id);
+let leafletMap = null, gMap = null, gDirections = null, gDirRenderer = null;
+let lastGeo = null;
 
-// Init Form
+// Fetch Google Maps key from health endpoint
+fetch("/api/health").then(r=>r.json()).then(h=>{
+  G.gMapsKey = h.google_maps_key || "";
+  if(G.gMapsKey){
+    const s = document.createElement("script");
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${G.gMapsKey}&callback=onGMapsReady`;
+    s.async = true; s.defer = true; document.head.appendChild(s);
+  }
+}).catch(()=>{});
+function onGMapsReady(){ console.log("Google Maps JS API loaded"); }
+
 function init(){
   const oBox = $("originBox");
   oBox.innerHTML = `<option value="">Select Origin</option>` + CITIES.map(c => `<option value="${c}">${c}</option>`).join("");
@@ -257,119 +279,130 @@ init();
 function selO(c){
   G.o = c; G.d = "";
   const dBox = $("destBox");
-  if (!c) {
-    dBox.innerHTML = `<option value="">Select an origin first</option>`;
-    dBox.disabled = true;
-  } else {
-    dBox.innerHTML = `<option value="">Select Destination</option>` + CITIES.filter(x=>x!==c).map(x => `<option value="${x}">${x}</option>`).join("");
-    dBox.disabled = false;
-  }
+  if (!c) { dBox.innerHTML = `<option value="">Select an origin first</option>`; dBox.disabled = true; }
+  else { dBox.innerHTML = `<option value="">Select Destination</option>` + CITIES.filter(x=>x!==c).map(x => `<option value="${x}">${x}</option>`).join(""); dBox.disabled = false; }
   updateRoute();
 }
-
-function selD(c){
-  G.d = c;
-  updateRoute();
-}
+function selD(c){ G.d = c; updateRoute(); }
 
 function setMode(m){
   G.mode = m;
   document.querySelectorAll(".mode-card").forEach(c=>c.classList.remove('active'));
   document.querySelector(`.mode-${m}`).classList.add('active');
-  
-  if (m === 'roadways') {
-    $("roadModeBlock").style.display = "block";
-    checkWeightLimit();
-  } else {
-    $("roadModeBlock").style.display = "none";
-  }
-  
-  const sPaths = document.querySelectorAll(".svg-path");
-  sPaths.forEach(p => {
-    p.style.stroke = m==='roadways'?'var(--blue)':m==='railways'?'var(--purple)':'var(--sky)';
-    p.style.strokeDasharray = m==='airways'? '10,10' : (m==='railways'?'20,5':'none');
-  });
+  if (m === 'roadways') { $("roadModeBlock").style.display = "block"; checkWeightLimit(); }
+  else { $("roadModeBlock").style.display = "none"; }
   updateRoute();
 }
-
 function setRoadMode(m) {
-  if (Number($("weight").value) > 3000) return; // locked
+  if (Number($("weight").value) > 3000) return;
   G.road_freight_mode = m;
   $("road-ftl").classList.toggle("active", m==="FTL");
   $("road-ltl").classList.toggle("active", m==="LTL");
 }
-
 function checkWeightLimit() {
   if (G.mode !== 'roadways') return;
   const w = Number($("weight").value);
   if (w > 3000) {
-    G.road_freight_mode = "FTL";
-    $("road-ftl").classList.add("active");
-    $("road-ltl").classList.remove("active");
-    $("road-ltl").style.opacity = "0.4";
-    $("road-ltl").style.cursor = "not-allowed";
-    $("roadModeNote").style.display = "block";
+    G.road_freight_mode = "FTL"; $("road-ftl").classList.add("active"); $("road-ltl").classList.remove("active");
+    $("road-ltl").style.opacity = "0.4"; $("road-ltl").style.cursor = "not-allowed"; $("roadModeNote").style.display = "block";
   } else {
-    $("road-ltl").style.opacity = "1";
-    $("road-ltl").style.cursor = "pointer";
-    $("roadModeNote").style.display = "none";
-    $("road-ftl").classList.toggle("active", G.road_freight_mode==="FTL");
-    $("road-ltl").classList.toggle("active", G.road_freight_mode==="LTL");
+    $("road-ltl").style.opacity = "1"; $("road-ltl").style.cursor = "pointer"; $("roadModeNote").style.display = "none";
+    $("road-ftl").classList.toggle("active", G.road_freight_mode==="FTL"); $("road-ltl").classList.toggle("active", G.road_freight_mode==="LTL");
+  }
+}
+function setPri(p, el){ G.pri = p; document.querySelectorAll('.pri-card').forEach(c=>c.classList.remove('active')); el.classList.add('active'); }
+
+// ── MAP RENDERING ─────────────────────────────────────────────
+function destroyMaps(){
+  if(leafletMap){ leafletMap.remove(); leafletMap = null; }
+  if(gDirRenderer){ gDirRenderer.setMap(null); gDirRenderer = null; }
+  gMap = null; gDirections = null;
+}
+
+function renderRouteMap(geo, containerId){
+  const el = $(containerId);
+  if(!el || !geo) return;
+  el.innerHTML = ""; el.className = "";
+  el.style.height = containerId === "resultsMap" ? "400px" : "280px";
+  destroyMaps();
+
+  const mode = geo.mode;
+  const modeColors = { roadways: "#1d4ed8", railways: "#7e22ce", airways: "#0ea5e9" };
+  const color = modeColors[mode] || "#1d4ed8";
+
+  if(mode === "roadways" && G.gMapsKey && window.google && window.google.maps){
+    // Google Maps Directions
+    gMap = new google.maps.Map(el, { zoom: 6, center: {lat: geo.origin_latlng[0], lng: geo.origin_latlng[1]}, disableDefaultUI: true, zoomControl: true, styles: [{featureType:"poi",stylers:[{visibility:"off"}]}] });
+    gDirections = new google.maps.DirectionsService();
+    gDirRenderer = new google.maps.DirectionsRenderer({ map: gMap, polylineOptions: { strokeColor: color, strokeWeight: 5 }, suppressMarkers: false });
+    gDirections.route({
+      origin: {lat: geo.origin_latlng[0], lng: geo.origin_latlng[1]},
+      destination: {lat: geo.dest_latlng[0], lng: geo.dest_latlng[1]},
+      travelMode: "DRIVING"
+    }, (result, status) => {
+      if(status === "OK") gDirRenderer.setDirections(result);
+      else { console.warn("Directions failed:", status); renderLeafletFallback(geo, el, color); }
+    });
+  } else if(mode === "roadways") {
+    // Leaflet fallback for roadways (no Google key)
+    renderLeafletFallback(geo, el, color);
+  } else {
+    // Railways / Airways — Leaflet + GeoJSON
+    renderLeafletGeoJSON(geo, el, color, mode);
   }
 }
 
-function setPri(p, el){
-  G.pri = p;
-  document.querySelectorAll('.pri-card').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
+function renderLeafletFallback(geo, el, color){
+  const m = L.map(el).setView([22.5, 79], 5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution:"© OSM"}).addTo(m);
+  const pts = geo.markers.map(mk => [mk.latlng[0], mk.latlng[1]]);
+  L.polyline(pts, {color, weight:4}).addTo(m);
+  geo.markers.forEach(mk => L.circleMarker([mk.latlng[0], mk.latlng[1]], {radius:7, color, fillColor:"#fff", fillOpacity:1, weight:3}).bindTooltip(mk.name, {permanent:true, direction:"top", offset:[0,-10]}).addTo(m));
+  if(pts.length) m.fitBounds(pts, {padding:[40,40]});
+  leafletMap = m;
 }
 
+function renderLeafletGeoJSON(geo, el, color, mode){
+  const m = L.map(el).setView([22.5, 79], 5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution:"© OSM"}).addTo(m);
+  if(geo.geojson){
+    L.geoJSON(geo.geojson, {
+      style: f => ({ color, weight: mode==="airways"?3:4, dashArray: mode==="airways"?"10,8":"", opacity: 0.85 }),
+      pointToLayer: (f, ll) => {
+        const t = f.properties.type;
+        const r = t==="via" ? 5 : 8;
+        const fc = t==="via" ? color : "#fff";
+        return L.circleMarker(ll, {radius:r, color, fillColor:fc, fillOpacity:1, weight:3});
+      },
+      onEachFeature: (f, layer) => {
+        if(f.properties.name && f.geometry.type === "Point"){
+          const label = f.properties.code ? `${f.properties.name} (${f.properties.code})` : f.properties.name;
+          layer.bindTooltip(label, {permanent: f.properties.type !== "via", direction:"top", offset:[0,-10]});
+        }
+      }
+    }).addTo(m);
+  }
+  const pts = (geo.markers||[]).map(mk => [mk.latlng[0], mk.latlng[1]]);
+  if(pts.length) m.fitBounds(pts, {padding:[50,50]});
+  leafletMap = m;
+}
+
+// ── ROUTE UPDATE ──────────────────────────────────────────────
 async function updateRoute(){
   if(!G.o || !G.d) return;
   $("distVal").textContent = "calc...";
   $("transitVal").textContent = "calc...";
-  
   try {
-    const res = await fetch("/api/route", {
-      method: "POST", headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({origin:G.o, destination:G.d, mode:G.mode})
-    });
+    const res = await fetch("/api/route", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({origin:G.o, destination:G.d, mode:G.mode}) });
     const d = await res.json();
     if(d.success){
-      G.dist = d.route.distance_km;
-      G.transit = d.route.transit_days;
+      G.dist = d.route.distance_km; G.transit = d.route.transit_days;
       $("distVal").textContent = `${G.dist.toFixed(0)} km`;
       $("transitVal").textContent = `${G.transit.toFixed(1)} days`;
-      renderSVG(d.route);
+      lastGeo = d.geo;
+      renderRouteMap(d.geo, "routeMap");
     }
   } catch(e) { console.error(e); }
-}
-
-function renderSVG(route){
-  const nodes = route.path_nodes || [];
-  if(nodes.length < 2) return;
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.style.position = "absolute"; svg.style.top = "50%"; svg.style.left="0"; 
-  svg.style.width="100%"; svg.style.height="4px"; svg.style.transform="translateY(-50%)";
-  
-  let col = G.mode==='roadways'?'var(--blue)':G.mode==='railways'?'var(--purple)':'var(--sky)';
-  let dash = G.mode==='airways'?'8,8':'none';
-  
-  svg.innerHTML = `<line x1="20" y1="2" x2="calc(100% - 20px)" y2="2" stroke="${col}" stroke-width="3" stroke-dasharray="${dash}" class="svg-path" />`;
-  
-  let html = `<div style="width:100%; height:100%; position:relative; min-height:60px;">${svg.outerHTML}`;
-  
-  nodes.forEach((n, i) => {
-    let pct = (i / (nodes.length-1)) * 100;
-    // Adjust edges slightly inward
-    if(i===0) pct = 5; if(i===nodes.length-1) pct = 95;
-    html += `<div style="position:absolute; left:${pct}%; top:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center;">
-       <div class="node" style="border-color:${col}"></div>
-       <div class="node-label" style="top:10px">${n}</div>
-    </div>`;
-  });
-  html += `</div>`;
-  $("svgBox").innerHTML = html;
 }
 
 const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
@@ -378,41 +411,52 @@ async function analyze(){
   if(!G.o || !G.d){ alert("Select Origin and Destination."); return; }
   const btn = $("btnAnalyze");
   btn.disabled = true; btn.innerHTML = "⏳ Generating Intelligence...";
-  
   try {
-    const payload = {
-      origin: G.o, destination: G.d, transport_mode: G.mode, road_freight_mode: G.road_freight_mode,
-      priority_profile: G.pri, goods_type: $("goods").value,
-      weight_kg: Number($("weight").value) || 5000,
-      min_reliability: 0.8
-    };
-    
+    const payload = { origin: G.o, destination: G.d, transport_mode: G.mode, road_freight_mode: G.road_freight_mode, priority_profile: G.pri, goods_type: $("goods").value, weight_kg: Number($("weight").value) || 5000, min_reliability: 0.8 };
     const newsPromise = fetch("/api/news").then(r=>r.json()).catch(()=>null);
-    const dataPromise = fetch("/api/shipment/analyze", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
-    }).then(r=>r.json());
-    
+    const dataPromise = fetch("/api/shipment/analyze", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) }).then(r=>r.json());
     const [newsRes, d] = await Promise.all([newsPromise, dataPromise]);
-    
-    if(d.success){ 
-      if(newsRes && newsRes.success) d.logistics_news = newsRes.news;
-      renderResults(d); 
-    }
+    if(d.success){ if(newsRes && newsRes.success) d.logistics_news = newsRes.news; renderResults(d); }
     else { alert("Error: " + d.error); }
   } catch(e) { alert(e); }
-  
   btn.disabled = false; btn.innerHTML = "🚀 Analyse & Score Route";
 }
 
+// ── RESULTS RENDERING ─────────────────────────────────────────
 function renderResults(d){
   const best = d.best_recommendation;
   const chars = d.carrier_scoring.carriers;
   const mkt = d.market_intelligence;
   const opt = d.optimization;
-  
+  const geo = d.geo;
+  const ship = d.shipment;
   let themeCol = G.mode==='roadways'?'var(--blue)':G.mode==='railways'?'var(--purple)':'var(--sky)';
-  
+  let modeIcon = G.mode==='roadways'?'🚛':G.mode==='railways'?'🚂':'✈️';
+  let expCls = G.mode==='railways'?'rail':G.mode==='airways'?'air':'';
+
+  // Route Map in results
+  let mapHtml = `<div class="section-card" style="padding:0;overflow:hidden;"><div id="resultsMap" style="height:400px;"></div></div>`;
+
+  // Scoring Explainer
+  let routeSrc = ship.route_source || "unknown";
+  let srcLabel = {google_maps:"Google Maps Directions API", networkx_dijkstra:"NetworkX Dijkstra (Rail Graph)", air_haversine:"Great-Circle (Haversine)", haversine_estimate:"Haversine × 1.32 (Road Estimate)", rail_estimate:"Haversine × 1.2 (Rail Estimate)"}[routeSrc] || routeSrc;
+  let priWeights = {balanced:"XGB 40% + GBR 40% + LR 20%", "cost-first":"XGB 20% + GBR 20% + LR 60%", reliability:"XGB 70% + GBR 20% + LR 10%", pharma:"XGB 50% + GBR 40% + LR 10%", "risk-averse":"XGB 60% + GBR 20% + LR 20%", urgency:"XGB 20% + GBR 70% + LR 10%"}[G.pri] || "XGB 40% + GBR 40% + LR 20%";
+  let transitBasis = G.mode==='roadways' ? `Distance ÷ ~500 km/day with buffer` : G.mode==='railways' ? `Rail distance ÷ 45 km/h + 0.5h per stop + 8h loading` : `Air distance ÷ 750 km/h + 5h ground handling`;
+  let costBasis = G.mode==='roadways' ? `base_rate × weight + fuel_surcharge × market_multiplier` : G.mode==='railways' ? `rail_rate × weight (no fuel surcharge)` : `air_rate × weight + cargo_surcharge × market_multiplier`;
+
+  let explainerHtml = `
+  <div class="section-card explainer-card">
+    <div class="sec-title" style="border-bottom:none;margin-bottom:4px;">🧠 How We Ranked Carriers</div>
+    <div class="explainer-grid">
+      <div class="exp-item ${expCls}"><div class="exp-label">Route Source</div><div class="exp-val">${modeIcon} ${srcLabel}</div></div>
+      <div class="exp-item ${expCls}"><div class="exp-label">Transit Days Basis</div><div class="exp-val">${ship.transit_days_est} days — ${transitBasis}</div></div>
+      <div class="exp-item ${expCls}"><div class="exp-label">Cost Calculation</div><div class="exp-val">${costBasis}</div></div>
+      <div class="exp-item ${expCls}"><div class="exp-label">ML Ensemble (${G.pri})</div><div class="exp-val">${priWeights}</div></div>
+      <div class="exp-item ${expCls}"><div class="exp-label">Why #1: ${best.carrier_name}</div><div class="exp-val">${(best.why||[]).join(" ")}</div></div>
+      <div class="exp-item ${expCls}"><div class="exp-label">Composite Score</div><div class="exp-val mono">${best.scores.composite_score.toFixed(3)} — On-Time: ${best.scores.blended_ontime}%</div></div>
+    </div>
+  </div>`;
+
   let topHtml = `
   <div class="winner-banner" style="background:${themeCol}">
     <div class="w-eyebrow">🏆 #1 ML Recommended Carrier • ${G.pri.toUpperCase()}</div>
@@ -424,7 +468,7 @@ function renderResults(d){
        <div><div class="w-kpi-val mono">${d.shipment.transit_days_est}d</div><div class="w-kpi-lbl">Est Transit</div></div>
     </div>
   </div>`;
-  
+
   let mktHtml = `
   <div class="section-card">
     <div class="sec-title">📡 Market Intelligence Snapshot</div>
@@ -438,7 +482,7 @@ function renderResults(d){
       }).join("")}
     </div>
   </div>`;
-  
+
   let cHtml = `
   <div class="section-card">
     <div class="sec-title"><span>📊 ${G.mode.charAt(0).toUpperCase() + G.mode.slice(1)} Carrier Options</span> <span style="font-size:13px;color:var(--slate-400);font-weight:400;font-family:'Space Mono'">Sorted by ${G.pri}</span></div>
@@ -459,7 +503,7 @@ function renderResults(d){
       `).join("")}
     </div>
   </div>`;
-  
+
   let optHtml = "";
   if(opt && opt.allocations && opt.allocations.length){
     optHtml = `
@@ -478,13 +522,13 @@ function renderResults(d){
       </table>
     </div>`;
   }
+
   let aiHtml = "";
   if(d.ai_analysis && d.ai_analysis.final_summary){
     aiHtml = `
-    <div class="section-card" style="border: 2px solid var(--blue); background: var(--blue-light); margin-bottom: 16px;">
+    <div class="section-card" style="border: 2px solid var(--blue); background: var(--blue-light);">
       <div class="sec-title" style="border-bottom: none; margin-bottom: 8px;">🤖 AI Agent Recommendation</div>
       <p style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: var(--navy);">${d.ai_analysis.final_summary}</p>
-      
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom: 12px;">
         <div style="background:var(--white); padding:12px; border-radius:8px;">
           <div style="font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:4px;">Why it's best</div>
@@ -495,14 +539,13 @@ function renderResults(d){
           <div style="font-size:14px;">${d.ai_analysis.tradeoff_analysis}</div>
         </div>
       </div>
-      
       <div style="background:var(--white); padding:12px; border-radius:8px;">
         <div style="font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase; margin-bottom:4px;">Alternatives & Priorities</div>
         <div style="font-size:14px;">${d.ai_analysis.alternatives}</div>
       </div>
     </div>`;
   }
-  
+
   let newsHtml = "";
   if(d.logistics_news && d.logistics_news.length){
     newsHtml = `
@@ -518,8 +561,11 @@ function renderResults(d){
       </div>
     </div>`;
   }
-  
-  $("resCol").innerHTML = aiHtml + topHtml + mktHtml + newsHtml + cHtml + optHtml;
+
+  $("resCol").innerHTML = mapHtml + explainerHtml + aiHtml + topHtml + mktHtml + newsHtml + cHtml + optHtml;
+
+  // Render the results map after DOM is ready
+  setTimeout(() => { if(geo) renderRouteMap(geo, "resultsMap"); }, 100);
 }
 </script>
 </body>
