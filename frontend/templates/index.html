@@ -9,17 +9,19 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       /* ==== LIGHT MODE (Mixed Navy Aesthetic) ==== */
       --bg-body: #F8FAFC;
       --text-body: #1E293B;
       --text-muted: #64748B;
-      
+
       --header-bg: #0B1120;
       --header-text: #FFFFFF;
-      
+
       /* Left Card (Form) */
       --card-l-bg: #FFFFFF;
       --card-l-header-bg: linear-gradient(135deg, #1E3A8A 0%, #172554 100%);
@@ -32,30 +34,31 @@
       --pill-active-bg: #0B1120;
       --pill-active-text: #FFFFFF;
       --map-fallback-bg: #F1F5F9;
-      
+
       /* Right Cards (Navy Dark) */
       --card-r-bg: #0F172A;
-      --card-r-border: rgba(255,255,255,0.05);
+      --card-r-border: rgba(255, 255, 255, 0.05);
       --card-r-text: #FFFFFF;
       --card-r-muted: #94A3B8;
       --kpi-bg: rgba(255, 255, 255, 0.05);
       --kpi-border: rgba(255, 255, 255, 0.1);
-      
+
       /* Buttons */
       --btn-primary-bg: #0B1120;
       --btn-primary-text: #FFFFFF;
       --btn-primary-hover: #1E3A8A;
-      
+
       /* Shared Colors */
       --brand: #2563EB;
       --green: #10B981;
       --red: #EF4444;
       --orange: #F59E0B;
-      
+
       --font-main: 'Outfit', sans-serif;
       --font-mono: 'Space Mono', monospace;
-      
-      --carto-tiles: 'voyager'; /* Light map tiles */
+
+      --carto-tiles: 'voyager';
+      /* Light map tiles */
     }
 
     [data-theme="dark"] {
@@ -63,10 +66,10 @@
       --bg-body: #09090b;
       --text-body: #f4f4f5;
       --text-muted: #a1a1aa;
-      
+
       --header-bg: #09090b;
       --header-text: #f4f4f5;
-      
+
       /* Left Card (Form) */
       --card-l-bg: #09090b;
       --card-l-header-bg: #09090b;
@@ -79,7 +82,7 @@
       --pill-active-bg: #f4f4f5;
       --pill-active-text: #09090b;
       --map-fallback-bg: #18181b;
-      
+
       /* Right Cards (Zinc Dark) */
       --card-r-bg: #09090b;
       --card-r-border: #27272a;
@@ -87,25 +90,31 @@
       --card-r-muted: #a1a1aa;
       --kpi-bg: #18181b;
       --kpi-border: #27272a;
-      
+
       /* Buttons */
       --btn-primary-bg: #f4f4f5;
       --btn-primary-text: #09090b;
       --btn-primary-hover: #e4e4e7;
-      
+
       /* Shared Colors */
       --brand: #3b82f6;
       --green: #4ade80;
       --red: #f87171;
       --orange: #fbbf24;
-      
+
       --font-main: 'Inter', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      
-      --carto-tiles: 'dark_all'; /* Dark map tiles */
+
+      --carto-tiles: 'dark_all';
+      /* Dark map tiles */
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: var(--font-main);
       background: var(--bg-body);
@@ -113,146 +122,452 @@
       -webkit-font-smoothing: antialiased;
       transition: background 0.3s, color 0.3s;
     }
-    .mono { font-family: var(--font-mono); }
+
+    .mono {
+      font-family: var(--font-mono);
+    }
 
     /* Header */
     header {
       background: var(--header-bg);
       color: var(--header-text);
       padding: 12px 32px;
-      display: flex; justify-content: space-between; align-items: center;
-      position: sticky; top: 0; z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
       border-bottom: 1px solid var(--input-border);
       transition: all 0.3s;
     }
-    .logo { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-    .logo-icon {
-      background: var(--brand); color: #fff; width: 28px; height: 28px;
-      border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .tagline { font-weight: 400; color: var(--text-muted); font-size: 13px; margin-left: 12px; }
-    
-    .header-right { display:flex; align-items:center; gap: 16px; }
+
+    .logo-icon {
+      background: var(--brand);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .tagline {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-left: 12px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .header-status {
-      font-size: 12px; color: var(--header-text); background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 16px; border-radius: 20px; font-weight: 600;
+      font-size: 12px;
+      color: var(--header-text);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 600;
     }
 
     /* Toggle Switch */
     .theme-toggle {
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 20px; padding: 4px; display: flex; align-items: center; cursor: pointer;
-      position: relative; width: 56px; height: 28px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      width: 56px;
+      height: 28px;
     }
+
     .theme-toggle-knob {
-      width: 20px; height: 20px; background: #fff; border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
       transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-      display:flex; align-items:center; justify-content:center; font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
     }
-    [data-theme="dark"] .theme-toggle-knob { transform: translateX(26px); background: #18181b; }
-    [data-theme="dark"] .theme-toggle { background: #27272a; border-color: #3f3f46; }
+
+    [data-theme="dark"] .theme-toggle-knob {
+      transform: translateX(26px);
+      background: #18181b;
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: #27272a;
+      border-color: #3f3f46;
+    }
 
     /* Hero */
-    .hero { background: var(--card-l-bg); padding: 40px 32px; border-bottom: 1px solid var(--input-border); transition: all 0.3s; }
-    .hero-content { max-width: 1200px; margin: 0 auto; }
-    .hero h1 { font-size: 42px; font-weight: 700; color: var(--text-body); line-height: 1.1; margin-bottom: 12px; }
-    .hero p { font-size: 16px; color: var(--text-muted); }
+    .hero {
+      background: var(--card-l-bg);
+      padding: 40px 32px;
+      border-bottom: 1px solid var(--input-border);
+      transition: all 0.3s;
+    }
+
+    .hero-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text-body);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
 
     /* Layout */
     main {
-      display: grid; grid-template-columns: 420px 1fr; gap: 30px;
-      padding: 30px 32px; max-width: 1200px; margin: 0 auto; align-items: start;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 30px;
+      padding: 30px 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: start;
     }
 
     /* Left Form */
     .form-card {
-      background: var(--card-l-bg); border-radius: 16px; border: 1px solid var(--input-border);
-      overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: all 0.3s;
+      background: var(--card-l-bg);
+      border-radius: 16px;
+      border: 1px solid var(--input-border);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
     }
-    [data-theme="dark"] .form-card { box-shadow: none; }
-    
-    .card-header { padding: 24px 24px 16px 24px; background: var(--card-l-header-bg); color: var(--card-l-header-text); }
-    .card-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-    .card-header p { font-size: 13px; opacity: 0.8; line-height: 1.4; }
 
-    .form-body { padding: 24px; color: var(--text-body); }
+    [data-theme="dark"] .form-card {
+      box-shadow: none;
+    }
+
+    .card-header {
+      padding: 24px 24px 16px 24px;
+      background: var(--card-l-header-bg);
+      color: var(--card-l-header-text);
+    }
+
+    .card-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-header p {
+      font-size: 13px;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
+
+    .form-body {
+      padding: 24px;
+      color: var(--text-body);
+    }
+
     .form-section-title {
-      font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
-      color: var(--text-muted); font-weight: 700; margin: 20px 0 12px 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin: 20px 0 12px 0;
     }
-    .form-section-title:first-child { margin-top: 0; }
 
-    .input-grp { display: flex; gap: 12px; margin-bottom: 16px; }
-    .input-box { flex: 1; position: relative; }
-    .input-box label { display: block; font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-    .input-box select, .input-box input {
-      width: 100%; padding: 12px 14px; border: 1px solid var(--input-border); border-radius: 8px;
-      font-family: var(--font-main); font-size: 14px; background: var(--input-bg); color: var(--text-body);
-      outline: none; transition: all 0.2s; appearance: none;
+    .form-section-title:first-child {
+      margin-top: 0;
     }
-    .input-box select:focus, .input-box input:focus { border-color: var(--brand); }
+
+    .input-grp {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .input-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .input-box label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .input-box select,
+    .input-box input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      font-family: var(--font-main);
+      font-size: 14px;
+      background: var(--input-bg);
+      color: var(--text-body);
+      outline: none;
+      transition: all 0.2s;
+      appearance: none;
+    }
+
+    .input-box select:focus,
+    .input-box input:focus {
+      border-color: var(--brand);
+    }
 
     /* Modes & Pills */
-    .modes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
-    .mode-card {
-      border: 1px solid var(--input-border); border-radius: 8px; padding: 16px 8px; text-align: center;
-      cursor: pointer; transition: all 0.2s; background: var(--pill-bg);
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
     }
-    .mode-card .icon { font-size: 24px; margin-bottom: 6px; }
-    .mode-card .name { font-weight: 600; font-size: 12px; color: var(--text-muted); }
-    .mode-card:hover { border-color: var(--text-muted); background: var(--pill-hover); }
-    .mode-card.active { border-color: var(--brand); background: rgba(37,99,235,0.1); }
-    .mode-card.active .name { color: var(--brand); }
 
-    .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-    .pill-grid.three-col { grid-template-columns: repeat(3, 1fr); }
-    .pill-card {
-      border: 1px solid var(--pill-border); padding: 10px; border-radius: 8px; text-align: center;
-      cursor: pointer; font-size: 12px; font-weight: 500; background: var(--pill-bg); color: var(--text-muted); transition: all 0.2s;
+    .mode-card {
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      padding: 16px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--pill-bg);
     }
-    .pill-card:hover { background: var(--pill-hover); border-color: var(--text-muted); }
-    .pill-card.active { background: var(--pill-active-bg); color: var(--pill-active-text); border-color: var(--pill-active-bg); font-weight: 600;}
+
+    .mode-card .icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .mode-card .name {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .mode-card:hover {
+      border-color: var(--text-muted);
+      background: var(--pill-hover);
+    }
+
+    .mode-card.active {
+      border-color: var(--brand);
+      background: rgba(37, 99, 235, 0.1);
+    }
+
+    .mode-card.active .name {
+      color: var(--brand);
+    }
+
+    .pill-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .pill-grid.three-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .pill-card {
+      border: 1px solid var(--pill-border);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--pill-bg);
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .pill-card:hover {
+      background: var(--pill-hover);
+      border-color: var(--text-muted);
+    }
+
+    .pill-card.active {
+      background: var(--pill-active-bg);
+      color: var(--pill-active-text);
+      border-color: var(--pill-active-bg);
+      font-weight: 600;
+    }
 
     /* Map info */
-    .map-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .map-info-box { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; padding: 12px; }
-    .map-info-box label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
-    .map-info-box .val { font-size: 16px; font-weight: 700; margin-top: 4px; }
+    .map-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .map-info-box {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .map-info-box label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .map-info-box .val {
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
 
     .btn-primary {
-      width: 100%; background: var(--btn-primary-bg); color: var(--btn-primary-text);
-      border: none; padding: 16px; border-radius: 8px; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; font-family: inherit; display:flex; justify-content:center; align-items:center;
+      width: 100%;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border: none;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .btn-primary:hover { background: var(--btn-primary-hover); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary:hover {
+      background: var(--btn-primary-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
     /* Right Cards */
-    .results-col { display: flex; flex-direction: column; gap: 20px; }
+    .results-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .dark-card {
-      background: var(--card-r-bg); border-radius: 16px; padding: 24px;
-      color: var(--card-r-text); border: 1px solid var(--card-r-border); transition: all 0.3s;
+      background: var(--card-r-bg);
+      border-radius: 16px;
+      padding: 24px;
+      color: var(--card-r-text);
+      border: 1px solid var(--card-r-border);
+      transition: all 0.3s;
     }
+
     .w-eyebrow {
-      color: var(--card-r-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
-      font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+      color: var(--card-r-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .w-name { font-size: 28px; font-weight: 700; line-height: 1.1; margin-bottom: 8px; }
-    .w-desc { color: var(--card-r-muted); font-size: 13px; line-height: 1.6; }
+
+    .w-name {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .w-desc {
+      color: var(--card-r-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
     .w-badge {
-      font-size: 11px; background: var(--kpi-bg); border: 1px solid var(--kpi-border);
-      color: var(--card-r-text); padding: 4px 10px; border-radius: 6px; font-weight: 600;
-      text-transform: uppercase; font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--kpi-bg);
+      border: 1px solid var(--kpi-border);
+      color: var(--card-r-text);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
     }
+
     .w-kpi-box {
-      background: var(--kpi-bg); border: 1px solid var(--kpi-border); border-radius: 8px;
-      padding: 10px 16px; min-width: 90px; text-align: center;
+      background: var(--kpi-bg);
+      border: 1px solid var(--kpi-border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      min-width: 90px;
+      text-align: center;
     }
-    .w-kpi-val { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--card-r-text); }
-    .w-kpi-lbl { font-size: 9px; color: var(--card-r-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    .spinner { display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .w-kpi-val {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--card-r-text);
+    }
+
+    .w-kpi-lbl {
+      font-size: 9px;
+      color: var(--card-r-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .spinner {
+      display: inline-block;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 
@@ -265,16 +580,17 @@
     </div>
     <div class="header-right">
       <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
-         <div class="theme-toggle-knob" id="themeKnob">☀</div>
+        <div class="theme-toggle-knob" id="themeKnob">☀</div>
       </div>
-      <div class="header-status"><span style="color:var(--green)">●</span> LIVE API ✓ <span style="margin-left:12px; color:var(--text-muted)" id="headerDate"></span></div>
+      <div class="header-status"><span style="color:var(--green)">●</span> LIVE API ✓ <span
+          style="margin-left:12px; color:var(--text-muted)" id="headerDate"></span></div>
     </div>
   </header>
-  
+
   <div class="hero">
     <div class="hero-content">
-        <h1>Find the <span style="color: var(--brand);">best carrier</span><br>for your shipment</h1>
-        <p>ML scoring · live market intelligence · LP optimisation — all in one form.</p>
+      <h1>Find the <span style="color: var(--brand);">best carrier</span><br>for your shipment</h1>
+      <p>ML scoring · live market intelligence · LP optimisation — all in one form.</p>
     </div>
   </div>
 
@@ -284,50 +600,77 @@
         <h2>Shipment Details</h2>
         <p>Pick an origin — destination chips update instantly. Distance & transit auto-fill.</p>
       </div>
-      
+
       <div class="form-body">
         <div class="form-section-title">ROUTE</div>
         <div class="input-grp">
           <div class="input-box"><label>Pickup</label><select id="originBox" onchange="selO(this.value)"></select></div>
           <div style="display:flex; align-items:center; color:var(--text-muted); margin-top:16px;">→</div>
-          <div class="input-box"><label>Drop-off</label><select id="destBox" onchange="selD(this.value)" disabled></select></div>
+          <div class="input-box"><label>Drop-off</label><select id="destBox" onchange="selD(this.value)"
+              disabled></select></div>
         </div>
 
         <div class="map-info-grid">
-          <div class="map-info-box"><label>Routing Distance</label><div class="val mono" id="distVal">—</div></div>
-          <div class="map-info-box"><label>Expected Transit</label><div class="val mono" id="transitVal">—</div></div>
+          <div class="map-info-box"><label>Routing Distance</label>
+            <div class="val mono" id="distVal">—</div>
+          </div>
+          <div class="map-info-box"><label>Expected Transit</label>
+            <div class="val mono" id="transitVal">—</div>
+          </div>
         </div>
-        
-        <div id="routeMap" style="height: 180px; width:100%; border-radius: 8px; background: var(--map-fallback-bg); border: 1px dashed var(--input-border); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:12px; margin-bottom: 16px; overflow:hidden">
-            Awaiting route selection
+
+        <div id="routeMap"
+          style="height: 180px; width:100%; border-radius: 8px; background: var(--map-fallback-bg); border: 1px dashed var(--input-border); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:12px; margin-bottom: 16px; overflow:hidden">
+          Awaiting route selection
         </div>
 
         <div class="form-section-title">FREIGHT TYPE</div>
         <div class="input-box" style="margin-bottom:16px;">
           <select id="goods">
-            <option>FMCG - Fast Moving Consumer Goods</option><option>Electronics</option><option>Apparel</option><option>Automotive</option><option>Industrial</option><option>Pharmaceuticals</option>
+            <option>FMCG - Fast Moving Consumer Goods</option>
+            <option>Electronics</option>
+            <option>Apparel</option>
+            <option>Automotive</option>
+            <option>Industrial</option>
+            <option>Pharmaceuticals</option>
           </select>
         </div>
 
         <div class="form-section-title">TRANSPORT MODE</div>
         <div class="modes-grid">
-          <div class="mode-card mode-airways" onclick="setMode('airways')"><div class="icon">✈️</div><div class="name">Airways</div></div>
-          <div class="mode-card mode-railways" onclick="setMode('railways')"><div class="icon">🚂</div><div class="name">Railways</div></div>
-          <div class="mode-card mode-roadways active" onclick="setMode('roadways')"><div class="icon">🚛</div><div class="name">Roadways</div></div>
+          <div class="mode-card mode-airways" onclick="setMode('airways')">
+            <div class="icon">✈️</div>
+            <div class="name">Airways</div>
+          </div>
+          <div class="mode-card mode-railways" onclick="setMode('railways')">
+            <div class="icon">🚂</div>
+            <div class="name">Railways</div>
+          </div>
+          <div class="mode-card mode-roadways active" onclick="setMode('roadways')">
+            <div class="icon">🚛</div>
+            <div class="name">Roadways</div>
+          </div>
         </div>
 
         <div id="roadModeBlock">
           <div class="form-section-title">TRUCK MODE</div>
           <div class="pill-grid">
-            <div class="pill-card active" id="road-ftl" onclick="setRoadMode('FTL')">🚛 FTL <span style="font-size:10px; opacity:0.6; display:block; margin-top:4px;">> 3,000 kg</span></div>
-            <div class="pill-card" id="road-ltl" onclick="setRoadMode('LTL')">📦 LTL <span style="font-size:10px; opacity:0.6; display:block; margin-top:4px;">< 3,000 kg</span></div>
+            <div class="pill-card active" id="road-ftl" onclick="setRoadMode('FTL')">🚛 FTL <span
+                style="font-size:10px; opacity:0.6; display:block; margin-top:4px;">> 3,000 kg</span></div>
+            <div class="pill-card" id="road-ltl" onclick="setRoadMode('LTL')">📦 LTL <span
+                style="font-size:10px; opacity:0.6; display:block; margin-top:4px;">
+                < 3,000 kg</span>
+            </div>
           </div>
-          <div id="roadModeNote" style="font-size:11px; color:var(--orange); margin-bottom:16px; display:none; text-align:center;">🔒 Locked to FTL (Weight > 3000 kg)</div>
+          <div id="roadModeNote"
+            style="font-size:11px; color:var(--orange); margin-bottom:16px; display:none; text-align:center;">🔒 Locked
+            to FTL (Weight > 3000 kg)</div>
         </div>
 
         <div class="form-section-title">CARGO DETAILS</div>
         <div class="input-grp">
-          <div class="input-box"><label>Weight (KG)</label><input type="number" id="weight" value="5000" oninput="checkWeightLimit()"></div>
+          <div class="input-box"><label>Weight (KG)</label><input type="number" id="weight" value="5000"
+              oninput="checkWeightLimit()"></div>
           <div class="input-box"><label>Shipment Value (₹)</label><input type="number" value="150000"></div>
         </div>
 
@@ -341,7 +684,8 @@
           <div class="pill-card pri-card" onclick="setPri('urgency', this)">Urgency</div>
         </div>
 
-        <button class="btn-primary" id="btnAnalyze" onclick="analyze()" style="margin-top: 32px;">ANALYSE & SCORE ROUTE</button>
+        <button class="btn-primary" id="btnAnalyze" onclick="analyze()" style="margin-top: 32px;">ANALYSE & SCORE
+          ROUTE</button>
       </div>
     </aside>
 
@@ -349,7 +693,9 @@
       <div style="text-align: center; padding: 80px 20px; color:var(--text-muted);">
         <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.8;">⌘</div>
         <h2 style="color:var(--text-body); margin-bottom: 8px;">Awaiting Execution</h2>
-        <p style="max-width:400px; margin:0 auto; line-height:1.6; font-size:14px;">Select parameters and click Analyse to trigger the ensemble ML models, scrape market data, run LP optimisation, and construct the multimodal route.</p>
+        <p style="max-width:400px; margin:0 auto; line-height:1.6; font-size:14px;">Select parameters and click Analyse
+          to trigger the ensemble ML models, scrape market data, run LP optimisation, and construct the multimodal
+          route.</p>
       </div>
     </section>
   </main>
@@ -357,46 +703,46 @@
   <script>
     // Theme Management
     function toggleTheme() {
-        const body = document.body;
-        const current = body.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        if (next === 'dark') {
-            body.setAttribute('data-theme', 'dark');
-            document.getElementById('themeKnob').innerHTML = '🌙';
-            localStorage.setItem('theme', 'dark');
-        } else {
-            body.removeAttribute('data-theme');
-            document.getElementById('themeKnob').innerHTML = '☀';
-            localStorage.setItem('theme', 'light');
+      const body = document.body;
+      const current = body.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      if (next === 'dark') {
+        body.setAttribute('data-theme', 'dark');
+        document.getElementById('themeKnob').innerHTML = '🌙';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.removeAttribute('data-theme');
+        document.getElementById('themeKnob').innerHTML = '☀';
+        localStorage.setItem('theme', 'light');
+      }
+      // Re-render maps to apply tile changes
+      if (lastGeo) {
+        renderRouteMap(lastGeo, "routeMap");
+        if (document.getElementById("resultsMap")) {
+          renderRouteMap(lastGeo, "resultsMap");
         }
-        // Re-render maps to apply tile changes
-        if (lastGeo) {
-            renderRouteMap(lastGeo, "routeMap");
-            if (document.getElementById("resultsMap")) {
-                renderRouteMap(lastGeo, "resultsMap");
-            }
-        }
+      }
     }
-    
+
     // Initialize Theme
     const savedTheme = localStorage.getItem('theme') || 'light';
     if (savedTheme === 'dark') {
-        document.body.setAttribute('data-theme', 'dark');
-        document.getElementById('themeKnob').innerHTML = '🌙';
+      document.body.setAttribute('data-theme', 'dark');
+      document.getElementById('themeKnob').innerHTML = '🌙';
     }
 
     const CITIES = ["Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Delhi", "Guwahati", "Hyderabad", "Indore", "Jabalpur", "Jaipur", "Kanpur", "Kochi", "Kolkata", "Lucknow", "Madurai", "Mangalore", "Mumbai", "Nagpur", "Nashik", "Noida", "Patna", "Pune", "Raipur", "Rajkot", "Ranchi", "Surat", "Thiruvananthapuram", "Vadodara", "Varanasi", "Vijayawada", "Visakhapatnam"];
     let G = { o: "", d: "", mode: "roadways", road_freight_mode: "FTL", pri: "balanced", dist: 0, transit: 0, gMapsKey: "" };
     const $ = id => document.getElementById(id);
-    
+
     let mapInstances = {
-        routeMap: { leaflet: null, gMap: null, gDirRenderer: null },
-        resultsMap: { leaflet: null, gMap: null, gDirRenderer: null }
+      routeMap: { leaflet: null, gMap: null, gDirRenderer: null },
+      resultsMap: { leaflet: null, gMap: null, gDirRenderer: null }
     };
     let gDirections = null;
     let lastGeo = null;
 
-    fetch("http://127.0.0.1:5000/api/health").then(r => r.json()).then(h => {
+    fetch("/api/health").then(r => r.json()).then(h => {
       G.gMapsKey = h.google_maps_key || "";
       if (G.gMapsKey) {
         const s = document.createElement("script");
@@ -404,7 +750,7 @@
         s.async = true; s.defer = true; document.head.appendChild(s);
       }
     }).catch(() => { });
-    function onGMapsReady() {}
+    function onGMapsReady() { }
 
     function init() {
       $("originBox").innerHTML = `<option value="">Select Origin</option>` + CITIES.map(c => `<option value="${c}">${c}</option>`).join("");
@@ -426,7 +772,7 @@
       document.querySelectorAll(".mode-card").forEach(c => c.classList.remove('active'));
       document.querySelector(`.mode-${m}`).classList.add('active');
       $("roadModeBlock").style.display = m === 'roadways' ? "block" : "none";
-      if(m === 'roadways') checkWeightLimit();
+      if (m === 'roadways') checkWeightLimit();
       updateRoute();
     }
     function setRoadMode(m) {
@@ -449,10 +795,10 @@
     function setPri(p, el) { G.pri = p; document.querySelectorAll('.pri-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
 
     function destroyMap(id) {
-       let inst = mapInstances[id];
-       if (inst.leaflet) { inst.leaflet.remove(); inst.leaflet = null; }
-       if (inst.gDirRenderer) { inst.gDirRenderer.setMap(null); inst.gDirRenderer = null; }
-       inst.gMap = null;
+      let inst = mapInstances[id];
+      if (inst.leaflet) { inst.leaflet.remove(); inst.leaflet = null; }
+      if (inst.gDirRenderer) { inst.gDirRenderer.setMap(null); inst.gDirRenderer = null; }
+      inst.gMap = null;
     }
 
     function renderRouteMap(geo, containerId) {
@@ -462,7 +808,7 @@
       el.style.height = containerId === "resultsMap" ? "300px" : "180px";
       destroyMap(containerId);
 
-      const modeColors = { roadways: "var(--brand)", railways: "#7c3aed", airways: "#0ea5e9" }; 
+      const modeColors = { roadways: "var(--brand)", railways: "#7c3aed", airways: "#0ea5e9" };
       const color = modeColors[geo.mode] || "#2563eb";
 
       if (geo.mode === "roadways" && G.gMapsKey && window.google && window.google.maps) {
@@ -524,7 +870,7 @@
       if (!G.o || !G.d) return;
       $("distVal").textContent = "calc..."; $("transitVal").textContent = "calc...";
       try {
-        const res = await fetch("http://127.0.0.1:5000/api/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ origin: G.o, destination: G.d, mode: G.mode }) });
+        const res = await fetch("/api/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ origin: G.o, destination: G.d, mode: G.mode }) });
         const d = await res.json();
         if (d.success) {
           G.dist = d.route.distance_km; G.transit = d.route.transit_days;
@@ -539,8 +885,8 @@
       const btn = $("btnAnalyze"); btn.disabled = true; btn.innerHTML = "<span class='spinner'>⏳</span> GENERATING INTELLIGENCE...";
       try {
         const payload = { origin: G.o, destination: G.d, transport_mode: G.mode, road_freight_mode: G.road_freight_mode, priority_profile: G.pri, goods_type: $("goods").value, weight_kg: Number($("weight").value) || 5000, min_reliability: 0.8 };
-        const newsPromise = fetch("http://127.0.0.1:5000/api/news").then(r => r.json()).catch(() => null);
-        const dataPromise = fetch("http://127.0.0.1:5000/api/shipment/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).then(r => r.json());
+        const newsPromise = fetch("/api/news").then(r => r.json()).catch(() => null);
+        const dataPromise = fetch("/api/shipment/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).then(r => r.json());
         const [newsRes, d] = await Promise.all([newsPromise, dataPromise]);
         if (d.success) { if (newsRes && newsRes.success) d.logistics_news = newsRes.news; renderResults(d); }
         else alert("Error: " + d.error);
@@ -589,7 +935,7 @@
             <div class="dark-card" style="padding: 24px;">
               <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px;">
                   <div>
-                      <div class="w-name" style="font-size: 22px;">#${i+2} - ${c.carrier_name}</div>
+                      <div class="w-name" style="font-size: 22px;">#${i + 2} - ${c.carrier_name}</div>
                       <div class="w-desc">Est. cost <strong style="color:var(--card-r-text)">₹${c.cost.estimated_total_cost_inr.toLocaleString()}</strong> · On-time <strong style="color:var(--card-r-text)">${c.scores.blended_ontime}%</strong> · <strong style="color:${c.risk.level === 'LOW' ? 'var(--green)' : 'var(--orange)'}">${c.risk.level} risk</strong>.</div>
                   </div>
                   <div style="display:flex; gap: 10px;">
@@ -638,15 +984,15 @@
           <div class="w-eyebrow">MARKET INTELLIGENCE</div>
           <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; margin-top:16px;">
             ${(mkt.factors || []).map(f => {
-              let cls = f.direction === "UP" ? "var(--red)" : (f.direction === "STABLE" ? "var(--card-r-muted)" : "var(--green)");
-              return `<div style="background:var(--kpi-bg); padding:14px; border-radius:8px; border-top:2px solid ${cls};">
+          let cls = f.direction === "UP" ? "var(--red)" : (f.direction === "STABLE" ? "var(--card-r-muted)" : "var(--green)");
+          return `<div style="background:var(--kpi-bg); padding:14px; border-radius:8px; border-top:2px solid ${cls};">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                   <span style="font-weight:600; font-size:13px;">${f.icon} ${f.label.split(' ')[0]}</span>
                   <span class="mono" style="color:${cls}; font-weight:700; font-size:12px;">×${Number(f.multiplier_value).toFixed(2)}</span>
                 </div>
                 <div style="font-size:12px; color:var(--card-r-muted);">${f.sub}</div>
               </div>`;
-            }).join("")}
+        }).join("")}
           </div>
         </div>`;
       }
@@ -704,14 +1050,15 @@
       });
       btn.innerHTML = "<span class='spinner'>⏳</span> Deploying...";
       try {
-        const res = await fetch("http://127.0.0.1:5000/api/shipment/deploy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ carrier_name: carrierName }) });
+        const res = await fetch("/api/shipment/deploy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ carrier_name: carrierName }) });
         const d = await res.json();
         if (d.success) {
-            btn.innerHTML = `✅ Deployed! Tracking: ${d.tracking_id}`;
-            btn.style.background = "var(--green)"; btn.style.color = "#0B1120"; btn.style.borderColor = "var(--green)";
+          btn.innerHTML = `✅ Deployed! Tracking: ${d.tracking_id}`;
+          btn.style.background = "var(--green)"; btn.style.color = "#0B1120"; btn.style.borderColor = "var(--green)";
         } else { btn.innerHTML = "Deploy Failed"; btn.style.background = "var(--red)"; }
       } catch (e) { btn.innerHTML = "Deploy Failed"; }
     }
   </script>
 </body>
+
 </html>
