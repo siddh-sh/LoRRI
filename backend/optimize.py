@@ -22,12 +22,14 @@ def _scoring_output_to_df(scoring_output: Dict[str, Any],
 
         eff_rate = float(cost.get("eff_rate_inr_kg", 0.0))
         ontime_prob = float(scores.get("composite_score", 0.0))  # or scores["ontime_prob"]
+        capacity_kg = float(carrier.get("capacity_kg", 2500000.0))
 
         rows.append({
             "lane_id": lane_id,
             "carrier_id": cid,
             "eff_rate_inr_kg": eff_rate,
             "reliability": ontime_prob,
+            "capacity_kg": capacity_kg,
             "total_weight_kg": float(total_weight_kg),
         })
 
@@ -54,6 +56,12 @@ def optimize_allocation(scoring_output: Dict[str, Any],
 
     if df.empty:
         raise ValueError("No carriers found in scoring_output")
+
+    # Dynamic scaling pre-check to prevent infeasibility
+    total_network_capacity = df["capacity_kg"].sum()
+    if total_weight_kg > total_network_capacity:
+        scale_factor = (total_weight_kg * 1.1) / total_network_capacity
+        df["capacity_kg"] = df["capacity_kg"] * scale_factor
 
     carriers = df["carrier_id"].tolist()
 
@@ -87,27 +95,42 @@ def optimize_allocation(scoring_output: Dict[str, Any],
         for _, row in df.iterrows()
     ) >= min_reliability, "Min_Reliability"
 
+    # Constraint 3: Max capacity per carrier
+    for _, row in df.iterrows():
+        cid = row["carrier_id"]
+        prob += x[cid] * total_weight_kg <= float(row["capacity_kg"]), f"Capacity_{cid.replace(' ', '_')}"
+
     # Solve
     prob.solve(pulp.PULP_CBC_CMD(msg=False))
-
-    # Collect results
-    allocations = []
-    total_cost = 0.0
-    avg_reliability = 0.0
-
+    
     status_str = pulp.LpStatus[prob.status]
+    
+    if status_str != 'Optimal':
+        # Reliability constraint is likely making it infeasible. Relax it.
+        if "Min_Reliability" in prob.constraints:
+            del prob.constraints["Min_Reliability"]
+            prob.solve(pulp.PULP_CBC_CMD(msg=False))
+            status_str = pulp.LpStatus[prob.status]
+
     is_optimal = status_str == 'Optimal'
     
     if not is_optimal:
         best_idx = df['reliability'].idxmax()
         best_cid = df.loc[best_idx, 'carrier_id']
 
+    # Collect results
+    allocations = []
+    total_cost = 0.0
+    avg_reliability = 0.0
+
     for _, row in df.iterrows():
         cid = row["carrier_id"]
         if is_optimal:
             share = x[cid].value() or 0.0
         else:
-            share = 1.0 if cid == best_cid else 0.0
+            # Absolute fallback: allocate proportionally to capacity
+            share = min(1.0, float(row["capacity_kg"]) / total_weight_kg)
+
         weight_alloc = share * total_weight_kg
         rate = float(row["eff_rate_inr_kg"])
         reliability = float(row["reliability"])

@@ -251,9 +251,12 @@ def predict_all_carriers(distance_km, weight_kg, transit_days, goods_type, trans
         elif x_score > 0.8:
             why.append("XGBoost strongly signals on-time history.")
         
+        capacity_kg = rng.randint(50000, 2500000)
+
         results.append({
             "carrier_id": c_id,
             "carrier_name": c_id,
+            "capacity_kg": capacity_kg,
             "scores": {"xgb_reliability": round(x_score, 2), "gb_ontime": round(g_score, 2), "lr_delay_risk": round(l_score, 2), "composite_score": round(score, 3), "blended_ontime": round(score * 100, 1)},
             "cost": {"eff_rate_inr_kg": round(est_cost / weight_kg, 2), "estimated_total_cost_inr": round(est_cost, 2), "base_rate": round((est_cost / weight_kg)/1.1, 2), "fuel_surcharge": 10},
             "risk": {"level": "LOW" if score>0.7 else ("MEDIUM" if score>0.4 else "HIGH")},
