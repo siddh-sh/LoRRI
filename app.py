@@ -202,5 +202,16 @@ def get_logistics_news():
     news_items = news_api.fetch_logistics_news(limit=5)
     return jsonify({"success": True, "news": news_items})
 
+@app.route('/api/shipment/deploy', methods=['POST'])
+def deploy_shipment():
+    data = request.json
+    import time
+    time.sleep(1) # Simulate API call to carrier TMS
+    return jsonify({
+        "success": True, 
+        "message": f"Successfully booked with {data.get('carrier_name', 'Unknown')}",
+        "tracking_id": f"FRQ-{int(time.time())}"
+    })
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
