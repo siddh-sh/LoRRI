@@ -137,7 +137,7 @@ def analyze_shipment():
         "lane_id": f"{origin}|{dest}",
         "carriers": carriers
     }
-    optimization = opt.optimize_allocation(scoring_output, weight_kg, min_reliability)
+    optimization = opt.optimize_allocation(scoring_output, weight_kg, min_reliability, priority_profile=priority_profile)
 
     
     # 6. AI Agent Analysis

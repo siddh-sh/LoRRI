@@ -38,7 +38,8 @@ def _scoring_output_to_df(scoring_output: Dict[str, Any],
 
 def optimize_allocation(scoring_output: Dict[str, Any],
                         total_weight_kg: float = 5000.0,
-                        min_reliability: float = 0.9) -> Dict[str, Any]:
+                        min_reliability: float = 0.9,
+                        priority_profile: str = "balanced") -> Dict[str, Any]:
     """
     Optimize allocation of a given shipment across carriers.
 
@@ -65,8 +66,14 @@ def optimize_allocation(scoring_output: Dict[str, Any],
 
     carriers = df["carrier_id"].tolist()
 
+    pri = priority_profile.lower()
+    is_reliability_focused = pri in ["reliability", "urgency", "pharma", "risk-averse"]
+
     # LP problem
-    prob = pulp.LpProblem("Carrier_Award_Optimization", pulp.LpMinimize)
+    if is_reliability_focused:
+        prob = pulp.LpProblem("Carrier_Award_Optimization", pulp.LpMaximize)
+    else:
+        prob = pulp.LpProblem("Carrier_Award_Optimization", pulp.LpMinimize)
 
     # Decision variables: share of weight to allocate to each carrier (0..1)
     x = pulp.LpVariable.dicts(
@@ -77,14 +84,22 @@ def optimize_allocation(scoring_output: Dict[str, Any],
         cat="Continuous"
     )
 
-    # Objective: minimize total cost
-    cost_terms = []
-    for _, row in df.iterrows():
-        cid = row["carrier_id"]
-        rate = float(row["eff_rate_inr_kg"])
-        cost_terms.append(x[cid] * rate * total_weight_kg)
-
-    prob += pulp.lpSum(cost_terms), "Total_Shipping_Cost"
+    if is_reliability_focused:
+        # Objective: maximize total reliability
+        rel_terms = []
+        for _, row in df.iterrows():
+            cid = row["carrier_id"]
+            rel = float(row["reliability"])
+            rel_terms.append(x[cid] * rel)
+        prob += pulp.lpSum(rel_terms), "Total_Reliability"
+    else:
+        # Objective: minimize total cost
+        cost_terms = []
+        for _, row in df.iterrows():
+            cid = row["carrier_id"]
+            rate = float(row["eff_rate_inr_kg"])
+            cost_terms.append(x[cid] * rate * total_weight_kg)
+        prob += pulp.lpSum(cost_terms), "Total_Shipping_Cost"
 
     # Constraint 1: fully allocate the shipment
     prob += pulp.lpSum(x[cid] for cid in carriers) == 1.0, "Full_Allocation"
