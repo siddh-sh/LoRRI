@@ -2,7 +2,7 @@
 
 <div align="center">
   <p><strong>Agentic AI for Predictive, Optimized Freight Procurement</strong></p>
-  <p><i>Winner / Finalist - LogisticsNow Hackathon 2025 • Track: Ops Automation</i></p>
+  <p><i>LogisticsNow Hackathon 2025 • Track: Ops Automation</i></p>
 </div>
 
 ---
