@@ -57,7 +57,7 @@
       --font-main: 'Outfit', sans-serif;
       --font-mono: 'Space Mono', monospace;
 
-      --carto-tiles: 'voyager';
+      --carto-tiles: voyager;
       /* Light map tiles */
     }
 
@@ -105,7 +105,7 @@
       --font-main: 'Inter', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
 
-      --carto-tiles: 'dark_all';
+      --carto-tiles: dark_all;
       /* Dark map tiles */
     }
 
@@ -804,9 +804,9 @@
     function renderRouteMap(geo, containerId) {
       const el = $(containerId);
       if (!el || !geo) return;
+      destroyMap(containerId);
       el.innerHTML = "";
       el.style.height = containerId === "resultsMap" ? "300px" : "180px";
-      destroyMap(containerId);
 
       const modeColors = { roadways: "var(--brand)", railways: "#7c3aed", airways: "#0ea5e9" };
       const color = modeColors[geo.mode] || "#2563eb";
@@ -829,7 +829,8 @@
 
     function getTileLayer() {
       // Dynamic tile logic based on body theme
-      const style = getComputedStyle(document.body).getPropertyValue('--carto-tiles').trim() || 'voyager';
+      let style = getComputedStyle(document.body).getPropertyValue('--carto-tiles').trim() || 'voyager';
+      style = style.replace(/['"]/g, ""); // Remove any quotes
       return `https://{s}.basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}{r}.png`;
     }
 
