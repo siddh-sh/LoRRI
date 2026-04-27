@@ -1,4 +1,4 @@
-# 🚛 FreightIQ (Project LoRRI)
+#  FreightIQ (Project LoRRI)
 
 <div align="center">
   <p><strong>Agentic AI for Predictive, Optimized Freight Procurement</strong></p>
@@ -7,7 +7,7 @@
 
 ---
 
-## 📖 Overview
+##  Overview
 
 **FreightIQ** replaces manual, spreadsheet-based freight procurement with an orchestrated, intelligent pipeline. It analyzes live market data and carrier bids to recommend optimal load allocations based on cost, reliability, and risk. 
 
