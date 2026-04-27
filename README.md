@@ -15,17 +15,17 @@ By combining **Predictive Machine Learning**, **Linear Programming**, and an **E
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-- 🧠 **Predictive Risk Modeling:** Evaluates carriers across Road (FTL/LTL), Rail, and Air using an ensemble of XGBoost, Gradient Boosting, and Linear Regression to predict delay probabilities.
-- ⚖️ **Mathematical Optimization (PuLP):** Dynamically allocates freight volume across multiple carriers to strictly minimize costs or maximize reliability based on your selected priority profile.
-- 📰 **Live Market Intelligence:** Scrapes real-time unstructured data (Google News RSS) to detect and penalize routes affected by weather warnings, fuel spikes, or strikes.
-- 🤖 **Agentic Explainability:** Integrates with OpenAI to translate complex ML probabilities and LP math into simple, natural-language business justifications.
-- ⚡ **Lightning-Fast UI:** Built with raw HTML/JS/CSS and Leaflet.js to ensure an extremely fast, zero-bloat dashboard with a built-in dark/light mode engine.
+-  **Predictive Risk Modeling:** Evaluates carriers across Road (FTL/LTL), Rail, and Air using an ensemble of XGBoost, Gradient Boosting, and Linear Regression to predict delay probabilities.
+-  **Mathematical Optimization (PuLP):** Dynamically allocates freight volume across multiple carriers to strictly minimize costs or maximize reliability based on your selected priority profile.
+-  **Live Market Intelligence:** Scrapes real-time unstructured data (Google News RSS) to detect and penalize routes affected by weather warnings, fuel spikes, or strikes.
+-  **Agentic Explainability:** Integrates with OpenAI to translate complex ML probabilities and LP math into simple, natural-language business justifications.
+-  **Lightning-Fast UI:** Built with raw HTML/JS/CSS and Leaflet.js to ensure an extremely fast, zero-bloat dashboard with a built-in dark/light mode engine.
 
 ---
 
-## 🏗️ Architecture & Data Flow
+##  Architecture & Data Flow
 
 FreightIQ operates on a synchronous 5-stage pipeline:
 
@@ -37,7 +37,7 @@ FreightIQ operates on a synchronous 5-stage pipeline:
 
 ---
 
-## 💻 Tech Stack
+##  Tech Stack
 
 ### Frontend
 * **Core:** HTML5, CSS3, Vanilla JavaScript
@@ -58,7 +58,7 @@ FreightIQ operates on a synchronous 5-stage pipeline:
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 * Python 3.10+
