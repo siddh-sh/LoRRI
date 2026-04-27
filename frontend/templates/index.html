@@ -59,6 +59,10 @@
 
       --carto-tiles: voyager;
       /* Light map tiles */
+
+      --accent-gradient: linear-gradient(135deg, #1E3A8A 0%, #172554 100%);
+      --accent-text: #FFFFFF;
+      --btn-shadow: rgba(30, 58, 138, 0.25);
     }
 
     [data-theme="dark"] {
@@ -107,6 +111,11 @@
 
       --carto-tiles: dark_all;
       /* Dark map tiles */
+
+      --accent-gradient: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%);
+      --accent-text: #09090b;
+      --accent-border: #FFFFFF;
+      --btn-shadow: rgba(255, 255, 255, 0.1);
     }
 
     * {
@@ -276,6 +285,15 @@
       padding: 24px 24px 16px 24px;
       background: var(--card-l-header-bg);
       color: var(--card-l-header-text);
+      border-bottom: 1px solid transparent;
+    }
+
+    [data-theme="dark"] .card-header {
+      background: #09090b;
+      color: #f4f4f5;
+      border-bottom: 1px solid #27272a;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
     }
 
     .card-header h2 {
@@ -341,6 +359,11 @@
       outline: none;
       transition: all 0.2s;
       appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 40px;
     }
 
     .input-box select:focus,
@@ -383,12 +406,17 @@
     }
 
     .mode-card.active {
-      border-color: var(--brand);
-      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid var(--accent-border);
+      background: var(--accent-gradient);
+      color: var(--accent-text);
+    }
+
+    [data-theme="dark"] .mode-card.active {
+        border-color: #f4f4f5;
     }
 
     .mode-card.active .name {
-      color: var(--brand);
+      color: var(--accent-text);
     }
 
     .pill-grid {
@@ -421,10 +449,14 @@
     }
 
     .pill-card.active {
-      background: var(--pill-active-bg);
-      color: var(--pill-active-text);
-      border-color: var(--pill-active-bg);
+      background: var(--accent-gradient);
+      color: var(--accent-text);
+      border: 1px solid var(--accent-border);
       font-weight: 600;
+    }
+
+    [data-theme="dark"] .pill-card.active {
+        border-color: #f4f4f5;
     }
 
     /* Map info */
@@ -457,23 +489,33 @@
 
     .btn-primary {
       width: 100%;
-      background: var(--btn-primary-bg);
-      color: var(--btn-primary-text);
-      border: none;
+      background: var(--accent-gradient);
+      color: var(--accent-text);
+      border: 1px solid var(--accent-border);
       padding: 16px;
       border-radius: 8px;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
       font-family: inherit;
       display: flex;
       justify-content: center;
       align-items: center;
+      box-shadow: 0 4px 12px var(--btn-shadow);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .btn-primary:hover {
-      background: var(--btn-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px var(--btn-shadow);
+      opacity: 0.95;
+    }
+    
+    [data-theme="dark"] .btn-primary:hover {
+        background: #ffffff;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     }
 
     .btn-primary:disabled {
@@ -627,12 +669,21 @@
         <div class="form-section-title">FREIGHT TYPE</div>
         <div class="input-box" style="margin-bottom:16px;">
           <select id="goods">
-            <option>FMCG - Fast Moving Consumer Goods</option>
-            <option>Electronics</option>
-            <option>Apparel</option>
-            <option>Automotive</option>
-            <option>Industrial</option>
-            <option>Pharmaceuticals</option>
+            <option value="FMCG">FMCG - Fast Moving Consumer Goods</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Apparel">Apparel</option>
+            <option value="Automotive">Automotive</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Pharmaceuticals">Pharmaceuticals</option>
+            <option value="Perishables">Perishables</option>
+            <option value="General Cargo">General Cargo</option>
+            <option value="Chemicals">Chemicals</option>
+            <option value="Textiles">Textiles</option>
+            <option value="Machinery">Machinery</option>
+            <option value="Metals">Metals</option>
+            <option value="Paper">Paper</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Other">Other</option>
           </select>
         </div>
 
@@ -945,7 +996,7 @@
                   </div>
               </div>
               <div style="display:flex; justify-content: space-between; align-items:flex-end;">
-                  <button class="btn-primary w-auto deploy-btn" style="padding: 10px 20px; border-radius: 8px; font-size:13px; background: var(--kpi-bg); border: 1px solid var(--kpi-border); color: var(--card-r-text);" onclick="deployRecommendation('${c.carrier_name}', this)">Deploy Alternate</button>
+                  <button class="btn-primary w-auto deploy-btn" style="padding: 10px 20px; border-radius: 8px; font-size:13px;" onclick="deployRecommendation('${c.carrier_name}', this)">Deploy Alternate</button>
                   <div style="display:flex; gap: 10px;">
                       <div class="w-kpi-box text-center" style="padding: 8px 12px; min-width:80px;"><div class="w-kpi-val" style="color:${c.risk.level === 'LOW' ? 'var(--green)' : 'var(--orange)'}; font-size:13px;">${c.risk.level}</div><div class="w-kpi-lbl" style="font-size:9px;">Risk</div></div>
                       <div class="w-kpi-box text-center" style="padding: 8px 12px; min-width:80px;"><div class="w-kpi-val mono" style="font-size:13px;">₹${c.cost.estimated_total_cost_inr.toLocaleString()}</div><div class="w-kpi-lbl" style="font-size:9px;">Cost</div></div>
